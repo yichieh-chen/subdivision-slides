@@ -6,16 +6,23 @@ colorSchema: light
 transition: slide-left
 fonts:
   sans: Noto Sans TC
-layout: cover
-background: none
+layout: center
 class: text-center
 ---
 
-# Subdivision
+<div class="flex justify-center items-center gap-2 mb-2">
+  <MeshSubdivision shape="tshape" :level="0" :controls="false" :cage="false" :width="190" :height="170" />
+  <div class="text-3xl opacity-40">→</div>
+  <MeshSubdivision shape="tshape" :level="1" :controls="false" :cage="false" :width="190" :height="170" />
+  <div class="text-3xl opacity-40">→</div>
+  <MeshSubdivision shape="tshape" :level="3" :controls="false" :cage="false" :width="190" :height="170" />
+</div>
+
+<h1 class="cover-title">Subdivision</h1>
 
 從粗糙的 mesh 長出 smooth 的 curve 與 surface
 
-<div class="small mt-8">Computer Graphics · 課堂報告</div>
+<div class="small mt-6">Computer Graphics · 課堂報告</div>
 
 <!--
 開場：今天不推公式，用動畫和可以自己玩的 demo 來看 subdivision 在做什麼。

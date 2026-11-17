@@ -24,6 +24,8 @@ const props = withDefaults(defineProps<{
   zoom?: number
   autoRotate?: boolean
   title?: string
+  /** hide the slider and counts (for decorative use) */
+  controls?: boolean
 }>(), {
   shape: 'cube',
   scheme: 'catmull-clark',
@@ -36,6 +38,7 @@ const props = withDefaults(defineProps<{
   height: 300,
   zoom: 1,
   autoRotate: true,
+  controls: true,
 })
 
 const FACE_LIMIT = 6000
@@ -92,14 +95,14 @@ const points = computed<Point3D[]>(() =>
       </button>
     </div>
     <Mesh3D :layers="layers" :points="points" :width="width" :height="height" :zoom="zoom" :auto-rotate="autoRotate" />
-    <div class="demo-row">
+    <div v-if="controls" class="demo-row">
       <label class="slider">
         <span>Level {{ Math.min(level, levels.length - 1) }}</span>
         <input v-model.number="level" type="range" min="0" :max="levels.length - 1" step="1">
       </label>
       <label class="check"><input v-model="showCage" type="checkbox"> control mesh</label>
     </div>
-    <div class="demo-note">
+    <div v-if="controls" class="demo-note">
       {{ current.v.length }} vertices · {{ current.f.length }} faces · 拖曳可旋轉
     </div>
   </div>
