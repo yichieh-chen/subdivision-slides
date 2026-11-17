@@ -32,13 +32,13 @@ const caption = computed(() => [
       />
       <g v-for="(p, i) in P" :key="i" :opacity="step >= 2 ? 0.35 : 1">
         <circle :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#0f172a" stroke-width="2" />
-        <text :x="p[0] - 6" :y="p[1] - 12" style="font-size: 13px" fill="#0f172a">P{{ i + 1 }}</text>
+        <text :x="p[0] - 6" :y="p[1] - 12" style="font-size: 15px" fill="#0f172a">P{{ i + 1 }}</text>
       </g>
       <polyline v-if="step >= 2" :points="path(Q)" fill="none" stroke="#dc2626" stroke-width="2.2" :opacity="step >= 3 ? 0.3 : 1" />
       <g v-if="step >= 1" :opacity="step >= 3 ? 0.3 : 1">
         <circle v-for="(p, i) in Q" :key="i" :cx="p[0]" :cy="p[1]" r="5" fill="#dc2626" />
         <template v-if="step === 1">
-          <text v-for="(p, i) in Q" :key="`t${i}`" :x="p[0] + 9" :y="p[1] + 16" style="font-size: 12px" fill="#dc2626">
+          <text v-for="(p, i) in Q" :key="`t${i}`" :x="p[0] + 9" :y="p[1] + 16" style="font-size: 14px" fill="#dc2626">
             {{ i % 2 === 0 ? '1/4' : '3/4' }}
           </text>
         </template>

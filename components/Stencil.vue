@@ -83,14 +83,14 @@ const view = computed(() => (props.kind === 'butterfly' ? butterfly.value : prop
       />
       <g v-for="(nd, i) in view.nodes" :key="`n${i}`">
         <circle :cx="nd.p[0]" :cy="nd.p[1]" :r="radius(nd.weight)" :fill="nd.color" opacity="0.9" />
-        <text :x="nd.p[0]" :y="nd.p[1] - radius(nd.weight) - 6" text-anchor="middle" style="font-size: 13px" font-weight="bold" :fill="nd.color">
+        <text :x="nd.p[0]" :y="nd.p[1] - radius(nd.weight) - 6" text-anchor="middle" style="font-size: 15px" font-weight="bold" :fill="nd.color">
           {{ fmt(nd.weight) }}
         </text>
       </g>
       <circle :cx="view.target[0]" :cy="view.target[1]" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
       <text
         v-if="kind === 'loop-vertex'" :x="view.target[0]" :y="view.target[1] + 24" text-anchor="middle"
-        style="font-size: 13px" font-weight="bold" fill="#f97316"
+        style="font-size: 15px" font-weight="bold" fill="#f97316"
       >
         {{ fmt(loopVertex.centre) }}
       </text>

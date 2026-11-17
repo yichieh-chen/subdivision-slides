@@ -88,7 +88,7 @@ function reset() {
       <g v-for="(p, i) in pts" :key="i" class="handle" @pointerdown.prevent="onDown(i, $event)">
         <circle :cx="p[0]" :cy="p[1]" r="14" fill="transparent" />
         <circle :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#0f172a" stroke-width="2" />
-        <text :x="p[0] + 9" :y="p[1] - 9" style="font-size: 11px" fill="#475569">P{{ i + 1 }}</text>
+        <text :x="p[0] + 9" :y="p[1] - 9" style="font-size: 14px" fill="#475569">P{{ i + 1 }}</text>
       </g>
     </svg>
     <div class="demo-row">
