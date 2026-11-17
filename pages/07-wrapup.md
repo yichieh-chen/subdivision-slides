@@ -6,6 +6,10 @@ layout: section
 
 Creases、和 B-spline 的比較、延伸
 
+<!--
+最後一段收尾，講三件事：想要銳利的邊怎麼辦、subdivision 跟 B-spline 比起來好在哪、還有一個延伸的方法。
+-->
+
 ---
 
 # Making Creases：想要銳利的邊怎麼辦？
@@ -26,6 +30,18 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 
 </v-clicks>
 
+<!--
+Subdivision 的特性是把所有東西都變圓。立方體切下去變成球。但是真的東西常常有銳利的邊，例如桌子的邊緣、杯子的杯口。如果全部變圓就不像了。
+
+解法是把某些邊標記成 crease，摺痕的意思，這些邊用不一樣的規則。
+
+（按一下）第一種是 hard edge。被標記的邊，改用邊界的規則：邊上的新點直接放在中點，不被兩側的面影響；crease 上的頂點也只看 crease 上的鄰居，不會被兩側的面拉走。這樣這條邊不管切幾次都還是銳利的。
+
+（按一下）第二種是 semi-hard edge。前幾輪用 hard edge 的規則，之後換回正常的規則。前幾輪保住了邊的形狀，後面幾輪再稍微磨圓，結果是一條有點圓的稜線。用 hard 規則的輪數越多就越銳利，所以圓的程度是可以調的。真實的物體其實很少有完全銳利的邊，所以這個很實用。
+
+（按一下）這種大部分平滑、但是保留某些銳利邊的曲面，有個名字叫 piecewise-smooth subdivision surface，是 Hoppe 他們在 1994 年的 SIGGRAPH 提出的。
+-->
+
 ---
 
 # Why Subdivision？（和 B-spline 比）
@@ -36,7 +52,24 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 | 解析度 | 整張 patch 一致 | 可以只在局部加細節 |
 | Topology | 需要 regular grid | <span class="key">任何 mesh 都能切</span> |
 | Trimming / stitching | 困難 | 容易 |
+| (u, v) 參數化 | 不能控制 | 可以控制 |
 | Creases、sharp edges | 很難做 | 容易 |
+
+<!--
+B-spline 曲面也是平滑的，那為什麼還需要 subdivision？這張表一列一列比。
+
+第一列，要畫出來。電腦只會畫三角形。B-spline 是用數學式子定義的，要畫之前得先把它切成三角形，叫 tessellate。這時候要自己決定三角形切多大，而且兩片曲面接起來的地方如果切的密度不一樣，中間會出現裂縫，叫 cracking。Subdivision 沒有這個問題，它切出來本來就是 mesh，而且一定是連在一起的，要多少多邊形就切幾次。
+
+第二列，解析度。B-spline 的控制點是一整張格子，想在某個地方加細節，就得加一整排或一整列控制點。Subdivision 可以只在需要的地方加細節。
+
+第三列，topology。B-spline 需要規則的四邊形格子，所以有洞、有分支、有角的形狀很難做，要用很多片拼起來。Subdivision 任何 mesh 都能切，不管形狀多複雜，切出來都是平滑的曲面。這是最大的優點。
+
+第四列，trimming 是把曲面挖掉一塊，stitching 是把兩片縫起來。B-spline 做這兩件事都很麻煩，subdivision 只要改 mesh 就好。
+
+第五列，uv 參數化，貼圖會用到。B-spline 天生就有 uv，但是不能控制。Subdivision 是跟著切分一起得到的，可以控制。
+
+第六列，摺痕和銳利的邊。B-spline 很難做，subdivision 就是上一頁的方法，很容易。
+-->
 
 ---
 
@@ -51,6 +84,16 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 - 每一種 scheme 都有對應的 <span class="key">mask</span>：用一圈鄰居的加權平均，一步算出 limit position
 
 </v-clicks>
+
+<!--
+補充一個常被問的問題：是不是一定要切無限次，才知道極限曲面在哪裡？不用。
+
+（按一下）規則的地方，Catmull-Clark 的極限曲面就是雙三次 B-spline，所以直接代 B-spline 的公式就可以算出來。
+
+（按一下）奇異點附近比較麻煩，但是 Stam 在 1998 年也提出了可以直接算的方法。
+
+（按一下）而且每一種方法都有對應的 mask。Mask 就是一組權重，把一個點和它周圍一圈鄰居做加權平均，一步就算出這個點最後會落在極限曲面的哪裡。這些權重查書就有，不用背。
+-->
 
 ---
 
@@ -87,6 +130,18 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 延伸：<b>T-Splines</b> 也支援任意 topology，但和 NURBS 更相容，製造業常用。
 
 </div>
+
+<!--
+總結。
+
+Subdivision surface 的好處：建模變簡單，只要做一個粗的 control mesh，簡單又直覺。最大的優點是任意 topology，什麼形狀都可以。極限曲面是平滑的。可以看需求決定切幾次，遠的東西切少一點，近的切多一點，這叫 level of detail。而且只需要存 control mesh，資料很小，程式也不複雜。
+
+右邊每個方法用一句話記。Chaikin 是曲線切角，四分之一和四分之三。Doo-Sabin 是 Chaikin 的 3D 版。Catmull-Clark 是四邊形 mesh 的首選，Pixar 在用。Butterfly 會通過控制點，但是有小波浪。Loop 是三角形 mesh 的首選。
+
+最後一個延伸叫 T-Splines。它跟 subdivision 一樣可以處理任意 topology，但是它跟 NURBS 的關係比較近、比較相容，所以工業設計和製造業用得比較多，因為那些領域原本都是用 NURBS。
+
+我們的報告到這裡。
+-->
 
 ---
 layout: center
