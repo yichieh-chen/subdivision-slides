@@ -32,21 +32,25 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 
 | | B-spline surface | Subdivision surface |
 |---|---|---|
-| 要畫出來 | 要先 tessellate，得自己決定三角形大小、小心 cracking | <span class="key">本來就是 mesh</span>，切幾次就有幾層細節 |
-| 解析度 | 整張 patch 解析度一致 | 可以只在需要的地方加細節（multi-resolution） |
-| Topology | 需要 regular grid，洞和角很難做 | <span class="key">任何 mesh 都能切</span> |
+| 要畫出來 | 要先 tessellate，小心 cracking | <span class="key">本來就是 mesh</span> |
+| 解析度 | 整張 patch 一致 | 可以只在局部加細節 |
+| Topology | 需要 regular grid | <span class="key">任何 mesh 都能切</span> |
 | Trimming / stitching | 困難 | 容易 |
 | Creases、sharp edges | 很難做 | 容易 |
 
-<v-click>
+---
 
-<div class="mt-4 small">
+# Exact Evaluation
 
-補充 <b>Exact evaluation</b>：不用真的切無限次。Catmull-Clark 在 regular 的地方就是 bicubic B-spline，可以直接代公式算出 limit surface 上的點；extraordinary vertex 附近也有方法（Stam, 1998）。
+想知道 limit surface 上某一點的精確位置，<span class="key">不用真的切無限次</span>。
 
-</div>
+<v-clicks>
 
-</v-click>
+- **Regular 的地方**：Catmull-Clark 的 limit surface 就是 bicubic B-spline，直接代公式
+- **Extraordinary vertex 附近**：也有方法可以直接算（Stam, 1998）
+- 每一種 scheme 都有對應的 <span class="key">mask</span>：用一圈鄰居的加權平均，一步算出 limit position
+
+</v-clicks>
 
 ---
 
@@ -60,8 +64,7 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 - Modeling 變簡單：control mesh 簡單又直覺
 - 最大的優點：<span class="key">arbitrary topology</span>
 - Limit surface 是 smooth 的
-- 可以依需求只 render 到需要的 level of detail
-- 表示法很精簡，程式也不複雜
+- 只 render 到需要的 level of detail
 
 </div>
 <div>
@@ -72,8 +75,8 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 |---|---|
 | Chaikin | 曲線切角，1/4 與 3/4 |
 | Doo-Sabin | Chaikin 的 3D 版 |
-| Catmull-Clark | Quad mesh 首選，Pixar 在用 |
-| Butterfly | Interpolating，但有 wiggles |
+| Catmull-Clark | Quad mesh 首選 |
+| Butterfly | Interpolating |
 | Loop | Triangle mesh 首選 |
 
 </div>
@@ -81,7 +84,7 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 
 <div class="small mt-6">
 
-延伸：<b>T-Splines</b> 和 subdivision 一樣支援任意 topology，但和 NURBS 更相容，工業設計與製造業用得比較多。（Sederberg et al., SIGGRAPH '03）
+延伸：<b>T-Splines</b> 也支援任意 topology，但和 NURBS 更相容，製造業常用。
 
 </div>
 

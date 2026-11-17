@@ -32,15 +32,15 @@ const caption = computed(() => [
 <template>
   <div class="demo" :style="{ width: `${W}px` }">
     <svg :width="W" :height="H" :viewBox="`0 0 ${W} ${H}`">
-      <circle :cx="C[0]" :cy="C[1]" :r="R" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4" />
-      <polygon v-if="step < 2" :points="pts(A)" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2" />
+      <circle :cx="C[0]" :cy="C[1]" :r="R" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 4" />
+      <polygon v-if="step < 2" :points="pts(A)" fill="rgba(96,165,250,0.22)" stroke="#93c5fd" stroke-width="2" />
       <template v-else>
         <polygon
-          v-for="(t, i) in tris" :key="i" :points="pts(t)" :fill="i === 3 ? '#bfdbfe' : '#dbeafe'"
-          stroke="#1e3a8a" stroke-width="2" class="tri"
+          v-for="(t, i) in tris" :key="i" :points="pts(t)" :fill="i === 3 ? 'rgba(96,165,250,0.4)' : 'rgba(96,165,250,0.22)'"
+          stroke="#93c5fd" stroke-width="2" class="tri"
         />
       </template>
-      <circle v-for="(p, i) in A" :key="`a${i}`" :cx="p[0]" :cy="p[1]" r="6" fill="#1e3a8a" />
+      <circle v-for="(p, i) in A" :key="`a${i}`" :cx="p[0]" :cy="p[1]" r="6" fill="#93c5fd" />
       <template v-if="step >= 1">
         <circle v-for="(p, i) in M" :key="`m${i}`" :cx="p[0]" :cy="p[1]" r="6" fill="#f97316" class="dot" />
       </template>

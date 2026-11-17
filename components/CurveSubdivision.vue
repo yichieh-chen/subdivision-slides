@@ -26,9 +26,9 @@ const labels: Record<CurveScheme, string> = {
   fourPoint: '4-point (interpolating)',
 }
 const colors: Record<CurveScheme, string> = {
-  chaikin: '#dc2626',
-  cubic: '#d97706',
-  fourPoint: '#059669',
+  chaikin: '#f87171',
+  cubic: '#fbbf24',
+  fourPoint: '#34d399',
 }
 
 const VW = 520
@@ -77,7 +77,7 @@ function reset() {
       ref="svg" :width="width" :height="(width * VH) / VW" :viewBox="`0 0 ${VW} ${VH}`" class="board"
       @pointermove="onMove" @pointerup="drag = -1" @pointercancel="drag = -1"
     >
-      <polyline :points="path(pts)" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" />
+      <polyline :points="path(pts)" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 4" />
       <polyline
         v-if="level > 0" :points="path(curve)" fill="none" :stroke="colors[scheme]" stroke-width="2.5"
         stroke-linejoin="round" stroke-linecap="round"
@@ -87,8 +87,8 @@ function reset() {
       </template>
       <g v-for="(p, i) in pts" :key="i" class="handle" @pointerdown.prevent="onDown(i, $event)">
         <circle :cx="p[0]" :cy="p[1]" r="14" fill="transparent" />
-        <circle :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#0f172a" stroke-width="2" />
-        <text :x="p[0] + 9" :y="p[1] - 9" style="font-size: 11px" fill="#475569">P{{ i + 1 }}</text>
+        <circle :cx="p[0]" :cy="p[1]" r="6" fill="#0b1220" stroke="#f1f5f9" stroke-width="2" />
+        <text :x="p[0] + 9" :y="p[1] - 9" style="font-size: 14px" fill="#94a3b8">P{{ i + 1 }}</text>
       </g>
     </svg>
     <div class="demo-row">
@@ -106,8 +106,8 @@ function reset() {
 
 <style scoped>
 .board {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #111827;
+  border: 1px solid #334155;
   border-radius: 8px;
 }
 .handle {

@@ -83,7 +83,7 @@ $\tfrac12$ 那一項一直縮小到消失，只剩下 $1$ 那一項 → 收斂�
 layout: two-cols
 ---
 
-# Cubic B-spline Subdivision
+# Cubic B-spline
 
 想要更 smooth？讓更多鄰居參與平均：
 
@@ -97,8 +97,7 @@ $$Q_{2i} = \tfrac{1}{8} P_{i-1} + \tfrac{3}{4} P_i + \tfrac{1}{8} P_{i+1}$$
 
 <div class="small mt-4">
 
-還是 approximating，但 limit curve 是 <span class="key">cubic B-spline</span>，比 Chaikin 更平滑。
-這個規則之後會直接推廣成 Catmull-Clark。
+Limit curve 是 <span class="key">cubic B-spline</span>，比 Chaikin 更平滑。之後會推廣成 Catmull-Clark。
 
 </div>
 
@@ -121,8 +120,7 @@ $$Q = \frac{-P_{i-1} + 9 P_i + 9 P_{i+1} - P_{i+2}}{16}$$
 
 <div class="small mt-4">
 
-負的權重 $-\tfrac{1}{16}$ 會把新點往外「頂」出去，曲線才不會扁掉。
-代價：比較容易出現小小的波動（wiggle）。
+負的權重把新點往外「頂」，曲線才不會扁掉。代價是容易有小波動（wiggle）。
 
 </div>
 
@@ -137,20 +135,18 @@ $$Q = \frac{-P_{i-1} + 9 P_i + 9 P_{i+1} - P_{i+2}}{16}$$
 <div class="flex gap-6 items-start">
 <div class="flex-1">
 
-切換 scheme，拖同一組 control points：
-
-| Scheme | 通過 control points？ | 平滑度 |
+| Scheme | 通過？ | 平滑度 |
 |---|---|---|
 | Chaikin | ✗ | $C^1$ |
-| Cubic B-spline | ✗ | $C^2$ |
+| Cubic | ✗ | $C^2$ |
 | 4-point | ✓ | $C^1$ |
 
 <div class="small mt-4">
 
-$C^1$：切線連續。$C^2$：連曲率都連續（看起來更順）。
+「通過」= 通過 control points。<br>$C^1$：切線連續。$C^2$：連曲率都連續。
 
 </div>
 
 </div>
-<CurveSubdivision :schemes="['chaikin', 'cubic', 'fourPoint']" scheme="chaikin" :level="4" :width="480" />
+<CurveSubdivision :schemes="['chaikin', 'cubic', 'fourPoint']" scheme="chaikin" :level="4" :width="500" />
 </div>

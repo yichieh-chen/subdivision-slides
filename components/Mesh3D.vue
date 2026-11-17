@@ -136,7 +136,7 @@ function draw() {
   }
 
   for (const w of wires) {
-    ctx.strokeStyle = w.layer.color ?? '#0f172a'
+    ctx.strokeStyle = w.layer.color ?? '#e2e8f0'
     ctx.globalAlpha = 0.55
     ctx.lineWidth = 1.3
     ctx.setLineDash([5, 4])
@@ -156,7 +156,7 @@ function draw() {
     ctx.arc(p.q[0], p.q[1], p.r ?? 5, 0, Math.PI * 2)
     ctx.fillStyle = p.color
     ctx.fill()
-    ctx.strokeStyle = '#fff'
+    ctx.strokeStyle = '#0b1220'
     ctx.lineWidth = 1.5
     ctx.stroke()
   }

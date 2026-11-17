@@ -27,27 +27,27 @@ const caption = computed(() => [
   <div class="demo" :style="{ width: `${W}px` }">
     <svg :width="W" :height="H" :viewBox="`0 0 ${W} ${H}`">
       <polyline
-        :points="path(P)" fill="none" stroke="#0f172a" stroke-width="2"
+        :points="path(P)" fill="none" stroke="#e2e8f0" stroke-width="2"
         :opacity="step >= 2 ? 0.25 : 1" :stroke-dasharray="step >= 2 ? '5 4' : ''"
       />
       <g v-for="(p, i) in P" :key="i" :opacity="step >= 2 ? 0.35 : 1">
-        <circle :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#0f172a" stroke-width="2" />
-        <text :x="p[0] - 6" :y="p[1] - 12" style="font-size: 13px" fill="#0f172a">P{{ i + 1 }}</text>
+        <circle :cx="p[0]" :cy="p[1]" r="6" fill="#0b1220" stroke="#f1f5f9" stroke-width="2" />
+        <text :x="p[0] - 6" :y="p[1] - 12" style="font-size: 15px" fill="#e2e8f0">P{{ i + 1 }}</text>
       </g>
-      <polyline v-if="step >= 2" :points="path(Q)" fill="none" stroke="#dc2626" stroke-width="2.2" :opacity="step >= 3 ? 0.3 : 1" />
+      <polyline v-if="step >= 2" :points="path(Q)" fill="none" stroke="#f87171" stroke-width="2.2" :opacity="step >= 3 ? 0.3 : 1" />
       <g v-if="step >= 1" :opacity="step >= 3 ? 0.3 : 1">
-        <circle v-for="(p, i) in Q" :key="i" :cx="p[0]" :cy="p[1]" r="5" fill="#dc2626" />
+        <circle v-for="(p, i) in Q" :key="i" :cx="p[0]" :cy="p[1]" r="5" fill="#f87171" />
         <template v-if="step === 1">
-          <text v-for="(p, i) in Q" :key="`t${i}`" :x="p[0] + 9" :y="p[1] + 16" style="font-size: 12px" fill="#dc2626">
+          <text v-for="(p, i) in Q" :key="`t${i}`" :x="p[0] + 9" :y="p[1] + 16" style="font-size: 14px" fill="#f87171">
             {{ i % 2 === 0 ? '1/4' : '3/4' }}
           </text>
         </template>
       </g>
       <g v-if="step === 3">
-        <polyline :points="path(Q2)" fill="none" stroke="#dc2626" stroke-width="2.2" />
-        <circle v-for="(p, i) in Q2" :key="i" :cx="p[0]" :cy="p[1]" r="3.5" fill="#dc2626" />
+        <polyline :points="path(Q2)" fill="none" stroke="#f87171" stroke-width="2.2" />
+        <circle v-for="(p, i) in Q2" :key="i" :cx="p[0]" :cy="p[1]" r="3.5" fill="#f87171" />
       </g>
-      <polyline v-if="step >= 4" :points="path(Q3)" fill="none" stroke="#dc2626" stroke-width="3" stroke-linejoin="round" />
+      <polyline v-if="step >= 4" :points="path(Q3)" fill="none" stroke="#f87171" stroke-width="3" stroke-linejoin="round" />
     </svg>
     <div class="demo-title">
       {{ caption }}

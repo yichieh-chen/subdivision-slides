@@ -70,7 +70,7 @@ const current = computed(() => levels.value[Math.min(level.value, levels.value.l
 const layers = computed<MeshLayer[]>(() => {
   const out: MeshLayer[] = [{ mesh: current.value, color: props.color }]
   if (showCage.value && level.value > 0)
-    out.push({ mesh: base.value, wire: true, color: '#0f172a' })
+    out.push({ mesh: base.value, wire: true, color: '#e2e8f0' })
   return out
 })
 
