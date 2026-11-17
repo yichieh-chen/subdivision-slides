@@ -1,11 +1,24 @@
-# Welcome to [Slidev](https://github.com/slidevjs/slidev)!
+# Subdivision slides
 
-To start the slide show:
+Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivision 教學投影片，以動畫和可互動的 demo 取代大量公式。
+
+## 開始使用
+
+需要 Node.js 22.12 以上。
 
 - `npm install`
-- `npm run dev`
-- visit <http://localhost:3030>
+- `npm run dev`，然後開啟 <http://localhost:3030>
+- `npm run build` 產生可部署的靜態網站（`dist/`）
 
-Edit the [slides.md](./slides.md) to see the changes.
+## 結構
 
-Learn more about Slidev at the [documentation](https://sli.dev/).
+- `slides.md`：封面、目錄，並依序載入 `pages/` 下的七個段落
+- `pages/`：每個段落一個 Markdown 檔
+- `components/`：互動元件
+  - `CurveSubdivision`：可拖曳控制點的曲線 subdivision（Chaikin、cubic B-spline、4-point）
+  - `MeshSubdivision`：可旋轉的 3D mesh subdivision（Catmull-Clark、Doo-Sabin、Loop、Modified Butterfly、球面）
+  - `Terrain`：fractal terrain
+  - `CornerCut`、`SplitDemo`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
+  - `Stencil`：Butterfly 與 Loop 的權重圖
+  - `Mesh3D`：上面 3D 元件共用的 canvas renderer
+- `lib/`：subdivision 演算法本身（`curves.ts`、`mesh.ts`）
