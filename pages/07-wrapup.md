@@ -89,9 +89,10 @@ Subdivision 會把所有東西都變圓，但真實的物體常常有 <span clas
 </div>
 
 ---
-layout: end
+layout: center
+class: text-center
 ---
 
-# Thank you
+<h1 class="cover-title">Thank you</h1>
 
 Q & A

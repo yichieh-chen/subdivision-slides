@@ -39,10 +39,10 @@ layout: two-cols
 
 新點 <b style="color:#f97316">●</b> = 周圍 vertices 的 weighted sum：
 
-- <b style="color:#60a5fa">a</b>：edge 的兩個端點（最重要）
-- <b style="color:#4ade80">b</b>：兩邊三角形的對角
-- <b style="color:#f87171">c</b>：再外面一圈，權重是 <span class="key">負的</span>
-- <b style="color:#c084fc">d</b>：由參數 $w$ 控制
+- <b style="color:#2563eb">a</b>：edge 的兩個端點（最重要）
+- <b style="color:#16a34a">b</b>：兩邊三角形的對角
+- <b style="color:#dc2626">c</b>：再外面一圈，權重是 <span class="key">負的</span>
+- <b style="color:#9333ea">d</b>：由參數 $w$ 控制
 
 <div class="small mt-3">
 

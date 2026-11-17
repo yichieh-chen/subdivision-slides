@@ -2,7 +2,7 @@
 theme: seriph
 title: Subdivision
 info: Computer Graphics 課堂報告：Subdivision Curves & Surfaces
-colorSchema: dark
+colorSchema: light
 transition: slide-left
 fonts:
   sans: Noto Sans TC

@@ -39,10 +39,10 @@ const butterfly = computed(() => {
     [d[0], a[0]], [d[0], c[0]], [d[0], c[2]], [d[1], a[1]], [d[1], c[1]], [d[1], c[3]],
   ]
   const nodes: Node[] = [
-    ...a.map(p => ({ p, label: 'a', weight: 1 / 2 - w.value, color: '#60a5fa' })),
-    ...b.map(p => ({ p, label: 'b', weight: 1 / 8 + 2 * w.value, color: '#4ade80' })),
-    ...c.map(p => ({ p, label: 'c', weight: -1 / 16 - w.value, color: '#f87171' })),
-    ...d.map(p => ({ p, label: 'd', weight: w.value, color: '#c084fc' })),
+    ...a.map(p => ({ p, label: 'a', weight: 1 / 2 - w.value, color: '#2563eb' })),
+    ...b.map(p => ({ p, label: 'b', weight: 1 / 8 + 2 * w.value, color: '#16a34a' })),
+    ...c.map(p => ({ p, label: 'c', weight: -1 / 16 - w.value, color: '#dc2626' })),
+    ...d.map(p => ({ p, label: 'd', weight: w.value, color: '#9333ea' })),
   ]
   return { edges, nodes, target: [cx, cy] as P }
 })
@@ -56,7 +56,7 @@ const loopVertex = computed(() => {
     return [c[0] + 105 * Math.cos(t), c[1] + 105 * Math.sin(t)] as P
   })
   const edges: [P, P][] = ring.flatMap((p, i) => [[c, p], [p, ring[(i + 1) % n.value]]] as [P, P][])
-  const nodes: Node[] = ring.map(p => ({ p, label: 'β', weight: beta.value, color: '#60a5fa' }))
+  const nodes: Node[] = ring.map(p => ({ p, label: 'β', weight: beta.value, color: '#2563eb' }))
   return { edges, nodes, target: c, centre: 1 - n.value * beta.value }
 })
 
@@ -65,8 +65,8 @@ const loopEdge = computed(() => {
   const b: P[] = [[230, 35], [230, 235]]
   const edges: [P, P][] = [[a[0], a[1]], [a[0], b[0]], [a[1], b[0]], [a[0], b[1]], [a[1], b[1]]]
   const nodes: Node[] = [
-    ...a.map(p => ({ p, label: '', weight: 3 / 8, color: '#60a5fa' })),
-    ...b.map(p => ({ p, label: '', weight: 1 / 8, color: '#4ade80' })),
+    ...a.map(p => ({ p, label: '', weight: 3 / 8, color: '#2563eb' })),
+    ...b.map(p => ({ p, label: '', weight: 1 / 8, color: '#16a34a' })),
   ]
   return { edges, nodes, target: [230, 135] as P }
 })
@@ -79,7 +79,7 @@ const view = computed(() => (props.kind === 'butterfly' ? butterfly.value : prop
     <svg width="460" height="270" viewBox="0 0 460 270">
       <line
         v-for="(e, i) in view.edges" :key="i" :x1="e[0][0]" :y1="e[0][1]" :x2="e[1][0]" :y2="e[1][1]"
-        stroke="#64748b" stroke-width="1.5"
+        stroke="#94a3b8" stroke-width="1.5"
       />
       <g v-for="(nd, i) in view.nodes" :key="`n${i}`">
         <circle :cx="nd.p[0]" :cy="nd.p[1]" :r="radius(nd.weight)" :fill="nd.color" opacity="0.9" />
@@ -87,7 +87,7 @@ const view = computed(() => (props.kind === 'butterfly' ? butterfly.value : prop
           {{ fmt(nd.weight) }}
         </text>
       </g>
-      <circle :cx="view.target[0]" :cy="view.target[1]" r="7" fill="#f97316" stroke="#0b1220" stroke-width="2" />
+      <circle :cx="view.target[0]" :cy="view.target[1]" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
       <text
         v-if="kind === 'loop-vertex'" :x="view.target[0]" :y="view.target[1] + 24" text-anchor="middle"
         style="font-size: 15px" font-weight="bold" fill="#f97316"

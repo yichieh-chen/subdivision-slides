@@ -16,20 +16,20 @@ const cc = catmullClarkDetail(cube)
 const layers = computed<MeshLayer[]>(() => {
   if (props.step >= 4)
     return [{ mesh: cc.mesh, color: '#5b8def' }, { mesh: cube, wire: true }]
-  return [{ mesh: cube, wire: true, color: '#e2e8f0' }]
+  return [{ mesh: cube, wire: true, color: '#0f172a' }]
 })
 
 const points = computed<Point3D[]>(() => {
   const out: Point3D[] = []
   const s = props.step
   if (s < 3)
-    cube.v.forEach(p => out.push({ p, color: '#e2e8f0', r: 5 }))
+    cube.v.forEach(p => out.push({ p, color: '#0f172a', r: 5 }))
   if (s >= 1)
     cc.facePoints.forEach(p => out.push({ p, color: '#f97316', r: 5.5 }))
   if (s >= 2)
     cc.edgePoints.forEach(p => out.push({ p, color: '#0ea5e9', r: 5 }))
   if (s >= 3)
-    cc.vertexPoints.forEach(p => out.push({ p, color: '#4ade80', r: 5.5 }))
+    cc.vertexPoints.forEach(p => out.push({ p, color: '#16a34a', r: 5.5 }))
   return out
 })
 </script>
@@ -40,7 +40,7 @@ const points = computed<Point3D[]>(() => {
     <div class="demo-row">
       <span><b style="color:#f97316">●</b> face point</span>
       <span><b style="color:#0ea5e9">●</b> edge point</span>
-      <span><b style="color:#4ade80">●</b> moved vertex</span>
+      <span><b style="color:#16a34a">●</b> moved vertex</span>
     </div>
   </div>
 </template>
