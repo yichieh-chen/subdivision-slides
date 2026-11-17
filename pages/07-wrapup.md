@@ -44,6 +44,29 @@ Subdivision 的特性是把所有東西都變圓。立方體切下去變成球�
 
 ---
 
+# 先看四個名詞
+
+| | 意思 |
+|---|---|
+| **Tessellate** | 把曲面切成一堆 triangles，才能畫出來 |
+| **Cracking** | 兩片曲面切的密度不同，交界對不上，出現裂縫 |
+| **Trimming** | 把曲面挖掉一塊 |
+| **Stitching** | 把兩片曲面縫在一起 |
+
+<!--
+下一頁要拿 subdivision 和 B-spline 曲面比較，會用到四個名詞，先解釋。
+
+Tessellate：電腦的顯示卡只會畫三角形。B-spline 曲面是用數學式子定義的，要畫出來之前，必須先把它切成一堆小三角形。這個動作叫 tessellate。
+
+Cracking：一個模型通常是好幾片 B-spline 曲面拼起來的。如果相鄰的兩片切成三角形的時候密度不一樣，例如一片切得細、一片切得粗，交界上的頂點就對不起來，中間會出現小裂縫，可以看到後面的東西。這叫 cracking。
+
+Trimming：把曲面挖掉一塊，例如在車門上挖一個窗戶的洞。
+
+Stitching：把兩片曲面縫在一起，而且接縫要平滑。
+-->
+
+---
+
 # Why Subdivision？（和 B-spline 比）
 
 | | B-spline surface | Subdivision surface |
@@ -93,6 +116,37 @@ B-spline 曲面也是平滑的，那為什麼還需要 subdivision？這張表�
 （按一下）奇異點附近比較麻煩，但是 Stam 在 1998 年也提出了可以直接算的方法。
 
 （按一下）而且每一種方法都有對應的 mask。Mask 就是一組權重，把一個點和它周圍一圈鄰居做加權平均，一步就算出這個點最後會落在極限曲面的哪裡。這些權重查書就有，不用背。
+-->
+
+---
+
+# 四個 Scheme 總整理
+
+| | 類型 | Mesh | 平滑度 | 關鍵數字 |
+|---|---|---|---|---|
+| Doo-Sabin | Dual, approx. | 任意 | $C^1$ | $\tfrac{9}{16},\ \tfrac{3}{16},\ \tfrac{3}{16},\ \tfrac{1}{16}$ |
+| Catmull-Clark | Primal, approx. | 任意 → quad | $C^2$ | Edge point = 4 點平均 |
+| Mod. Butterfly | Primal, interp. | Triangle | $C^1$ | $\tfrac12,\ \tfrac18,\ -\tfrac{1}{16}$ |
+| Loop | Primal, approx. | Triangle | $C^2$ | $\tfrac38,\ \tfrac18$；$\tfrac{10}{16},\ \tfrac{1}{16}$ |
+
+<div class="small mt-4">
+
+$C^2$ 的兩個，在 extraordinary vertex 上是 $C^1$。Regular：quad 是 degree 4，triangle 是 degree 6。
+
+</div>
+
+<!--
+結論之前，把今天講的四個曲面方法放在一張表裡。
+
+Doo-Sabin：唯一的 dual，approximating，什麼 mesh 都可以，C1。關鍵數字是十六分之九、十六分之三、十六分之三、十六分之一，來自 Chaikin 做兩次。
+
+Catmull-Clark：primal，approximating，什麼 mesh 都可以，切一次之後全部變四邊形，C2。要記的是 edge point 是四個點的平均，不是邊的中點。
+
+Modified Butterfly：primal，唯一的 interpolating，給三角形用，C1。關鍵數字是二分之一、八分之一、負的十六分之一，注意有負的。
+
+Loop：primal，approximating，給三角形用，C2。關鍵數字有兩組：邊上的新點是八分之三和八分之一，regular 的舊頂點是十六分之十和十六分之一。
+
+下面小字：C2 的那兩個，在奇異點上只有 C1。還有 regular 的定義，四邊形是連四條邊，三角形是連六條邊。
 -->
 
 ---

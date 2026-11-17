@@ -11,7 +11,100 @@ layout: section
 
 接下來做的事情完全一樣，只是把「折線」換成「mesh」。一個很粗的 mesh，一直切，最後變成一個平滑的曲面。
 
-這一段我會講兩個方法：Doo-Sabin 和 Catmull-Clark。這兩個都是從剛剛的曲線方法長出來的。
+這一段我會講兩個方法：Doo-Sabin 和 Catmull-Clark。這兩個都是從剛剛的曲線方法長出來的，所以開始之前，先花兩頁複習等一下一直會用到的東西。
+-->
+
+---
+layout: two-cols
+---
+
+# 複習：Chaikin 切角
+
+每條 edge 上放兩個新點，舊的點丟掉：
+
+- 靠近 $A$ 的：$\tfrac34 A + \tfrac14 B$
+- 靠近 $B$ 的：$\tfrac14 A + \tfrac34 B$
+
+<div class="small mt-4">
+
+新點在 edge 的 1/4 處。離哪個端點近，那個端點就佔 $\tfrac34$。
+
+</div>
+
+::right::
+
+<CurveSubdivision scheme="chaikin" :level="1" :width="440" />
+
+<!--
+第一個複習是 Chaikin 切角，等一下的 Doo-Sabin 就是從它來的。
+
+一條折線，每條邊有兩個端點 A 和 B。在這條邊上放兩個新的點：一個在離 A 四分之一的地方，一個在離 B 四分之一的地方。然後把舊的點全部丟掉，把新的點連起來。原本的角就被切掉了。
+
+公式裡的四分之三和四分之一是「權重」，意思是這個新點有多少比例來自 A、多少來自 B。靠近 A 的那個點，A 佔四分之三，B 佔四分之一。離誰近，誰的權重就大。
+
+請記住四分之三和四分之一這兩個數字，等一下 Doo-Sabin 的權重就是用它們乘出來的。
+
+右邊可以拉 level 看它越切越圓。
+-->
+
+---
+
+# 複習：$C^0$、$C^1$、$C^2$ 是什麼？
+
+描述「接起來的地方有多順」。數字越大越順。
+
+<div class="grid grid-cols-3 gap-6 mt-2">
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <polyline points="20,95 100,22 180,95" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="miter" />
+  <circle cx="100" cy="22" r="6" fill="#ef4444" />
+</svg>
+
+**$C^0$：位置連續**
+
+<div class="small">沒有斷開，但是有尖角。</div>
+</div>
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <path d="M15,30 L100,30 A65,65 0 0 1 165,95" fill="none" stroke="#2563eb" stroke-width="4" />
+  <circle cx="100" cy="30" r="6" fill="#ef4444" />
+</svg>
+
+**$C^1$：切線也連續**
+
+<div class="small">沒有尖角。但直線接圓弧：彎的程度突然改變。</div>
+</div>
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <path d="M15,95 C80,95 95,20 185,20" fill="none" stroke="#2563eb" stroke-width="4" />
+</svg>
+
+**$C^2$：曲率也連續**
+
+<div class="small">連彎的程度都是慢慢變的，反光也順。</div>
+</div>
+</div>
+
+<div class="small mt-4">
+
+Chaikin 的 limit curve 是 $C^1$，cubic B-spline 是 $C^2$。推廣到 surface 之後也一樣。
+
+</div>
+
+<!--
+第二個複習是 C0、C1、C2。等一下比較每個方法好不好，都是在比這個，所以先講清楚。
+
+它們描述的是：曲線或曲面，接起來的地方有多順。數字越大越順。
+
+左邊是 C0，只有位置連續。意思是線沒有斷開，兩段有接在一起，但是接的地方可以有尖角，像紅點那裡。
+
+中間是 C1，切線也連續。切線就是線前進的方向。C1 的意思是經過接點的時候方向不會突然轉彎，所以沒有尖角。但是看這張圖：左邊是直線，右邊是圓弧，在紅點接起來。方向是順的，可是直線完全不彎，圓弧一開始就很彎，「彎的程度」在紅點突然從零跳到很彎。這個彎的程度叫曲率。
+
+右邊是 C2，連曲率都連續。彎的程度是慢慢變的，沒有突然跳。
+
+曲面也是一樣的意思。C1 的曲面摸起來沒有摺痕。C2 的曲面連反光都很平順，C1 的曲面反光在某些地方會看起來斷一下。所以做車子、做角色都希望是 C2。
+
+最後一行：Chaikin 切到極限是 C1，三次 B-spline 是 C2。把它們推廣到曲面之後也一樣，Doo-Sabin 是 C1，Catmull-Clark 是 C2。
 -->
 
 ---
@@ -108,6 +201,33 @@ layout: section
 -->
 
 ---
+
+# Primal vs. Dual：看 Cube
+
+<div class="flex gap-4 items-start">
+<div class="flex-1">
+
+- **Primal**：切 face，舊的 vertex <span class="key">還在</span>
+- **Dual**：拆 vertex，舊的角<span class="key">被切掉</span>
+
+<div class="small mt-4">紅點是原本 8 個 vertices 的位置。</div>
+
+</div>
+<MeshSubdivision shape="cube" scheme="catmull-clark" :level="1" :max-level="3" marks :width="280" :height="240" title="Primal：Catmull-Clark" />
+<MeshSubdivision shape="cube" scheme="doo-sabin" :level="1" :max-level="3" marks color="#f59e0b" :width="280" :height="240" title="Dual：Doo-Sabin" />
+</div>
+
+<!--
+Primal 和 dual 用講的比較抽象，直接看立方體切一次。紅點是原本立方體八個角的位置。
+
+左邊是 primal 的例子，Catmull-Clark。它是把每個面切成四個小面。切完之後，原本的八個角都還有對應的頂點，只是位置被往內拉了。面變多了，但是角還在。
+
+右邊是 dual 的例子，Doo-Sabin。看角的地方：原本的一個角不見了，變成一個小三角形。一個頂點被拆成三個新的頂點，角被切掉了。
+
+所以一句話記：primal 是切面、角還在；dual 是拆點、角被切掉。
+-->
+
+---
 layout: two-cols
 ---
 
@@ -143,29 +263,157 @@ Doo-Sabin 在每個面上做一樣的事。第一步，找每個面的中心。�
 -->
 
 ---
+
+# Doo-Sabin：切完有哪些 face？
+
+| 舊的 | 變成 | Cube 的例子 |
+|---|---|---|
+| 每個 **face** | 一個縮小的 face（邊數不變） | 6 個 quad |
+| 每條 **edge** | 一個 quad | 12 個 quad |
+| 每個 **vertex** | 一個 face（邊數 = degree） | 8 個 triangle |
+
+<div class="small mt-4">
+
+Cube 切一次：$6 + 12 + 8 = 26$ 個 faces，$6 \times 4 = 24$ 個 vertices。<br>
+角上是 triangle，因為 cube 的每個角連著 3 個 faces。
+
+</div>
+
+<!--
+把上一頁第三步講清楚：切完之後到底有哪些面。
+
+想像立方體的每個面都是一張紙，每張紙往自己的中心縮小一圈。縮完之後，面和面之間會出現空隙，要補起來。
+
+第一種，原本的每個面，縮小之後還是一個面，邊數不變。立方體有六個面，所以是六個四邊形。
+
+第二種，原本的每條邊。一條邊的兩側各有一個面，兩個面都縮了，中間空出一條縫，補一個四邊形。立方體有十二條邊，所以是十二個四邊形。
+
+第三種，原本的每個頂點。一個頂點周圍的面都縮了，角的地方空出一個洞，補一個面。這個面有幾個邊，看那個頂點連了幾個面。立方體每個角連三個面，所以補的是三角形，總共八個。
+
+加起來，立方體切一次是二十六個面。頂點的話，每個面裡有四個新點，六個面，所以二十四個頂點。上一頁的 demo 下面也有顯示這兩個數字。
+-->
+
+---
+layout: two-cols
+---
+
+# 新的點放哪？
+
+新的點 = 這 <span class="key">4 個點的平均</span>：
+
+- 舊的 vertex 自己
+- 這個 face 的中心
+- 旁邊兩條 edge 的中點
+
+<v-click>
+
+例：看左下角 $(0,0)$
+
+$$\frac{(0,0) + (2,2) + (2,0) + (0,2)}{4} = (1,1)$$
+
+</v-click>
+
+::right::
+
+<svg viewBox="0 0 320 300" width="340" class="mx-auto mt-6">
+  <rect x="50" y="40" width="220" height="220" fill="none" stroke="#64748b" stroke-width="2" />
+  <g stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4">
+    <line x1="105" y1="205" x2="50" y2="260" /><line x1="105" y1="205" x2="160" y2="150" /><line x1="105" y1="205" x2="160" y2="260" /><line x1="105" y1="205" x2="50" y2="150" />
+  </g>
+  <g fill="#94a3b8"><circle cx="270" cy="260" r="5" /><circle cx="270" cy="40" r="5" /><circle cx="50" cy="40" r="5" /></g>
+  <circle cx="50" cy="260" r="7" fill="#2563eb" />
+  <circle cx="160" cy="150" r="6" fill="#7f1d1d" />
+  <circle cx="160" cy="260" r="6" fill="#16a34a" /><circle cx="50" cy="150" r="6" fill="#16a34a" />
+  <circle cx="105" cy="205" r="8" fill="#f59e0b" stroke="#fff" stroke-width="2" />
+  <g fill="currentColor">
+    <text x="30" y="286" style="font-size: 15px">(0,0)</text><text x="250" y="286" style="font-size: 15px">(4,0)</text><text x="250" y="28" style="font-size: 15px">(4,4)</text><text x="30" y="28" style="font-size: 15px">(0,4)</text>
+    <text x="170" y="146" style="font-size: 14px">中心 (2,2)</text><text x="142" y="286" style="font-size: 14px">(2,0)</text><text x="6" y="155" style="font-size: 14px">(0,2)</text>
+    <text x="118" y="200" fill="#b45309" style="font-size: 15px">(1,1)</text>
+  </g>
+</svg>
+
+<!--
+剛剛說每個面「往中心縮」，那到底縮多少？這頁給精確的規則。
+
+一個新的點，是四個點的平均。看右邊的圖，我們要算左下角這個藍色頂點對應的新點。
+
+四個點是：第一，舊的頂點自己，藍色那個。第二，這個面的中心，暗紅色那個。第三和第四，從這個頂點出去的兩條邊的中點，綠色那兩個。把這四個點的座標加起來除以四，就是新的點，橘色那個。
+
+（按一下）用數字算一次。假設這個面是邊長 4 的正方形，左下角是 (0,0)。面的中心是 (2,2)。兩條邊的中點是 (2,0) 和 (0,2)。四個加起來是 (4,4)，除以四是 (1,1)。
+
+所以新的點在 (1,1)，從角落往中心走了一點。四個角都這樣做，會得到四個新點，圍成一個比較小的正方形。
+-->
+
+---
+layout: two-cols
+---
+
+# Chaikin 做兩次？
+
+<v-clicks>
+
+- **橫的做一次**：上下兩條 edge 各取 1/4 處
+
+  $P = \tfrac34 A + \tfrac14 B$　　$Q = \tfrac34 D + \tfrac14 C$
+
+- **直的再做一次**：$P$ 到 $Q$ 取 1/4 處
+
+  新的點 $= \tfrac34 P + \tfrac14 Q$
+
+- **展開**：$\tfrac{9}{16}A + \tfrac{3}{16}B + \tfrac{3}{16}D + \tfrac{1}{16}C$
+
+</v-clicks>
+
+::right::
+
+<svg viewBox="0 0 320 300" width="340" class="mx-auto mt-6">
+  <rect x="50" y="40" width="220" height="220" fill="none" stroke="#64748b" stroke-width="2" />
+  <line x1="105" y1="260" x2="105" y2="40" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" />
+  <g fill="#2563eb">
+    <circle cx="50" cy="260" r="7" /><circle cx="270" cy="260" r="7" /><circle cx="270" cy="40" r="7" /><circle cx="50" cy="40" r="7" />
+  </g>
+  <circle cx="105" cy="260" r="6" fill="#16a34a" /><circle cx="105" cy="40" r="6" fill="#16a34a" />
+  <circle cx="105" cy="205" r="8" fill="#f59e0b" stroke="#fff" stroke-width="2" />
+  <g fill="currentColor">
+    <text x="30" y="288" style="font-size: 17px">A</text><text x="276" y="288" style="font-size: 17px">B</text><text x="276" y="28" style="font-size: 17px">C</text><text x="30" y="28" style="font-size: 17px">D</text>
+    <text x="99" y="288" fill="#15803d" style="font-size: 17px">P</text><text x="99" y="28" fill="#15803d" style="font-size: 17px">Q</text>
+    <text x="118" y="210" fill="#b45309" style="font-size: 15px">新的點</text>
+  </g>
+</svg>
+
+<!--
+前面說 Doo-Sabin 是 Chaikin 的 3D 版。這頁說明這句話是真的可以算出來的。
+
+Chaikin 是在一條線上做的：取四分之一的地方，權重是四分之三和四分之一。一個四邊形的面有兩個方向，橫的和直的。我們兩個方向各做一次 Chaikin。看右邊的圖，四個角叫 A、B、C、D，A 在左下角。
+
+（按一下）第一步，橫的方向做一次。下面那條邊是 A 到 B，取離 A 四分之一的地方，得到 P。P 等於四分之三 A 加四分之一 B。上面那條邊是 D 到 C，同樣取離 D 四分之一的地方，得到 Q。Q 等於四分之三 D 加四分之一 C。
+
+（按一下）第二步，直的方向再做一次。把 P 和 Q 連起來，就是綠色的虛線。在這條線上取離 P 四分之一的地方，就是橘色的新點。新的點等於四分之三 P 加四分之一 Q。
+
+（按一下）第三步，把 P 和 Q 代進去展開。四分之三乘四分之三是十六分之九，這是 A 的。四分之三乘四分之一是十六分之三，這是 B 的。四分之一乘四分之三也是十六分之三，這是 D 的。四分之一乘四分之一是十六分之一，這是 C 的。
+
+用上一頁的數字驗算：A 是 (0,0)，B 是 (4,0)，所以 P 是 (1,0)。D 是 (0,4)，C 是 (4,4)，所以 Q 是 (1,4)。P 到 Q 的四分之一處是 (1,1)。跟上一頁用四個點平均算出來的一模一樣。
+
+所以「四個點的平均」和「Chaikin 兩個方向各做一次」是同一件事的兩種說法。
+-->
+
+---
 layout: two-cols
 ---
 
 # Doo-Sabin 的權重
 
-新的點 = 這 4 個點的平均：
-舊 vertex、face 中心、兩條 edge 的中點
+Quad 的四個角各佔多少：
 
-<v-click>
+- 最近的角：$\tfrac34 \times \tfrac34 = \tfrac{9}{16}$
+- 相鄰的兩個角：$\tfrac34 \times \tfrac14 = \tfrac{3}{16}$
+- 對角：$\tfrac14 \times \tfrac14 = \tfrac{1}{16}$
 
-Face 是 quad 時，權重是
+<div class="small mt-4">
 
-$$\tfrac{9}{16},\ \tfrac{3}{16},\ \tfrac{3}{16},\ \tfrac{1}{16}$$
-
-就是 Chaikin 的 $\tfrac34, \tfrac14$ <span class="key">兩個方向各做一次</span>
-
-<div class="small">
-
-Limit surface 是 $C^1$。
+加起來是 1。Chaikin 是 $C^1$，所以 Doo-Sabin 的 limit surface 也是 $C^1$。
 
 </div>
-
-</v-click>
 
 ::right::
 
@@ -186,15 +434,48 @@ Limit surface 是 $C^1$。
 </svg>
 
 <!--
-剛剛說「往中心縮」，那到底縮多少？這頁給精確的規則。
+把上一頁的結果畫成一張圖，這就是 Doo-Sabin 在四邊形上的權重。
 
-一個新的點，是四個點的平均。這四個點是：舊的頂點自己、這個面的中心、還有從這個頂點出去的兩條邊的中點。四個點加起來除以四。
+橘色大的那個是新的點。離它最近的那個角，權重是四分之三乘四分之三，十六分之九，最大。相鄰的兩個角，各是四分之三乘四分之一，十六分之三。對角最遠的那個，是四分之一乘四分之一，十六分之一，最小。
 
-（按一下）如果這個面是四邊形，把它展開來算，會得到四個頂點的權重是 9/16、3/16、3/16、1/16。看右邊的圖：離新點最近的那個角是 9/16，相鄰的兩個角各 3/16，對角最遠的那個是 1/16。
+四個數字加起來：九加三加三加一是十六，所以總和是 1。權重加起來是 1 的意思是，新的點是這四個角的加權平均，一定落在這個面裡面，不會跑到外面去。
 
-這組數字不是亂來的。Chaikin 的權重是 3/4 和 1/4。一個四邊形有兩個方向，橫的做一次 Chaikin、直的再做一次，權重相乘：3/4 乘 3/4 是 9/16，3/4 乘 1/4 是 3/16，1/4 乘 1/4 是 1/16。所以說 Doo-Sabin 是 Chaikin 的 3D 版，是真的可以算出來的。
+最後是平滑度。Chaikin 切到極限是 C1 的曲線。Doo-Sabin 是它的曲面版，所以極限曲面也是 C1：沒有摺痕，但是沒有到 C2 那麼順。規則的地方它其實就是雙二次 B-spline 曲面。
 
-最後兩個性質。第一，極限曲面是 C1。Chaikin 的極限是二次 B-spline 曲線，所以這裡的極限是雙二次 B-spline 曲面。第二，切一次之後每個頂點都剛好連四條邊，很規則。唯一不規則的是那些不是四邊形的面，例如立方體角上的三角形，但它們的數量之後不會再變多。
+另外補充兩點，被問到可以回答。第一，切一次之後每個頂點都剛好連四條邊，很規則。第二，唯一不規則的是那些不是四邊形的面，例如立方體角上的三角形，它們的數量之後不會再變多。
+-->
+
+---
+layout: two-cols
+---
+
+# 複習：Cubic B-spline 的切法
+
+和 Chaikin 不同：舊的點<span class="key">留著，但是要移動</span>。
+
+- **Edge 上的新點**：兩個端點各 $\tfrac12$
+- **舊的點**：自己 $\tfrac34$，左右鄰居各 $\tfrac18$
+
+<div class="small mt-4">
+
+Catmull-Clark 是它的 surface 版：一樣是「加新的點」＋「移動舊的點」。
+
+</div>
+
+::right::
+
+<CurveSubdivision scheme="cubic" :level="1" :width="440" />
+
+<!--
+講 Catmull-Clark 之前，先複習它的曲線版，三次 B-spline 的切法。
+
+Chaikin 是把舊的點全部丟掉。三次 B-spline 不一樣，舊的點會留下來，但是每一輪都要移動一下。
+
+所以每一輪做兩件事。第一，每條邊的中間加一個新點，位置是兩個端點各二分之一，也就是邊的中點。第二，舊的點要移動，新的位置是自己佔四分之三，左邊的鄰居佔八分之一，右邊的鄰居佔八分之一。也就是被兩邊的鄰居稍微拉過去一點。
+
+因為用到的鄰居比 Chaikin 多，所以比較平滑，極限是 C2。
+
+等一下的 Catmull-Clark 就是這個的曲面版。它一樣做這兩件事：加新的點，然後移動舊的點。只是曲面上「新的點」有兩種，面上的和邊上的。
 -->
 
 ---
@@ -301,6 +582,96 @@ Face point 是面上所有頂點的平均。Edge point 是兩個端點加兩個 
 -->
 
 ---
+
+# 舊的 vertex 怎麼動？
+
+<div class="grid grid-cols-2 gap-8">
+<div>
+
+$$v_{new} = \frac{F + 2R + (n-3)\,v_{old}}{n}$$
+
+最常見的 $n = 4$：
+
+| 誰 | 佔多少 |
+|---|---|
+| 自己 $v_{old}$ | $\tfrac14$ |
+| $R$：edge 中點的平均 | $\tfrac24$ |
+| $F$：face points 的平均 | $\tfrac14$ |
+
+</div>
+<div>
+
+<v-click>
+
+- 自己只剩 $\tfrac14$，其他都是被鄰居拉走的
+  → surface 比 control mesh <span class="key">小一圈</span>
+
+- 另一種寫法，是同一條公式：
+
+$$\tfrac{n-2}{n}\,v_{old} + \tfrac1n N + \tfrac1n F$$
+
+<div class="small">
+
+$N$：相鄰 vertices 的平均
+
+</div>
+
+</v-click>
+
+</div>
+</div>
+
+<!--
+上一頁最長的那條公式，這頁拆開來看。
+
+n 是這個頂點連了幾條邊。F 是它周圍所有 face point 的平均。R 是它周圍所有邊的中點的平均，注意是原本邊的中點，不是 edge point。
+
+最常見的情況是 n 等於 4。代進去：分子是 F 加兩倍的 R 加一倍的自己，分母是 4。所以自己佔四分之一，邊的中點佔四分之二，face point 佔四分之一。三個加起來是 1。
+
+（按一下）自己只佔四分之一，其他四分之三都是被周圍的鄰居拉過去的。所以舊的頂點每一輪都會往內移動很多，最後的曲面會比原本的 control mesh 小一圈。這就是 approximating。
+
+下面是同一條公式的另一種寫法，老師的投影片是這樣寫的。自己佔 n 分之 n 減 2，相鄰頂點的平均佔 n 分之 1，face point 的平均佔 n 分之 1。
+
+為什麼一樣？因為邊的中點就是自己和鄰居的平均，所以 R 等於自己加 N 再除以二，兩倍的 R 就是自己加 N。代回第一條公式，就會得到第二條。
+
+n 等於 4 的時候，第二種寫法是自己佔四分之二，N 佔四分之一，F 佔四分之一。跟曲線的四分之三、八分之一、八分之一是同一個精神：自己佔最多，鄰居分一點。
+-->
+
+---
+
+# 用 Cube 算一次
+
+Cube 的 8 個 vertices 是 $(\pm1, \pm1, \pm1)$。
+
+<v-clicks>
+
+- **Face point**（上面的 face）：4 個 vertices 的平均 $= (0,\ 1,\ 0)$
+
+- **Edge point**（$(1,1,1)$ 到 $(1,1,-1)$ 這條 edge）：
+
+  $\tfrac14\big[(1,1,1) + (1,1,-1) + (0,1,0) + (1,0,0)\big] = (0.75,\ 0.75,\ 0)$
+
+- **舊的 vertex** $(1,1,1)$，$n = 3$：
+
+  $F = (\tfrac13, \tfrac13, \tfrac13)$，$R = (\tfrac23, \tfrac23, \tfrac23)$　→　$v_{new} = \tfrac{F + 2R}{3} = (\tfrac59, \tfrac59, \tfrac59)$
+
+</v-clicks>
+
+<!--
+公式看完，用立方體實際算一次。立方體的八個頂點是正負 1 的組合。
+
+（按一下）先算 face point。看上面那個面，四個頂點的 y 都是 1，x 和 z 是正負 1。平均起來 x 和 z 都抵消變成 0，所以 face point 是 (0,1,0)，就是上面那個面的正中心。同樣的，右邊的面是 (1,0,0)，前面的面是 (0,0,1)。
+
+（按一下）再算 edge point。看 (1,1,1) 到 (1,1,-1) 這條邊，它在上面和右邊兩個面的交界。四個點平均：兩個端點，加上面的 face point (0,1,0)，加右面的 face point (1,0,0)。加起來是 (3,3,0)，除以四是 (0.75, 0.75, 0)。
+
+注意這條邊的中點是 (1,1,0)，但 edge point 是 (0.75, 0.75, 0)。它被兩側的面往內拉了，所以 edge point 不是邊的中點。
+
+（按一下）最後移動舊的頂點。看 (1,1,1) 這個角，它連三條邊，n 等於 3。F 是三個 face point 的平均，三分之一。R 是三條邊的中點的平均，三分之二。n 減 3 是 0，所以自己那一項不見了。F 加兩倍 R 是三分之五，再除以 3，是九分之五，大約 0.56。
+
+所以這個角從 1 被拉到 0.56，縮了很多。右邊立方體一直切會變成一顆比原本小的球，就是這個原因。
+-->
+
+---
 layout: two-cols
 ---
 
@@ -340,6 +711,43 @@ Catmull-Clark 切一次會發生三件事。第一，每個面都被切成四邊
 （按一下）重點是再切下去不會變多。因為第二輪開始所有的面都是四邊形了，新產生的 face point 和 edge point 都剛好連四條邊。所以奇異點只有第一輪會增加，之後數量固定，只是周圍越切越密。
 
 曲面在規則的地方是 C2，只有在這幾個奇異點上降成 C1。因為數量很少而且固定，所以整體看起來還是很平滑。
+-->
+
+---
+
+# Extraordinary Vertex：數一數
+
+| Control mesh | 切一次之後的 extraordinary vertices |
+|---|---|
+| Cube | 8 個角（degree 3） |
+| Tetrahedron | 4 個角 + 4 個 face points = 8 個（degree 3） |
+| 有 2 個 triangle、2 個 degree 5 的點 | 2 + 2 = 4 個 |
+
+<v-click>
+
+**為什麼那裡只有 $C^1$？**
+
+- Regular 的地方：limit surface 就是 bicubic B-spline → $C^2$
+- Extraordinary vertex 周圍不是 regular grid，對不上 B-spline，只保證 $C^1$
+
+</v-click>
+
+<!--
+用三個例子數一次。
+
+立方體：六個面都是四邊形，所以不會產生新的奇異點。原本的八個角每個連三條邊，degree 3，所以就是這八個。
+
+正四面體：四個角都是 degree 3，這是四個。另外四個面都是三角形，每個三角形的 face point 連三條邊，又多四個。總共八個。
+
+第三個例子是 GAMES101 課程裡的：一個 mesh 大部分是四邊形，但是有兩個三角形，還有兩個連了五條邊的頂點。切一次之後，兩個 degree 5 的頂點還在，兩個三角形各變成一個 degree 3 的奇異點，總共四個。而且不是四邊形的面變成零個。
+
+（按一下）為什麼曲面在奇異點只有 C1？
+
+Catmull-Clark 的規則是照著三次 B-spline 設計的。在規則的四邊形格子上，它切出來的極限曲面剛好就是雙三次 B-spline 曲面，而 B-spline 曲面是 C2。
+
+但是奇異點周圍不是規則的格子，例如只有三個面圍著它，那裡沒有對應的 B-spline 曲面可以對上。規則在那裡仍然可以算、曲面仍然是平滑的，但是只能保證到 C1。
+
+好消息是奇異點的數量很少而且固定，所以整個曲面看起來還是很平滑。
 
 四邊形的方法講到這裡。接下來看專門給三角形 mesh 用的方法。
 -->
