@@ -10,6 +10,12 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
 - `npm run dev`，然後開啟 <http://localhost:3030>
 - `npm run build` 產生可部署的靜態網站（`dist/`）
 
+## 線上版
+
+每次 `main` 更新，GitHub Actions 會自動重新建置並部署到 GitHub Pages：<https://yichieh-chen.github.io/subdivision-slides/>
+
+第一次使用前，需要在 repo 的 Settings → Pages → Build and deployment → Source 選擇「GitHub Actions」。
+
 ## 結構
 
 - `slides.md`：封面、目錄，並依序載入 `pages/` 下的七個段落
