@@ -6,6 +6,14 @@ layout: section
 
 粗的好做，細的好看，能不能兩個都要？
 
+<!--
+第一段只回答一個問題：為什麼需要 subdivision。
+
+點少的模型好做、好調，但是看起來有稜有角；點多的模型好看，但是很難做。
+
+Subdivision 就是想兩個都要：人只做粗的，細的讓演算法算出來。
+-->
+
 ---
 layout: two-cols
 ---
@@ -36,7 +44,9 @@ layout: two-cols
 
 <!--
 先把名詞講清楚，後面每一頁都會用到。
+
 3D 模型通常是用很多小多邊形拼起來的，叫 polygon mesh。點少的叫 coarse mesh。
+
 因為我們是用它來控制最後的形狀，所以也叫 control mesh，上面的點叫 control points。
 -->
 
@@ -64,7 +74,11 @@ layout: two-cols
 <MeshSubdivision shape="cube" scheme="catmull-clark" :width="400" :height="300" title="把 Level 往右拉" />
 
 <!--
-先讓大家自己拉 slider：一個 cube 只有 8 個點，拉到 level 4 就變成一顆很圓的東西。
+Polygon mesh 很通用，什麼形狀都能表示。但是要做出平滑的表面，需要非常多的 polygon，而且每個點的位置都要很準，手動調太花時間。
+
+先現場拉右邊的 slider：一個 cube 只有 8 個點，拉到 level 4 就變成一顆很圓的東西。
+
+[click] 這就是 subdivision 的想法：美術只做一個粗的 mesh，平滑的部分交給演算法自動補上。
 -->
 
 ---
@@ -97,8 +111,11 @@ clicks: 1
 
 <!--
 拉 slider：橘色的 control point 往外移，裡面的 surface 跟著鼓出去。
+
 這個例子裡 surface 沒有碰到那個點，但這是 Catmull-Clark 的特性，不是所有 scheme 都這樣；等一下講 interpolating / approximating 會再回來。
+
 按下一步換成長條：橘色是有變形的部分，藍色是完全沒動的部分。
+
 原因後面會看到：每個新的點都只用「附近」的舊點算出來。
 -->
 
@@ -125,6 +142,20 @@ Subdivision = 重複做下面兩個動作：
 
 <SplitDemo :step="$clicks" />
 
+<!--
+這頁是整份報告最重要的一句話：subdivision 就是重複做 Refine 和 Smooth。
+
+右邊用一個三角形示範。
+
+[click] Refine 的前半：每條 edge 上插入一個新的 vertex，橘色的點。
+
+[click] Refine 的後半：把新的點連起來，一個 triangle 變成四個。到這裡只有連接關係變了，也就是 topology，形狀完全沒變。
+
+[click] Smooth：把點移到新的位置。這裡是把橘點往外推到虛線的圓上。這一步改的是位置，也就是 geometry。
+
+最後強調：之後看到的每一個 scheme，差別只有兩件事，怎麼切，還有移到哪。
+-->
+
 ---
 clicks: 3
 ---
@@ -137,8 +168,11 @@ clicks: 3
 
 <!--
 每按一下，兩邊各切一次。面的數量完全一樣，也就是 topology 一樣。
+
 左邊新的點都留在原本的面上，所以不管切幾次，外形還是那個方塊。
+
 右邊切完之後把點移到新位置，才會越來越圓。
+
 結論：Refine 只是提供更多可以動的點，真正讓形狀變平滑的是 Smooth。
 -->
 
@@ -154,7 +188,9 @@ clicks: 1
 
 <!--
 先用大家熟悉的例子：把一張小圖放大。
+
 左邊 3×3 的小圖放大後格子變多，多出來的 pixel 還沒有顏色。
+
 右邊的 mesh 也一樣：每條 edge 插入一個新 vertex，但它該放哪裡還沒決定。這就是上一頁的 Refine。
 -->
 
@@ -170,7 +206,9 @@ clicks: 1
 
 <!--
 左邊：新 pixel 的顏色，是旁邊舊 pixel 混出來的。看橘色框那格，是左右兩格的平均。
+
 右邊：新 vertex 的位置，也是用附近的舊 vertices 算出來的。看比較大的橘點，它用了圈起來的那四個舊點。
+
 這就是上一頁的 Smooth。
 -->
 
@@ -195,6 +233,18 @@ clicks: 1
 </div>
 
 </v-click>
+
+<!--
+把前兩頁整理成一張表。
+
+第一列是 Step 1：圖片放大是決定新 pixel 對應到原圖哪裡，subdivision 是插入新的 vertices 和 edges。
+
+第二列是 Step 2：圖片是用旁邊的 pixel 內插出顏色，subdivision 是用旁邊的 vertices 算出新位置。
+
+[click] 重點只有一句：新的值都是附近舊的值做加權平均。後面每一個 scheme 都只是不同的加權平均規則。
+
+加權平均是什麼，下一頁馬上講。
+-->
 
 ---
 layout: two-cols
@@ -226,6 +276,7 @@ layout: two-cols
 
 <!--
 拉 slider：權重偏向哪一邊，新的點就靠近哪一邊。兩個權重永遠加起來是 1。
+
 表格只要帶過：後面會看到這些數字，它們都只是不同的權重，而且每一組加起來都是 1。細節到 curve 那一段再講。
 -->
 
@@ -252,6 +303,7 @@ clicks: 5
 
 <!--
 每按一下多切一次。虛線是 control points 連成的折線，橘色是切出來的結果。
+
 切到第 3、4 次之後幾乎看不出變化，這就是「收斂」：它越來越接近某一條固定的曲線，那條曲線就是 limit curve。
 -->
 
@@ -277,6 +329,7 @@ layout: two-cols
 
 <!--
 綠色的曲線穿過每一個白色的 control point。現場拖一個點，曲線會跟著，但永遠通過它。
+
 這裡用的是後面會講的 4-point scheme，現在先不用提名字。
 -->
 
@@ -302,6 +355,8 @@ layout: two-cols
 
 <!--
 同樣的 control points，這次曲線沒有碰到中間那些點，只是被它們拉過去，但整條線比上一頁更順。
+
 回扣前面拉 control point 那頁：surface 沒碰到橘色的點，就是因為 Catmull-Clark 是 approximating。
+
 後面每介紹一個 scheme，都會說它是哪一類。
 -->

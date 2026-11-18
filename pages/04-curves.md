@@ -6,6 +6,12 @@ layout: section
 
 先在 2D 的曲線上把觀念弄懂
 
+<!--
+第四段講曲線。曲面比較難想像，所以先在 2D 的曲線上把觀念弄懂。
+
+會看三個方法：Chaikin、cubic B-spline、4-point。之後的 surface scheme 都是從它們推廣出來的。
+-->
+
 ---
 clicks: 4
 ---
@@ -15,6 +21,22 @@ clicks: 4
 曲線版的 subdivision 最容易理解：一直把 <span class="key">角</span> 切掉，折線就會變圓。<span class="small">（以 Chaikin 為例）</span>
 
 <CornerCut :step="$clicks" />
+
+<!--
+曲線版的 subdivision 最好懂：一直把角切掉，折線就會變圓。這裡用 Chaikin 當例子。
+
+一開始只有四個 control points 連成的折線。
+
+[click] Insert：每條邊上，在四分之一和四分之三的位置各放一個新點。
+
+[click] Connect：把新的點連起來，原本的角就被切掉了。
+
+[click] Repeat：對新的折線再做一次，角越切越小。
+
+[click] 做很多次之後，看起來就是一條平滑的曲線。
+
+注意舊的 control points 都被丟掉了，曲線沒有通過它們。
+-->
 
 ---
 layout: two-cols
@@ -40,6 +62,24 @@ $$
 ::right::
 
 <CurveSubdivision scheme="chaikin" :level="1" :width="440" />
+
+<!--
+把上一頁的動作寫成公式。
+
+對每一條邊產生兩個新點：Q 靠近 P_i，所以 P_i 佔四分之三、P_{i+1} 佔四分之一；R 反過來。
+
+三個重點：
+
+第一，舊的點全部丟掉，所以是 approximating。
+
+第二，n 個點會變成 2(n−1) 個點。例如 4 個點變 6 個，再變 10 個。
+
+第三，它的 limit curve 剛好是 quadratic B-spline。
+
+公式不用背，記得「每條邊的四分之一和四分之三」就好。
+
+右邊可以拉 slider 看切幾次的結果，也可以拖 control points。
+-->
 
 ---
 
@@ -79,6 +119,28 @@ $\tfrac12$ 那一項一直縮小到消失，只剩下 $1$ 那一項 → 收斂�
 </div>
 </div>
 
+<!--
+這頁回答：為什麼切下去會越來越接近一條固定的曲線，而不是亂跑？
+
+先看左邊。每個新點都是舊點的加權平均，權重加起來是 1。
+
+[click] 所以新點一定落在舊點之間，不會跑到外面去。
+
+[click] 每切一次，相鄰兩點的距離大約變成一半。
+
+[click] 點越來越密、彼此越來越近，最後就貼在同一條曲線上。
+
+[click] 右邊是數學上的說法，知道有這回事就好。把切一次寫成矩陣 A，切 k 次就是乘 k 次 A。
+
+Eigenvalue 可以這樣理解：它是「每乘一次 A，某個量會被放大或縮小幾倍」。
+
+這裡有兩個量。兩個點的相加，每次都不變，對應 eigenvalue 1。兩個點的距離，每次變一半，對應 eigenvalue 二分之一。
+
+距離一直乘二分之一，最後變成零，只剩下不變的那個部分，所以收斂。
+
+如果有人問細節：舉 P1 等於 0、P2 等於 8 的例子，切一次變成 2 和 6，相加還是 8，距離從 8 變成 4。
+-->
+
 ---
 layout: two-cols
 ---
@@ -107,8 +169,11 @@ Limit curve 是 <span class="key">cubic B-spline</span>，比 Chaikin 更平滑�
 
 <!--
 Chaikin 會把舊的點丟掉。Cubic B-spline 不丟，而是有兩種點。
+
 Edge point：每條邊上的新點，就是兩個端點各一半，也就是中點。
+
 Vertex point：舊的點要移動，自己佔四分之三，左右鄰居各佔八分之一。
+
 這三組數字（½、½）和（⅛、¾、⅛）請記一下，下一頁的圖上標的就是它們。
 -->
 
@@ -124,10 +189,15 @@ clicks: 5
 
 <!--
 現在把上一頁的公式實際做一次。跟 Corner Cutting 那頁同樣的四個點，方便比較。
+
 [click] 第一步是 edge point 的公式：每條邊的中點放一個新點，紅色。圖上的 ½ 就是公式裡的二分之一、二分之一。
+
 [click] 第二步是 vertex point 的公式：舊的點也要動。以 P2 為例，它自己佔四分之三，左右鄰居各佔八分之一，所以往鄰居的方向靠近一點，變成藍色的點。頭尾兩個點沒有兩邊的鄰居，這裡讓它們留在原地。
+
 [click] 第三步：把紅點和藍點照順序連起來，舊的折線就不要了。
+
 [click] 再做一次。
+
 [click] 做很多次就是平滑的曲線。它不通過 control points，所以是 approximating。
 -->
 
@@ -156,8 +226,11 @@ $$Q = \frac{-P_{i-1} + 9 P_i + 9 P_{i+1} - P_{i+2}}{16}$$
 
 <!--
 前兩個方法曲線都不通過 control points。如果一定要通過，就用 4-point scheme。
+
 舊的點完全不動，只在每條邊中間插入一個新點。
+
 公式拆開看：近的兩個點各九除以十六，遠的兩個點各負一除以十六，加起來還是 1。
+
 下一頁的圖上標的 9/16 和 −1/16 就是這四個權重。
 -->
 
@@ -173,9 +246,13 @@ clicks: 4
 
 <!--
 把上一頁的公式實際做一次，還是同樣的四個點。
+
 [click] 每條邊插入一個新點。以中間那條邊為例，用前後共四個點來算：近的兩個各九除以十六，遠的兩個各負一除以十六。虛線圈是單純的中點，紅點是實際的位置，負的權重把它往外頂。
+
 [click] 舊的點留在原地，跟新的點一起連起來。
+
 [click] 再做一次。
+
 [click] 做很多次就是平滑的曲線，而且通過每一個 control point，所以是 interpolating。
 -->
 
@@ -261,3 +338,19 @@ Chaikin 的 limit curve 是 $C^1$，cubic B-spline 是 $C^2$，4-point 是 $C^1$
 </div>
 <CurveSubdivision :schemes="['chaikin', 'cubic', 'fourPoint']" scheme="chaikin" :level="4" :width="500" />
 </div>
+
+<!--
+把三個曲線方法放在一起比。
+
+Chaikin：不通過 control points，平滑度 C1。
+
+Cubic B-spline：也不通過，但是最平滑，C2。
+
+4-point：通過 control points，平滑度 C1，而且容易有小波動。
+
+右邊可以切換三個 scheme，用同一組 control points 直接比較。切到 4-point 的時候，曲線會穿過每個點，但是比較不順。
+
+結論是一個取捨：要曲線通過 control points，就要犧牲一點平滑度。
+
+這個取捨到 surface 也一樣，接下來交給我的夥伴講 surface subdivision。
+-->
