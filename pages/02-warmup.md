@@ -203,26 +203,42 @@ clicks: 4
 -->
 
 ---
+layout: two-cols
+---
 
 # 演算法長什麼樣子？
 
-球和 terrain 用的是同一個骨架，只有「新 vertex 放哪」不同：
+球和 terrain 的骨架一樣，只差一行：
 
 ```text {all|2|3-5|6-8|9}
 Split_One_Level(mesh):
-    copy old vertices
-    for each edge:
-        create a new vertex            # 放在哪？ 這行決定了是哪種 scheme
-        create two new edges
-    for each face:
-        create new edges inside the face
-        create 4 new faces
-    replace old vertices, edges and faces
+  copy old vertices
+  for each edge:
+    create a new vertex  # 放哪？決定 scheme
+    create two new edges
+  for each face:
+    create new edges inside
+    create 4 new faces
+  replace old mesh
 ```
 
 <v-click at="5">
 
-**難的不是數學，是 data structure：**
-給一條 edge，要能快速找到它的兩個端點、兩邊的 face、鄰居的 vertex。
+**難的不是數學，是 data structure。**
 
 </v-click>
+
+::right::
+
+<div class="mt-12">
+  <SplitTrace :step="$clicks" />
+</div>
+
+<!--
+右邊的圖會跟著左邊標亮的那幾行變化。用兩個共用一條 edge 的 triangle 當例子。
+[click] 先把舊的 vertices 原封不動搬過來。
+[click] 對每條 edge：產生一個新 vertex，一條 edge 變兩條。「放哪」這一行決定了是哪種 scheme：推到球面是球，隨機上下推是 terrain。注意中間那條共用的 edge 只做一次。
+[click] 對每個 face：把新的 vertices 連起來，裡面多 3 條 edge，變成 4 個 faces。
+[click] 換掉舊的 mesh，這一輪結束。4 個點變 9 個，2 個面變 8 個。
+[click] 真正難寫的是 data structure：給一條 edge，要能馬上找到它的兩個端點、兩邊的 face、鄰居的 vertex。後面的 scheme 都要靠鄰居算加權平均。
+-->
