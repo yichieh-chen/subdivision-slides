@@ -164,11 +164,11 @@ layout: two-cols
 **Fractal**：放大來看，局部和整體長得很像。
 山上有丘陵，丘陵上有石頭……
 
-做法和球幾乎一樣，只改第 2 步：
+做法和球幾乎一樣，只改第 3 步：
 
 1. 每條 edge 的中點插入新 vertex
-2. 把新 vertex <span class="key">隨機往上或往下推</span>
-3. 每個 triangle 切成 4 個
+2. 連接新的 vertices，triangle 切成 4 個
+3. 把新的 vertices <span class="key">隨機往上或往下推</span>
 
 <v-click>
 
@@ -183,6 +183,24 @@ $$s_{i+1} = k \cdot s_i$$
 ::right::
 
 <Terrain :width="420" :height="290" />
+
+---
+clicks: 4
+---
+
+# 地形的一輪拆開來看
+
+<div class="mt-2">
+  <TerrainStep :step="$clicks" />
+</div>
+
+<!--
+跟球那頁一樣，按一下走一步。左邊是整塊地，右邊是從側面看其中一條 edge。
+[click] 步驟 1：每條 edge 的中點插入一個新 vertex。
+[click] 步驟 2：連起來，一個 triangle 變四個。到這裡還是平的，跟球一模一樣。
+[click] 步驟 3：這裡不一樣了。新的點隨機往上或往下推，最多推 s。可以按「換一組亂數」，每次結果都不同。
+[click] 下一輪再做同樣三件事，但這次最多只能推 k 乘 s。k 是 0.5，所以起伏只有上一輪的一半：大的起伏先定下來，小的細節疊在上面。
+-->
 
 ---
 
