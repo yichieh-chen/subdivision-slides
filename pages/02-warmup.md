@@ -121,8 +121,8 @@ layout: two-cols
 每一輪：
 
 1. 每條 edge 的中點插入一個新 vertex
-2. 把所有 vertex <span class="key">往外推到球面上</span>
-3. 每個 triangle 切成 4 個
+2. 連接新的 vertices，triangle 切成 4 個
+3. 把新的 vertices <span class="key">往外推到球面上</span>
 
 ::right::
 
@@ -132,7 +132,27 @@ layout: two-cols
 />
 
 <!--
+步驟 1、2 是 Refine，步驟 3 是 Smooth。
+中點在球的裡面，不往外推的話切再多次還是原來的多面體。
 問大家：這個 scheme 是 interpolating 嗎？是，舊的點本來就在球面上，不會再動。
+-->
+
+---
+clicks: 3
+---
+
+# 一輪拆開來看
+
+<div class="mt-2">
+  <SphereStep :step="$clicks" />
+</div>
+
+<!--
+按一下走一步。左邊是整個 mesh，淺色那一面是我們盯著看的 triangle；右邊是把球切開、從側面看一條 edge。
+[click] 步驟 1：每條 edge 的中點插入一個新 vertex。注意右邊：中點在直線上，直線在球的裡面。
+[click] 步驟 2：把新的 vertices 連起來，一個 triangle 變四個。形狀完全沒變，到這裡都只是 Refine。
+[click] 步驟 3：把新的 vertices 從球心往外推到球面上。這是 Smooth，表面才鼓起來。
+舊的深藍色點從頭到尾沒有動。
 -->
 
 ---
