@@ -32,7 +32,7 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `TerrainStep`：把 fractal terrain 的一輪拆成三步，再看下一輪幅度怎麼縮小
   - `SplitTrace`：跟著 pseudocode 的每一段，畫出 mesh 怎麼被切
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
-  - `CornerCut`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
+  - `CornerCut`、`CurveSteps`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
   - `Stencil`：Butterfly 與 Loop 的權重圖
   - `Mesh3D`：上面 3D 元件共用的 canvas renderer
 - `lib/`：subdivision 演算法本身（`curves.ts`、`mesh.ts`）

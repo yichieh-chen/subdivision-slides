@@ -12,7 +12,7 @@ clicks: 4
 
 # Corner Cutting：把角切掉
 
-曲線版的 subdivision 最容易理解：一直把 <span class="key">角</span> 切掉，折線就會變圓。
+曲線版的 subdivision 最容易理解：一直把 <span class="key">角</span> 切掉，折線就會變圓。<span class="small">（以 Chaikin 為例）</span>
 
 <CornerCut :step="$clicks" />
 
@@ -80,6 +80,25 @@ $\tfrac12$ 那一項一直縮小到消失，只剩下 $1$ 那一項 → 收斂�
 </div>
 
 ---
+clicks: 5
+---
+
+# Cubic B-spline：一步一步看
+
+跟 Chaikin 不一樣的地方：<span class="key">舊的點不丟掉，而是移動</span>。
+
+<CurveSteps scheme="cubic" :step="$clicks" />
+
+<!--
+跟 Corner Cutting 那頁同樣的四個點，方便比較。
+[click] 第一步：每條邊的中點放一個新點，紅色。權重是二分之一、二分之一。
+[click] 第二步：舊的點也要動。以 P2 為例，它自己佔四分之三，左右鄰居各佔八分之一，所以往鄰居的方向靠近一點，變成藍色的點。頭尾兩個點沒有兩邊的鄰居，這裡直接丟掉。
+[click] 第三步：把紅點和藍點照順序連起來，舊的折線就不要了。
+[click] 再做一次。
+[click] 做很多次就是平滑的曲線。它不通過 control points，所以是 approximating。
+-->
+
+---
 layout: two-cols
 ---
 
@@ -104,6 +123,24 @@ Limit curve 是 <span class="key">cubic B-spline</span>，比 Chaikin 更平滑�
 ::right::
 
 <CurveSubdivision scheme="cubic" :level="1" :width="440" />
+
+---
+clicks: 4
+---
+
+# 4-point Scheme：一步一步看
+
+跟前兩個不一樣的地方：<span class="key">舊的點完全不動</span>，只插入新的點。
+
+<CurveSteps scheme="fourPoint" :step="$clicks" />
+
+<!--
+還是同樣的四個點。
+[click] 每條邊插入一個新點。以中間那條邊為例，用前後共四個點來算：近的兩個各九除以十六，遠的兩個各負一除以十六。虛線圈是單純的中點，紅點是實際的位置，負的權重把它往外頂。
+[click] 舊的點留在原地，跟新的點一起連起來。
+[click] 再做一次。
+[click] 做很多次就是平滑的曲線，而且通過每一個 control point，所以是 interpolating。
+-->
 
 ---
 layout: two-cols
