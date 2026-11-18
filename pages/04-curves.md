@@ -167,6 +167,66 @@ $$Q = \frac{-P_{i-1} + 9 P_i + 9 P_{i+1} - P_{i+2}}{16}$$
 
 ---
 
+# 平滑度：$C^0$、$C^1$、$C^2$ 是什麼？
+
+描述「接起來的地方有多順」。數字越大越順。
+
+<div class="grid grid-cols-3 gap-6 mt-2">
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <polyline points="20,95 100,22 180,95" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="miter" />
+  <circle cx="100" cy="22" r="6" fill="#ef4444" />
+</svg>
+
+**$C^0$：位置連續**
+
+<div class="small">沒有斷開，但是有尖角。</div>
+</div>
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <path d="M15,30 L100,30 A65,65 0 0 1 165,95" fill="none" stroke="#2563eb" stroke-width="4" />
+  <circle cx="100" cy="30" r="6" fill="#ef4444" />
+</svg>
+
+**$C^1$：切線也連續**
+
+<div class="small">沒有尖角。但直線接圓弧：彎的程度突然改變。</div>
+</div>
+<div>
+<svg viewBox="0 0 200 110" class="w-full">
+  <path d="M15,95 C80,95 95,20 185,20" fill="none" stroke="#2563eb" stroke-width="4" />
+</svg>
+
+**$C^2$：曲率也連續**
+
+<div class="small">連彎的程度都是慢慢變的，反光也順。</div>
+</div>
+</div>
+
+<div class="small mt-4">
+
+Chaikin 的 limit curve 是 $C^1$，cubic B-spline 是 $C^2$，4-point 是 $C^1$。推廣到 surface 之後也一樣。
+
+</div>
+
+<!--
+比較三個方法之前，先講 C0、C1、C2。下一頁的比較表，還有後面比較每個 surface 的方法好不好，都是在比這個，所以先講清楚。
+
+它們描述的是：曲線或曲面，接起來的地方有多順。數字越大越順。
+
+左邊是 C0，只有位置連續。意思是線沒有斷開，兩段有接在一起，但是接的地方可以有尖角，像紅點那裡。
+
+中間是 C1，切線也連續。切線就是線前進的方向。C1 的意思是經過接點的時候方向不會突然轉彎，所以沒有尖角。但是看這張圖：左邊是直線，右邊是圓弧，在紅點接起來。方向是順的，可是直線完全不彎，圓弧一開始就很彎，「彎的程度」在紅點突然從零跳到很彎。這個彎的程度叫曲率。
+
+右邊是 C2，連曲率都連續。彎的程度是慢慢變的，沒有突然跳。
+
+曲面也是一樣的意思。C1 的曲面摸起來沒有摺痕。C2 的曲面連反光都很平順，C1 的曲面反光在某些地方會看起來斷一下。所以做車子、做角色都希望是 C2。
+
+最後一行：Chaikin 切到極限是 C1，三次 B-spline 是 C2，4-point 是 C1。下一頁會把這三個放在一起比。之後把它們推廣到曲面也一樣，Doo-Sabin 是 C1，Catmull-Clark 是 C2。
+-->
+
+---
+
 # 比一比：Approximating vs. Interpolating
 
 <div class="flex gap-6 items-start">
