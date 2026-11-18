@@ -180,6 +180,39 @@ clicks: 1
 </v-click>
 
 ---
+layout: two-cols
+---
+
+# 加權平均
+
+整份投影片只需要這一個數學工具。
+
+- **中點**：$\tfrac12 A + \tfrac12 B$，兩邊各佔一半
+- 比例不一樣時，誰的 <span class="key">權重</span> 大就靠近誰
+- 權重加起來一定是 <span class="key">1</span>
+
+<v-click>
+
+後面每個 scheme 只是換一組權重：
+
+- Chaikin：$\tfrac34,\ \tfrac14$
+- Cubic B-spline：$\tfrac12,\ \tfrac12$ 和 $\tfrac18,\ \tfrac34,\ \tfrac18$
+- 4-point：$-\tfrac1{16},\ \tfrac9{16},\ \tfrac9{16},\ -\tfrac1{16}$
+
+</v-click>
+
+::right::
+
+<div class="mt-20">
+  <WeightedAverage />
+</div>
+
+<!--
+拉 slider：權重偏向哪一邊，新的點就靠近哪一邊。兩個權重永遠加起來是 1。
+表格只要帶過：後面會看到這些數字，它們都只是不同的權重，而且每一組加起來都是 1。細節到 curve 那一段再講。
+-->
+
+---
 
 # 三個之後一直會用到的名詞
 
