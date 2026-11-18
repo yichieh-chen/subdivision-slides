@@ -77,7 +77,9 @@ clicks: 1
 要改形狀，就去拉 <span class="key">control mesh</span> 上的點：
 
 - 平滑的 surface 會被 <span class="key">拉過去</span>
-- 但不會真的貼到那個點上
+- 會不會 <b>碰到</b> 那個點，由演算法決定
+
+<div class="small">這裡用的 Catmull-Clark 不會碰到；有些 scheme 會。</div>
 
 <v-click>
 
@@ -94,7 +96,8 @@ clicks: 1
 <ControlPull :shape="$clicks >= 1 ? 'bar' : 'cube'" :highlight="$clicks >= 1" :pull="0.6" />
 
 <!--
-拉 slider：橘色的 control point 往外移，裡面的 surface 跟著鼓出去，但沒有碰到那個點。
+拉 slider：橘色的 control point 往外移，裡面的 surface 跟著鼓出去。
+這個例子裡 surface 沒有碰到那個點，但這是 Catmull-Clark 的特性，不是所有 scheme 都這樣；等一下講 interpolating / approximating 會再回來。
 按下一步換成長條：橘色是有變形的部分，藍色是完全沒動的部分。
 原因後面會看到：每個新的點都只用「附近」的舊點算出來。
 -->
