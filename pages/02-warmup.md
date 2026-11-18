@@ -121,8 +121,8 @@ layout: two-cols
 每一輪：
 
 1. 每條 edge 的中點插入一個新 vertex
-2. 把所有 vertex <span class="key">往外推到球面上</span>
-3. 每個 triangle 切成 4 個
+2. 連接新的 vertices，triangle 切成 4 個
+3. 把新的 vertices <span class="key">往外推到球面上</span>
 
 ::right::
 
@@ -132,6 +132,8 @@ layout: two-cols
 />
 
 <!--
+步驟 1、2 是 Refine，步驟 3 是 Smooth。
+中點在球的裡面，不往外推的話切再多次還是原來的多面體。
 問大家：這個 scheme 是 interpolating 嗎？是，舊的點本來就在球面上，不會再動。
 -->
 
