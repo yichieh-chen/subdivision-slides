@@ -138,6 +138,24 @@ layout: two-cols
 -->
 
 ---
+clicks: 3
+---
+
+# 一輪拆開來看
+
+<div class="mt-2">
+  <SphereStep :step="$clicks" />
+</div>
+
+<!--
+按一下走一步。左邊是整個 mesh，淺色那一面是我們盯著看的 triangle；右邊是把球切開、從側面看一條 edge。
+[click] 步驟 1：每條 edge 的中點插入一個新 vertex。注意右邊：中點在直線上，直線在球的裡面。
+[click] 步驟 2：把新的 vertices 連起來，一個 triangle 變四個。形狀完全沒變，到這裡都只是 Refine。
+[click] 步驟 3：把新的 vertices 從球心往外推到球面上。這是 Smooth，表面才鼓起來。
+舊的深藍色點從頭到尾沒有動。
+-->
+
+---
 layout: two-cols
 ---
 
