@@ -213,19 +213,78 @@ layout: two-cols
 -->
 
 ---
+layout: two-cols
+clicks: 5
+---
 
-# 三個之後一直會用到的名詞
+# Limit curve / limit surface
 
-<v-clicks>
+切 <span class="key">無限多次</span> 之後收斂到的平滑形狀。
 
-- <span class="key">Limit surface / limit curve</span>
-  如果一直切下去（切無限多次），最後會收斂到的那個平滑形狀。
-  實際上我們切 3 到 5 次，看起來就夠 smooth 了。
+- 像 0.9、0.99、0.999 … 越來越接近 1
+- 每切一次，就更接近 limit curve
+- 實際上切 <span class="key">3 到 5 次</span>，看起來就夠 smooth 了
 
-- <span class="key">Interpolating</span>（stationary）
-  原本的 control points <b>不會動</b>，最後的曲面會「通過」它們。
+<div class="small mt-4">2D 的叫 limit curve，3D 的叫 limit surface，意思一樣。</div>
 
-- <span class="key">Approximating</span>（non-stationary）
-  原本的 control points <b>也會被移動</b>，最後的曲面只是「靠近」它們，但通常更平滑。
+::right::
 
-</v-clicks>
+<div class="mt-12">
+  <CurveSubdivision scheme="cubic" :level="$clicks" :width="440" />
+</div>
+
+<!--
+每按一下多切一次。虛線是 control points 連成的折線，橘色是切出來的結果。
+切到第 3、4 次之後幾乎看不出變化，這就是「收斂」：它越來越接近某一條固定的曲線，那條曲線就是 limit curve。
+-->
+
+---
+layout: two-cols
+---
+
+# Interpolating
+
+原本的 control points <span class="key">不會動</span>。
+
+- 每一輪只決定 <b>新插入的點</b> 放哪裡
+- 舊的點留在原地
+- Limit curve 一定 <span class="key">通過</span> control points
+
+<div class="small mt-4">像連連看：筆一定要經過每個點。<br>拖一個點試試看，曲線永遠穿過它。</div>
+
+::right::
+
+<div class="mt-12">
+  <CurveSubdivision scheme="fourPoint" :level="4" :width="440" />
+</div>
+
+<!--
+綠色的曲線穿過每一個白色的 control point。現場拖一個點，曲線會跟著，但永遠通過它。
+這裡用的是後面會講的 4-point scheme，現在先不用提名字。
+-->
+
+---
+layout: two-cols
+---
+
+# Approximating
+
+原本的 control points <span class="key">也會被移動</span>。
+
+- 每一輪，舊的點也重新做平均
+- Limit curve 只 <span class="key">靠近</span> control points
+- 換來的好處：通常 <b>更平滑</b>
+
+<div class="small mt-4">像磁鐵：線被吸過去，但不用碰到。<br>前面拉 control point 的例子就是 approximating。</div>
+
+::right::
+
+<div class="mt-12">
+  <CurveSubdivision scheme="cubic" :level="4" :width="440" />
+</div>
+
+<!--
+同樣的 control points，這次曲線沒有碰到中間那些點，只是被它們拉過去，但整條線比上一頁更順。
+回扣前面拉 control point 那頁：surface 沒碰到橘色的點，就是因為 Catmull-Clark 是 approximating。
+後面每介紹一個 scheme，都會說它是哪一類。
+-->
