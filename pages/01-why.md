@@ -261,10 +261,10 @@ layout: two-cols
 
 # Interpolating
 
-原本的 control points <span class="key">不會動</span>。
+演算法 <span class="key">不會移動</span> control points。
 
 - 每一輪只決定 <b>新插入的點</b> 放哪裡
-- 舊的點留在原地
+- 舊的點每一輪都留在原地
 - Limit curve 一定 <span class="key">通過</span> control points
 
 <div class="small mt-4">像連連看：筆一定要經過每個點。<br>拖一個點試試看，曲線永遠穿過它。</div>
@@ -286,7 +286,7 @@ layout: two-cols
 
 # Approximating
 
-原本的 control points <span class="key">也會被移動</span>。
+演算法 <span class="key">也會移動</span> control points。
 
 - 每一輪，舊的點也重新做平均
 - Limit curve 只 <span class="key">靠近</span> control points
