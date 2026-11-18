@@ -164,11 +164,11 @@ layout: two-cols
 **Fractal**：放大來看，局部和整體長得很像。
 山上有丘陵，丘陵上有石頭……
 
-做法和球幾乎一樣，只改第 2 步：
+做法和球幾乎一樣，只改第 3 步：
 
 1. 每條 edge 的中點插入新 vertex
-2. 把新 vertex <span class="key">隨機往上或往下推</span>
-3. 每個 triangle 切成 4 個
+2. 連接新的 vertices，triangle 切成 4 個
+3. 把新的 vertices <span class="key">隨機往上或往下推</span>
 
 <v-click>
 
