@@ -38,16 +38,43 @@ layout: two-cols
 - 用 NURBS：要拆成很多塊 patch 再縫起來
 - 用 subdivision：整個 mesh 直接切，不用管洞
 
+<div class="small mt-6">拉 slider 看它怎麼變平滑；勾 control mesh 看原本的形狀。</div>
+
+::right::
+
+<MeshSubdivision shape="ring" :shapes="['ring', 'tshape']" scheme="catmull-clark" :level="2" :width="400" :height="290" />
+
+---
+layout: two-cols
+---
+
+# 實際應用：Pixar
+
+- *Geri&#39;s Game*（1997）：Pixar 第一部用 subdivision 做角色的短片
+- *Ratatouille*：廚師的衣服、圍裙
+- 之後幾乎都用 <span class="key">Catmull-Clark</span>
+
 <v-click>
 
-**實際應用：Pixar**
+手會<b>分岔</b>成好幾根手指：
 
-- *Geri&#39;s Game*（1997）：Geri 的頭、手、衣服都是 subdivision surfaces
-- *Ratatouille*：廚師的衣服、圍裙
-- 之後 Pixar 的電影幾乎都用 **Catmull-Clark**
+- NURBS：要拼很多塊 patch，接縫容易裂
+- Subdivision：<b>一個</b> control mesh 包完整隻手
 
 </v-click>
 
 ::right::
 
-<MeshSubdivision shape="ring" :shapes="['ring', 'tshape']" scheme="catmull-clark" :level="2" :width="400" :height="290" />
+<MeshSubdivision
+  shape="hand" scheme="catmull-clark" :level="3" :max-level="3" :width="420" :height="300" :zoom="1.15"
+  title="示意：一個粗的 control mesh → 平滑的手"
+/>
+
+<div class="small mt-4 text-center">出處：DeRose, Kass, Truong,<br><i>Subdivision Surfaces in Character Animation</i>, SIGGRAPH 1998</div>
+
+<!--
+右邊不是電影裡的模型，是我們自己用方塊堆的一隻手，用來示意 Pixar 的做法。
+把 slider 拉到 0：動畫師實際在調的就是這個很粗的 control mesh，只有幾十個點。
+拉回 3：算出來的是平滑的手，而且手指分岔的地方沒有任何接縫。
+Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很多力氣處理 patch 之間的接縫。
+-->
