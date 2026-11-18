@@ -14,10 +14,10 @@ layout: section
 
 <div class="flex justify-center gap-12 mt-2">
   <ShapeView kind="uv-sphere" title="經緯度切法" color="#e2725b">
-    南北極的三角形又細又擠，degree 很高
+    中間是四邊形，但格子越往南北極越擠；<br>極點是一圈細長的三角形，degree 很高
   </ShapeView>
   <ShapeView kind="ico-sphere" title="Subdivision 切法" color="#5b8def">
-    每個三角形大小幾乎一樣
+    全部是三角形，大小幾乎一樣
   </ShapeView>
 </div>
 
