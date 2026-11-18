@@ -6,6 +6,12 @@ layout: section
 
 在 NURBS 和 polygon mesh 之間
 
+<!--
+第三段很短，回答一個問題：已經有 NURBS 和 polygon mesh 了，為什麼還要 subdivision？
+
+答案是它剛好站在兩者中間，兩邊的優點都拿到。
+-->
+
 ---
 
 # NURBS vs. Mesh vs. Subdivision
@@ -27,6 +33,24 @@ Subdivision 拿到兩邊的優點：像 NURBS 一樣 smooth、好控制，又像
 
 </v-click>
 
+<!--
+先用一句話介紹 NURBS：它是用一張四邊形 grid 的 control points 定義出來的平滑曲面，可以想成 Bézier curve 的曲面版。
+
+然後一列一列看表格。
+
+平滑度：NURBS 天生就是平滑的；polygon mesh 是一片一片平的；subdivision 的 limit surface 是平滑的。
+
+控制方式：NURBS 和 subdivision 都是拉 control mesh，很直覺。
+
+形狀限制：NURBS 只能是 grid，所以只能做出一張紙、圓柱、甜甜圈這類形狀；mesh 和 subdivision 什麼形狀都可以。
+
+麻煩的地方：NURBS 遇到複雜形狀要拼很多塊 patch，接縫會裂開；mesh 要很多點才平滑；subdivision 要特別處理 extraordinary points。
+
+[click] 結論：subdivision 像 NURBS 一樣平滑、好控制，又像 mesh 一樣什麼形狀都能做。
+
+下一頁用一個例子把「形狀限制」那一列畫出來。
+-->
+
 ---
 clicks: 1
 ---
@@ -41,12 +65,17 @@ clicks: 1
 
 <!--
 這頁是把上一頁表格裡「形狀限制」那一格畫出來。
+
 左邊：NURBS 的每一塊 patch 都是一張四邊形的 grid，所以這個形狀要拆成很多塊，一塊一個顏色。
+
 右邊：subdivision 只有一個 control mesh，就是虛線那個方塊形狀。
 
 [click] 現在兩邊在同一個位置調一下。
+
 左邊只動了一塊 patch，它的邊界就跟鄰居對不上，中間裂開看得到裡面，這就是 crack。
+
 實際上動畫師要把旁邊每一塊都一起調，接縫才會合。
+
 右邊只拉一個 control point（紅點），旁邊的表面自動跟著變，永遠是一整片。
 -->
 
@@ -80,7 +109,10 @@ layout: two-cols
 
 <!--
 右邊不是電影裡的模型，是我們自己用方塊堆的一隻手，用來示意 Pixar 的做法。
+
 把 slider 拉到 0：動畫師實際在調的就是這個很粗的 control mesh，只有幾十個點。
+
 拉回 2：算出來的是平滑的手，而且手指分岔的地方沒有任何接縫。
+
 Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很多力氣處理 patch 之間的接縫。
 -->

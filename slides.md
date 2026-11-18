@@ -25,7 +25,11 @@ class: text-center
 <div class="small mt-6">Computer Graphics · 課堂報告</div>
 
 <!--
-開場：今天不推公式，用動畫和可以自己玩的 demo 來看 subdivision 在做什麼。
+開場：今天的主題是 subdivision，中文叫細分。
+
+一句話講完：從一個很粗的 mesh 開始，一直切、一直調整，最後長出平滑的曲線或曲面。上面三張圖就是同一個形狀切 0 次、1 次、3 次的樣子。
+
+今天不會推很多公式，主要用動畫和可以現場操作的 demo 來看它在做什麼。
 -->
 
 ---
@@ -47,6 +51,14 @@ layout: two-cols
 ::right::
 
 <MeshSubdivision shape="tshape" scheme="catmull-clark" :level="3" :width="420" :height="300" />
+
+<!--
+先講今天的路線，總共七段。我負責前四段，講到 curve 為止；surface 之後由我的夥伴接著講。
+
+前四段的順序：先講為什麼需要 subdivision，再用球和地形兩個最簡單的例子暖身，接著看它跟 NURBS、polygon mesh 比起來的位置，最後在 2D 的曲線上把觀念弄懂。
+
+提醒大家：投影片上的圖大多可以拖曳、可以拉 slider，等一下會現場操作。
+-->
 
 ---
 src: ./pages/01-why.md
