@@ -638,37 +638,173 @@ n 等於 4 的時候，第二種寫法是自己佔四分之二，N 佔四分之�
 -->
 
 ---
+layout: two-cols
+clicks: 2
+---
 
-# 用 Cube 算一次
+# 用 Cube 算一次 ①
 
 Cube 的 8 個 vertices 是 $(\pm1, \pm1, \pm1)$。
 
-<v-clicks>
+<div v-click="1">
 
-- **Face point**（上面的 face）：4 個 vertices 的平均 $= (0,\ 1,\ 0)$
+**Face point**（上面的 face）
 
-- **Edge point**（$(1,1,1)$ 到 $(1,1,-1)$ 這條 edge）：
+4 個角 $(\pm1,\ 1,\ \pm1)$ 平均 → <b style="color:#f97316">$(0,\ 1,\ 0)$</b>
 
-  $\tfrac14\big[(1,1,1) + (1,1,-1) + (0,1,0) + (1,0,0)\big] = (0.75,\ 0.75,\ 0)$
+</div>
 
-- **舊的 vertex** $(1,1,1)$，$n = 3$：
+<div v-click="2">
 
-  $F = (\tfrac13, \tfrac13, \tfrac13)$，$R = (\tfrac23, \tfrac23, \tfrac23)$　→　$v_{new} = \tfrac{F + 2R}{3} = (\tfrac59, \tfrac59, \tfrac59)$
+**Edge point**（<b style="color:#dc2626">紅色</b> edge）
 
-</v-clicks>
+兩個端點 $(1,1,1),\ (1,1,-1)$<br>
+＋兩邊 face points $(0,1,0),\ (1,0,0)$<br>
+4 個平均 →<b style="color:#2563eb">$(0.75,\ 0.75,\ 0)$</b>
+
+<div class="small">不是中點 <b style="color:#9333ea">(1, 1, 0)</b>：被兩邊的 face point 往內拉了。</div>
+
+</div>
+
+::right::
+
+<svg viewBox="20 20 370 290" width="420" class="mx-auto mt-2">
+<polygon points="58.2,106.8 238.2,106.8 301.8,43.2 121.8,43.2" fill="#f9731622" stroke="none" />
+<line x1="301.8" y1="43.2" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="238.2" y1="286.8" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="301.8" y1="223.2" x2="301.8" y2="43.2" stroke="#64748b" stroke-width="2"/>
+<line x1="301.8" y1="223.2" x2="238.2" y2="286.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="106.8" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="43.2" x2="301.8" y2="43.2" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="43.2" x2="58.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="286.8" x2="238.2" y2="286.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="286.8" x2="58.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="223.2" x2="301.8" y2="223.2" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="121.8" y1="223.2" x2="121.8" y2="43.2" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="121.8" y1="223.2" x2="58.2" y2="286.8" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<g v-click="1">
+<circle cx="180.0" cy="75.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2"/>
+<text x="170.0" y="63.0" fill="#f97316" text-anchor="end" style="font-size: 14px">(0, 1, 0)</text>
+</g>
+<g v-click="2">
+<line x1="238.2" y1="106.8" x2="301.8" y2="43.2" stroke="#dc2626" stroke-width="4"/>
+<circle cx="270.0" cy="165.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2"/>
+<text x="282.0" y="170.0" fill="#f97316" text-anchor="start" style="font-size: 14px">(1, 0, 0)</text>
+<line x1="247.5" y1="97.5" x2="238.2" y2="106.8" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="247.5" y1="97.5" x2="301.8" y2="43.2" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="247.5" y1="97.5" x2="180.0" y2="75.0" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="247.5" y1="97.5" x2="270.0" y2="165.0" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="270.0" cy="75.0" r="7" fill="none" stroke="#9333ea" stroke-width="2.5"/>
+<text x="282.0" y="71.0" fill="#9333ea" text-anchor="start" style="font-size: 14px">中點 (1, 1, 0)</text>
+<circle cx="247.5" cy="97.5" r="8" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+<text x="235.5" y="123.5" fill="#2563eb" text-anchor="end" style="font-size: 14px">(0.75, 0.75, 0)</text>
+</g>
+</svg>
 
 <!--
-公式看完，用立方體實際算一次。立方體的八個頂點是正負 1 的組合。
+公式看完，用立方體實際算一次。立方體的八個頂點是正負 1 的組合，右邊是這個立方體，(1,1,1) 是正前方右上角那個角。
 
-（按一下）先算 face point。看上面那個面，四個頂點的 y 都是 1，x 和 z 是正負 1。平均起來 x 和 z 都抵消變成 0，所以 face point 是 (0,1,0)，就是上面那個面的正中心。同樣的，右邊的面是 (1,0,0)，前面的面是 (0,0,1)。
+（按一下）先算 face point。看上面那個面，就是右邊塗淡橘色的面。它的四個角 y 都是 1，x 和 z 是正負 1。平均起來 x 和 z 都抵消變成 0，所以 face point 是 (0,1,0)，就是這個面的正中心，橘色的點。同樣的道理，右邊那個面的 face point 是 (1,0,0)，前面那個面是 (0,0,1)。
 
-（按一下）再算 edge point。看 (1,1,1) 到 (1,1,-1) 這條邊，它在上面和右邊兩個面的交界。四個點平均：兩個端點，加上面的 face point (0,1,0)，加右面的 face point (1,0,0)。加起來是 (3,3,0)，除以四是 (0.75, 0.75, 0)。
+（按一下）再算 edge point。看紅色這條邊，從 (1,1,1) 到 (1,1,-1)，它是上面和右面兩個面的交界。Edge point 是四個點的平均，圖上藍色虛線連到的四個點：兩個端點，加上上面的 face point (0,1,0)，加右面的 face point (1,0,0)。四個加起來是 (3,3,0)，除以四是 (0.75, 0.75, 0)，就是藍色的點。
 
-注意這條邊的中點是 (1,1,0)，但 edge point 是 (0.75, 0.75, 0)。它被兩側的面往內拉了，所以 edge point 不是邊的中點。
+注意紫色空心的那個是這條邊的中點，(1,1,0)。藍色的 edge point 不在中點上，它被兩側的面往內拉了。這個紫色中點下一頁還會用到。
+-->
 
-（按一下）最後移動舊的頂點。看 (1,1,1) 這個角，它連三條邊，n 等於 3。F 是三個 face point 的平均，三分之一。R 是三條邊的中點的平均，三分之二。n 減 3 是 0，所以自己那一項不見了。F 加兩倍 R 是三分之五，再除以 3，是九分之五，大約 0.56。
+---
+layout: two-cols
+clicks: 4
+---
 
-所以這個角從 1 被拉到 0.56，縮了很多。右邊立方體一直切會變成一顆比原本小的球，就是這個原因。
+# 用 Cube 算一次 ②：$v_{new}$
+
+角 $v_{old} = (1,1,1)$ 連 3 條 edge → $n = 3$
+
+<div v-click="1">
+
+<b style="color:#f97316">$F$</b> = 3 個 face points 的平均
+$(0,1,0),\ (1,0,0),\ (0,0,1)$ → $\left(\tfrac13, \tfrac13, \tfrac13\right)$
+
+</div>
+
+<div v-click="2">
+
+<b style="color:#9333ea">$R$</b> = 3 條舊 edge <span class="key">中點</span>的平均
+$(1,1,0),\ (1,0,1),\ (0,1,1)$ → $\left(\tfrac23, \tfrac23, \tfrac23\right)$
+
+</div>
+
+<div v-click="3">
+
+<b style="color:#16a34a">$v_{new}$</b> $= \dfrac{F + 2R + 0 \cdot v_{old}}{3}$<br>
+$= \tfrac13\left(\tfrac13 + \tfrac43\right) = \tfrac59 \approx 0.56$
+
+</div>
+
+<div v-click="4" class="small">
+
+驗算（老師的寫法）：$\tfrac13 \cdot 1 + \tfrac13 \cdot \tfrac13 + \tfrac13 \cdot \tfrac13 = \tfrac59$
+
+</div>
+
+::right::
+
+<svg viewBox="20 20 370 290" width="420" class="mx-auto mt-2">
+<defs><marker id="cc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a" /></marker></defs>
+<line x1="301.8" y1="43.2" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="238.2" y1="286.8" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="301.8" y1="223.2" x2="301.8" y2="43.2" stroke="#64748b" stroke-width="2"/>
+<line x1="301.8" y1="223.2" x2="238.2" y2="286.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="106.8" x2="238.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="43.2" x2="301.8" y2="43.2" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="43.2" x2="58.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="286.8" x2="238.2" y2="286.8" stroke="#64748b" stroke-width="2"/>
+<line x1="58.2" y1="286.8" x2="58.2" y2="106.8" stroke="#64748b" stroke-width="2"/>
+<line x1="121.8" y1="223.2" x2="301.8" y2="223.2" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="121.8" y1="223.2" x2="121.8" y2="43.2" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="121.8" y1="223.2" x2="58.2" y2="286.8" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="238.2" y1="106.8" x2="270.0" y2="75.0" stroke="#9333ea" stroke-width="4"/>
+<line x1="238.2" y1="106.8" x2="238.2" y2="196.8" stroke="#9333ea" stroke-width="4"/>
+<line x1="238.2" y1="106.8" x2="148.2" y2="106.8" stroke="#9333ea" stroke-width="4"/>
+<circle cx="238.2" cy="106.8" r="8" fill="currentColor" />
+<text x="250.2" y="126.8" fill="currentColor" text-anchor="start" style="font-size: 16px">v<tspan style="font-size: 11px" dy="4">old</tspan></text>
+<g v-click="1">
+<circle cx="180.0" cy="75.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2"/>
+<circle cx="270.0" cy="165.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2"/>
+<circle cx="148.2" cy="196.8" r="8" fill="#f97316" stroke="#fff" stroke-width="2"/>
+<text x="168.0" y="67.0" fill="#f97316" text-anchor="end" style="font-size: 16px">f₁</text>
+<text x="282.0" y="171.0" fill="#f97316" text-anchor="start" style="font-size: 16px">f₂</text>
+<text x="136.2" y="202.8" fill="#f97316" text-anchor="end" style="font-size: 16px">f₃</text>
+</g>
+<g v-click="2">
+<circle cx="270.0" cy="75.0" r="7" fill="#9333ea" stroke="#fff" stroke-width="2"/>
+<circle cx="238.2" cy="196.8" r="7" fill="#9333ea" stroke="#fff" stroke-width="2"/>
+<circle cx="148.2" cy="106.8" r="7" fill="#9333ea" stroke="#fff" stroke-width="2"/>
+<text x="282.0" y="71.0" fill="#9333ea" text-anchor="start" style="font-size: 16px">m₁</text>
+<text x="250.2" y="202.8" fill="#9333ea" text-anchor="start" style="font-size: 16px">m₂</text>
+<text x="136.2" y="100.8" fill="#9333ea" text-anchor="end" style="font-size: 16px">m₃</text>
+</g>
+<g v-click="3">
+<line x1="238.2" y1="106.8" x2="212.3" y2="132.7" stroke="#16a34a" stroke-width="2.5" marker-end="url(#cc-arrow)"/>
+<circle cx="212.3" cy="132.7" r="8" fill="#16a34a" stroke="#fff" stroke-width="2"/>
+<text x="200.3" y="154.7" fill="#16a34a" text-anchor="end" style="font-size: 16px">v<tspan style="font-size: 11px" dy="4">new</tspan></text>
+</g>
+</svg>
+
+<!--
+這頁算一個舊頂點移動到哪裡，就是前面那條最長的公式。
+
+看右邊黑色的點，(1,1,1) 這個角，叫 v old。它連了三條邊，就是加粗的三條紫色線，所以 n 等於 3。
+
+（按一下）第一個要算的是 F：這個角周圍三個面的 face point 的平均。這三個面是上面、右面、前面，face point 就是圖上三個橘色的點 f1、f2、f3，座標是 (0,1,0)、(1,0,0)、(0,0,1)。三個加起來是 (1,1,1)，除以三，F 是三分之一、三分之一、三分之一。
+
+（按一下）第二個要算的是 R：連到這個角的三條舊邊，各取中點，再平均。三個中點是紫色的 m1、m2、m3，座標是 (1,1,0)、(1,0,1)、(0,1,1)。注意這是原本那條邊兩個端點的平均，不是上一頁藍色的 edge point。三個加起來是 (2,2,2)，除以三，R 是三分之二。
+
+（按一下）代進公式。三個座標都一樣，所以只算一個數字就好。分子是 F 加兩倍的 R 加 n 減 3 倍的自己。n 減 3 是 0，所以自己那一項不見了。F 是三分之一，兩倍 R 是三分之四，加起來三分之五。除以 n，也就是除以 3，是九分之五，大約 0.56。綠色的點就是 v new，原本在 1 的角被拉到 0.56，往立方體中心移了很多。
+
+（按一下）最後用老師投影片的寫法驗算一次。自己佔 n 分之 n 減 2，就是三分之一，乘上 1。三個相鄰舊頂點是 (1,1,-1)、(1,-1,1)、(-1,1,1)，平均是三分之一，佔 n 分之 1。F 也是三分之一，佔 n 分之 1。三分之一加九分之一加九分之一，一樣是九分之五。兩種寫法答案一樣。
+
+這就是為什麼立方體一直切，會變成一顆比原本小的球。
 -->
 
 ---
