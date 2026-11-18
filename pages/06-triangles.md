@@ -153,39 +153,143 @@ d 是沿著這條邊往兩頭再延伸出去的兩個點，權重就是 w。
 -->
 
 ---
+layout: two-cols
+---
 
-# Butterfly：三個細節
+# Butterfly：為什麼 c 是負的？
 
 <v-clicks>
 
-- **權重加起來是 1**（$w = 0$ 時）：$\ 2 \times \tfrac12 + 2 \times \tfrac18 + 4 \times \left(-\tfrac{1}{16}\right) = 1$
-
-- **為什麼 c 是負的？**
-  權重全是正的 → 新點只會落在舊點「之間」→ surface 往內縮。
-  但舊的點不能動，所以新點要<span class="key">往外推</span>才會圓 → 需要負的權重。
-
-- **程式怎麼找到 a、b、c、d？**
-  每個 vertex 把連出去的 edges <span class="key">照順序</span>存成 list。
-  這條 edge 的前後一格是 b，再一格是 c，正對面是 d。
+- 權重加起來是 1（$w = 0$）：
+  $2 \cdot \tfrac12 + 2 \cdot \tfrac18 + 4 \cdot \left(-\tfrac{1}{16}\right) = 1$
+- 權重全是正的 → 新點落在舊點<span class="key">之間</span> → 越切越扁
+- Butterfly 的舊點不能動 → 新點要<span class="key">往外推</span>才會圓 → 需要負的權重
 
 </v-clicks>
 
+<div class="small mt-4">右圖是側面（2D 剖面）。和曲線的 4-point scheme 同一個道理。</div>
+
+::right::
+
+<svg viewBox="0 30 340 240" width="100%" class="mx-auto">
+<polyline points="20,230 110,95 230,95 320,230" fill="none" stroke="#64748b" stroke-width="2" />
+<path d="M110,95 Q170.0,61.25 230,95" fill="none" stroke="#f97316" stroke-width="2" stroke-dasharray="6 4" />
+<circle cx="20" cy="230" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="320" cy="230" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="110" cy="95" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="230" cy="95" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="170.0" cy="95.0" r="6" fill="#94a3b8" />
+<line x1="170.0" y1="95.0" x2="170.0" y2="84.1" stroke="#16a34a" stroke-width="2.5" />
+<polygon points="170.0,76.1 164.0,87.1 176.0,87.1" fill="#16a34a" />
+<circle cx="170.0" cy="78.1" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="24" y="258" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">c</text>
+<text x="316" y="258" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">c</text>
+<text x="104" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 17px; font-weight: 600">a</text>
+<text x="236" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 17px; font-weight: 600">a</text>
+<text x="170.0" y="143.0" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">灰點：只用 a，還是平的</text>
+<text x="170.0" y="60.1" fill="#f97316" text-anchor="middle" style="font-size: 15px; font-weight: 600">加上負的 c：往外推</text>
+</svg>
+
 <!--
-Butterfly 有三個細節，老師可能會問。
+Butterfly 的權重裡，c 是負的。這頁解釋為什麼。
 
-（按一下）第一，權重加起來是 1。用 w 等於 0 來算：a 有兩個，各二分之一，加起來是 1。b 有兩個，各八分之一，加起來是四分之一。c 有四個，各負的十六分之一，加起來是負的四分之一。1 加四分之一減四分之一，剛好是 1。w 不是 0 的時候，加起來也還是 1。權重和是 1，新的點才是周圍這些點的加權平均。
+（按一下）先確認權重加起來是 1。用 w 等於 0 算：兩個 a 各二分之一，加起來 1；兩個 b 各八分之一，加起來四分之一；四個 c 各負十六分之一，加起來負四分之一。1 加四分之一減四分之一，剛好是 1。
 
-（按一下）第二，為什麼 c 的權重是負的？
+（按一下）如果權重全部是正的會怎樣？新的點就是周圍幾個點的平均，一定落在那幾個點的「中間」。看右圖，這是從側面看曲面的剖面。藍色的兩個 a 是要切的邊的兩端，紅色的兩個 c 在更外面。如果只用 a，新的點就是灰色的中點，剛好在直線上，還是平的。這樣切再多次，形狀都不會變圓。
 
-如果權重全部是正的，新的點一定落在舊的點「之間」，像 Loop 那樣，曲面會一直往內縮。Approximating 的方法可以接受往內縮，因為舊的點也會跟著動。
+（按一下）Approximating 的方法可以接受，因為舊的點也會一起往內移。但 Butterfly 是 interpolating，舊的點不能動。要變圓，新的點必須比中點再凸出去一點。負的權重就是在做這件事：c 的權重是負的，等於把新的點往「遠離 c」的方向推，就是綠色箭頭，推到橘色的位置。橘色虛線就是變圓之後的樣子。
 
-但是 Butterfly 是 interpolating，舊的點不能動。如果新的點只落在兩個端點的正中間，那切再多次都還是原本那個有稜有角的形狀，不會變圓。要變圓，新的點必須比直線的中點再「凸出去」一點。負的權重就是在做這件事：它讓新的點往遠離 c 的方向移動，也就是往外推。
+這跟前面曲線的 4-point scheme 是一模一樣的道理，那裡兩端的權重也是負的十六分之一。
+-->
 
-這跟前面曲線的 4-point scheme 是同一個道理，那裡兩端的權重也是負的。
+---
+layout: two-cols
+---
 
-（按一下）第三是實作的問題。給一條邊，程式怎麼知道哪些點是 a、b、c、d？
+# 怎麼找到 a、b、c、d？
 
-作法是每個頂點把它連出去的邊，照順時針或逆時針的順序存成一個 list。regular 的頂點一定有六條邊。從「我們要切的這條邊」在 list 裡的位置出發：前一格和後一格連到的點就是 b，再往前、再往後一格是 c，正對面那一格是 d。
+每個 vertex 把連出去的 edges <span class="key">照順序</span>存成 list（逆時針 0～5）
+
+要切的 edge（<b style="color:#f97316">橘色</b>）放在位置 0：
+
+- 位置 1、5 → <b style="color:#16a34a">b</b>
+- 位置 2、4 → <b style="color:#dc2626">c</b>
+- 位置 3 → <b style="color:#9333ea">d</b>
+
+<div class="small mt-2">
+
+另一端 $a_2$ 也照做一次，找到另外兩個 c 和一個 d。
+Regular vertex 一定是 6 條 edge，所以位置是固定的。
+
+</div>
+
+::right::
+
+<svg viewBox="35 60 280 195" width="100%" class="mx-auto">
+<polygon points="135,150 207,150 171.0,87.6" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="135,150 207,150 171.0,212.4" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="135,150 171.0,87.6 99.0,87.6" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="135,150 171.0,212.4 99.0,212.4" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="207,150 171.0,87.6 243.0,87.6" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="207,150 171.0,212.4 243.0,212.4" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="135,150 99.0,87.6 63,150" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="135,150 99.0,212.4 63,150" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="207,150 243.0,87.6 279,150" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="207,150 243.0,212.4 279,150" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="135" y1="150" x2="207" y2="150" stroke="#f97316" stroke-width="5" />
+<circle cx="179.6" cy="150.0" r="10" fill="currentColor" opacity="0.85" />
+<text x="179.6" y="155.0" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">0</text>
+<line x1="135" y1="150" x2="171.0" y2="87.6" stroke="#64748b" stroke-width="3" />
+<circle cx="157.3" cy="111.3" r="10" fill="currentColor" opacity="0.85" />
+<text x="157.3" y="116.3" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">1</text>
+<line x1="135" y1="150" x2="99.0" y2="87.6" stroke="#64748b" stroke-width="3" />
+<circle cx="112.7" cy="111.3" r="10" fill="currentColor" opacity="0.85" />
+<text x="112.7" y="116.3" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">2</text>
+<line x1="135" y1="150" x2="63" y2="150" stroke="#64748b" stroke-width="3" />
+<circle cx="90.4" cy="150.0" r="10" fill="currentColor" opacity="0.85" />
+<text x="90.4" y="155.0" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">3</text>
+<line x1="135" y1="150" x2="99.0" y2="212.4" stroke="#64748b" stroke-width="3" />
+<circle cx="112.7" cy="188.7" r="10" fill="currentColor" opacity="0.85" />
+<text x="112.7" y="193.7" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">4</text>
+<line x1="135" y1="150" x2="171.0" y2="212.4" stroke="#64748b" stroke-width="3" />
+<circle cx="157.3" cy="188.7" r="10" fill="currentColor" opacity="0.85" />
+<text x="157.3" y="193.7" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: var(--slidev-theme-background, #fff)">5</text>
+<circle cx="135" cy="150" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="207" cy="150" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="171.0" cy="87.6" r="7" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="171.0" cy="212.4" r="7" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="99.0" cy="87.6" r="7" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="99.0" cy="212.4" r="7" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="243.0" cy="87.6" r="7" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="243.0" cy="212.4" r="7" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="63" cy="150" r="7" fill="#9333ea" stroke="#fff" stroke-width="2" />
+<circle cx="279" cy="150" r="7" fill="#9333ea" stroke="#fff" stroke-width="2" />
+<text x="135" y="188" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">a₁</text>
+<text x="213" y="180" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">a₂</text>
+<text x="171.0" y="71.6" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b</text>
+<text x="171.0" y="240.4" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b</text>
+<text x="99.0" y="71.6" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">c</text>
+<text x="99.0" y="240.4" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">c</text>
+<text x="243.0" y="71.6" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">c</text>
+<text x="243.0" y="240.4" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">c</text>
+<text x="43" y="156" fill="#9333ea" text-anchor="middle" style="font-size: 16px; font-weight: 600">d</text>
+<text x="299" y="156" fill="#9333ea" text-anchor="middle" style="font-size: 16px; font-weight: 600">d</text>
+</svg>
+
+<!--
+老師的投影片有一頁問：給一條邊，程式要怎麼找到 a、b、c、d？
+
+答案是：每個頂點把它連出去的邊，照逆時針的順序存成一個 list。
+
+看右圖。橘色是我們要切的邊，從 a1 到 a2。a1 連了六條邊，照逆時針編號 0 到 5，把要切的這條放在位置 0。
+
+位置 1 和位置 5，就是緊鄰橘色邊的兩條，連到的是兩個綠色的 b。
+位置 2 和位置 4，再往外一格，連到的是紅色的 c。
+位置 3，正對面那條，連到的是紫色的 d。
+
+這樣 a1 這一側的點都找到了。另一端 a2 也用同樣的方法做一次，就能找到右邊的兩個 c 和一個 d。
+
+為什麼可以這樣數？因為 regular 的頂點一定剛好六條邊，所以每種點在 list 裡的位置是固定的。如果不是六條，這個方法就不行，那就是下一頁 Modified Butterfly 要處理的情況。
 -->
 
 ---
@@ -231,6 +335,69 @@ layout: two-cols
 -->
 
 ---
+layout: two-cols
+---
+
+# Modified 的特殊規則
+
+Edge 的一端 $v$ 是 extraordinary（degree $N$）→ 蝴蝶湊不出來
+
+改成只用 <span class="key">$v$ 和它的一圈鄰居</span>：
+
+- $v$ 自己：永遠 $\tfrac34$
+- $e_0$ = 這條 edge 的另一端，其他照順序繞一圈
+
+<v-click>
+
+例：$N = 4$
+
+$\tfrac34 + \tfrac38 + 0 - \tfrac18 + 0 = 1$
+
+</v-click>
+
+::right::
+
+<svg viewBox="20 15 300 285" width="100%" class="mx-auto">
+<polygon points="165,150 250.0,150.0 165.0,65.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="165,150 165.0,65.0 80.0,150.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="165,150 80.0,150.0 165.0,235.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="165,150 165.0,235.0 250.0,150.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="165" y1="150" x2="250.0" y2="150.0" stroke="#f97316" stroke-width="5" />
+<circle cx="211.5" cy="142" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="250.0" cy="150.0" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="280.0" y="146.0" fill="#2563eb" text-anchor="middle" style="font-size: 15px; font-weight: 600">e₀</text>
+<text x="280.0" y="164.0" fill="#2563eb" text-anchor="middle" style="font-size: 15px; font-weight: 600">3/8</text>
+<circle cx="165.0" cy="65.0" r="9" fill="#94a3b8" stroke="#fff" stroke-width="2" />
+<text x="165.0" y="31.0" fill="#94a3b8" text-anchor="middle" style="font-size: 15px; font-weight: 600">e₁</text>
+<text x="165.0" y="49.0" fill="#94a3b8" text-anchor="middle" style="font-size: 15px; font-weight: 600">0</text>
+<circle cx="80.0" cy="150.0" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="50.0" y="146.0" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">e₂</text>
+<text x="50.0" y="164.0" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">−1/8</text>
+<circle cx="165.0" cy="235.0" r="9" fill="#94a3b8" stroke="#fff" stroke-width="2" />
+<text x="165.0" y="261.0" fill="#94a3b8" text-anchor="middle" style="font-size: 15px; font-weight: 600">e₃</text>
+<text x="165.0" y="279.0" fill="#94a3b8" text-anchor="middle" style="font-size: 15px; font-weight: 600">0</text>
+<circle cx="165" cy="150" r="11" fill="#64748b" stroke="#fff" stroke-width="2" />
+<text x="125" y="196" fill="currentColor" text-anchor="middle" style="font-size: 15px; font-weight: 600">v：3/4</text>
+<text x="213.5" y="128" fill="#f97316" text-anchor="middle" style="font-size: 14px; font-weight: 600">新的點</text>
+</svg>
+
+<!--
+前面的蝴蝶要求邊的兩端都是 degree 6，周圍才剛好湊得出那十個點。如果有一端是奇異點，例如 degree 4，蝴蝶就湊不出來。
+
+Modified Butterfly 的做法是：不用蝴蝶了，改成只看奇異點那一端。用奇異點 v 本身，加上它周圍一圈的鄰居來算新的點。
+
+看右圖。中間黑色的 v 是 degree 4 的奇異點，周圍四個鄰居。橘色是要切的邊，它的另一端叫 e0，然後逆時針繞一圈，叫 e1、e2、e3。
+
+v 自己的權重永遠是四分之三，不管 N 是多少。
+
+（按一下）N 等於 4 的時候，鄰居的權重是：e0 八分之三，對面的 e2 負的八分之一，旁邊的 e1、e3 都是 0。加起來：四分之三加八分之三減八分之一，剛好是 1。
+
+注意對面的 e2 又是負的，道理跟剛剛一樣，要把新的點往外推。
+
+其他 N 的權重在下一頁的表裡。
+-->
+
+---
 
 # Modified Butterfly：Extraordinary 的權重
 
@@ -267,23 +434,54 @@ N 大於等於 5 的時候用一條公式，裡面是 cosine，j 是第幾個鄰
 -->
 
 ---
+layout: two-cols
+---
 
 # Boundary 怎麼辦？
 
-Boundary 的外面沒有鄰居，蝴蝶的 10 個點湊不齊。
+Boundary 外面沒有鄰居 → 蝴蝶的 10 個點湊不齊
 
 - Boundary 上的 edge：新點直接放在 <span class="key">中點</span>，不移動
-- Boundary 上的 vertex 幾乎都是 extraordinary（少了一側的鄰居）
+- Boundary 上的 vertex 幾乎都是 extraordinary（少了一側）
 - Sharp corner 需要另外的規則（這裡不細講）
 
+::right::
+
+<svg viewBox="0 95 330 230" width="100%" class="mx-auto">
+<polygon points="10,200 110,200 60,113" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,200 210,200 160,113" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="210,200 310,200 260,113" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="60,113 160,113 110,200" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="160,113 260,113 210,200" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<rect x="0" y="200" width="330" height="100" fill="#94a3b8" opacity="0.08" />
+<line x1="0" y1="200" x2="330" y2="200" stroke="#64748b" stroke-width="4" />
+<line x1="110" y1="200" x2="210" y2="200" stroke="#f97316" stroke-width="5" />
+<circle cx="160.0" cy="287" r="9" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="3 3" />
+<text x="160.0" y="292" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">×</text>
+<circle cx="60" cy="287" r="9" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="3 3" />
+<text x="60" y="292" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">×</text>
+<circle cx="260" cy="287" r="9" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="3 3" />
+<text x="260" y="292" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">×</text>
+<circle cx="110" cy="200" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="210" cy="200" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="160.0" cy="200" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="110" y="186" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">1/2</text>
+<text x="210" y="186" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">1/2</text>
+<text x="160.0" y="186" fill="#f97316" text-anchor="middle" style="font-size: 15px; font-weight: 600">中點</text>
+<text x="318" y="222" fill="#64748b" text-anchor="end" style="font-size: 14px; font-weight: 600">boundary</text>
+<text x="165" y="319" fill="#dc2626" text-anchor="middle" style="font-size: 14px; font-weight: 600">外面沒有點，蝴蝶湊不齊</text>
+</svg>
+
 <!--
-前面的 mesh 都是封閉的，像球、立方體。如果 mesh 有邊界，例如一張紙、一個沒有蓋子的杯子，會遇到問題：邊界的外面沒有東西，蝴蝶需要的十個鄰居湊不齊。
+前面的 mesh 都是封閉的，像球。如果 mesh 有邊界，例如一張紙，就會遇到問題。
 
-處理的方法比較簡單。邊界上的邊，照樣在中間加一個新點，但是這個新點就直接放在邊的中點，不用任何權重去移動它。
+看右圖。粗黑線是邊界，下面灰色的區域是 mesh 外面，什麼都沒有。橘色是我們要切的邊，剛好在邊界上。蝴蝶需要的點，下面那三個紅色虛線的點是在外面的，根本不存在，所以湊不齊。
 
-另外，邊界上的頂點因為少了一側的鄰居，連的邊數通常不是六，所以它們幾乎都是奇異點。
+處理的方法很簡單：邊界上的邊，新的點直接放在中點，兩個端點各二分之一，不用其他點。
 
-最後，如果邊界上有尖角，例如正方形紙的四個角，需要再另外的規則。那個超出這堂課的範圍，這裡不細講。
+另外，邊界上的頂點少了一側的鄰居，連的邊數通常不是六，所以幾乎都是奇異點。
+
+如果邊界上有尖角，例如一張正方形紙的四個角，需要再另外的規則。那個超出這堂課的範圍，這裡不細講。
 -->
 
 ---
@@ -370,34 +568,75 @@ beta 到底是多少，下一頁說。
 
 # Loop：$\beta$ 是多少？
 
-每個鄰居拿 $\beta$，自己拿剩下的 $1 - n\beta$。
+每個鄰居拿 $\beta$，自己拿剩下的 $1 - n\beta$
 
-| $n$（degree） | 每個鄰居 $\beta$ | 自己 $1 - n\beta$ |
+<div class="grid grid-cols-2 gap-6 items-center">
+<div>
+
+| $n$ | 每個鄰居 $\beta$ | 自己 $1 - n\beta$ |
 |---|---|---|
 | 3 | $\tfrac{3}{16}$ | $\tfrac{7}{16}$ |
 | 6（regular） | $\tfrac{1}{16}$ | $\tfrac{10}{16}$ |
 | 其他 | $\tfrac{3}{8n}$ | $\tfrac{5}{8}$ |
 
-<div class="small mt-4">
+</div>
+<div class="grid grid-cols-2 gap-2">
+<svg viewBox="0 0 200 222" width="100%" class="mx-auto">
+<polygon points="100,92 100.0,30.0 46.3,61.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 46.3,61.0 46.3,123.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 46.3,123.0 100.0,154.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 100.0,154.0 153.7,123.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 153.7,123.0 153.7,61.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 153.7,61.0 100.0,30.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<circle cx="100.0" cy="30.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="100.0" y="15.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="46.3" cy="61.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="29.0" y="56.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="46.3" cy="123.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="29.0" y="138.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="100.0" cy="154.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="100.0" y="179.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="153.7" cy="123.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="171.0" y="138.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="153.7" cy="61.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="171.0" y="56.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">1/16</text>
+<circle cx="100" cy="92" r="10" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="100" y="122" fill="#f97316" text-anchor="middle" style="font-size: 14px; font-weight: 600">10/16</text>
+<text x="100" y="212" fill="currentColor" text-anchor="middle" style="font-size: 15px; font-weight: 600">n = 6</text>
+</svg>
+<svg viewBox="0 0 200 222" width="100%" class="mx-auto">
+<polygon points="100,92 100.0,30.0 46.3,123.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 46.3,123.0 153.7,123.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 153.7,123.0 100.0,30.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<circle cx="100.0" cy="30.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="100.0" y="15.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">3/16</text>
+<circle cx="46.3" cy="123.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="29.0" y="138.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">3/16</text>
+<circle cx="153.7" cy="123.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="171.0" y="138.0" fill="#2563eb" text-anchor="middle" style="font-size: 13px; font-weight: 600">3/16</text>
+<circle cx="100" cy="92" r="10" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="100" y="122" fill="#f97316" text-anchor="middle" style="font-size: 14px; font-weight: 600">7/16</text>
+<text x="100" y="212" fill="currentColor" text-anchor="middle" style="font-size: 15px; font-weight: 600">n = 3</text>
+</svg>
+</div>
+</div>
+
+<div class="small mt-2">
 
 這是常用的簡化版。Loop 原本的公式是 $\beta = \tfrac1n\left[\tfrac58 - \left(\tfrac38 + \tfrac14\cos\tfrac{2\pi}{n}\right)^2\right]$，$n = 6$ 時一樣是 $\tfrac{1}{16}$。
 
 </div>
 
 <!--
-上一頁的公式裡，每個鄰居的權重是 beta，有 n 個鄰居，所以鄰居總共拿走 n 乘 beta，剩下的 1 減 n beta 是自己的。
+Loop 移動舊頂點的公式裡，每個鄰居的權重是 beta，自己拿剩下的。beta 是多少，看這個頂點連了幾條邊。
 
-beta 是多少，看這個頂點的 degree。
+最重要的是 regular 的情況，看右邊第一張圖，n 等於 6。橘色的中心是要移動的舊頂點，藍色是它的六個鄰居。每個鄰居十六分之一，六個加起來十六分之六，中心自己是剩下的十六分之十。這組數字請記起來。
 
-最重要的是中間那一列，regular 的情況，n 等於 6。beta 是十六分之一。六個鄰居各十六分之一，總共十六分之六，自己是剩下的十六分之十。這組數字請記起來：十六分之十，和六個十六分之一。
+第二張圖是 n 等於 3。三個鄰居各十六分之三，加起來十六分之九，中心自己十六分之七。鄰居少，每個鄰居分到的就比較多。
 
-n 等於 3 的時候，beta 是十六分之三，三個鄰居總共十六分之九，自己是十六分之七。
+其他的 n，beta 用 8n 分之 3。這時候鄰居加起來剛好是八分之三，所以中心自己永遠是八分之五。n 等於 6 代進去也是八分之五，就是十六分之十，是一致的。
 
-其他的 n，beta 用 8n 分之 3。這時候 n 乘 beta 剛好是八分之三，所以不管 n 是多少，自己都是八分之五。n 等於 6 代進去也是八分之五，就是十六分之十，是一致的。
-
-下面小字：這張表是後來的人提出的簡化版，比較好算。Loop 自己原本的公式比較複雜，裡面有 cosine。兩個版本在 n 等於 6 的時候都是十六分之一，其他的 n 數字會差一點點，但是切出來的曲面都是平滑的，看起來幾乎一樣。
-
-前面 Regular 與 Extraordinary 那頁右邊可以拉 n 的圖，用的是原本 cosine 的版本。
+下面小字：這張表是常用的簡化版，比較好算。Loop 自己原本的公式比較複雜，裡面有 cosine。兩個版本在 n 等於 6 的時候都是十六分之一，其他的 n 數字會差一點點，但切出來的曲面看起來幾乎一樣。
 -->
 
 ---
@@ -411,14 +650,7 @@ layout: two-cols
   → surface 會比 control mesh <span class="key">小一圈</span>
 - Regular 的地方 $C^2$，extraordinary vertex 是 $C^1$
 
-<v-click>
-
-**Boundary 與 crease 的特殊規則**
-
-- Edge point 直接放在中點
-- 舊的點用 $\tfrac{1}{8},\ \tfrac{3}{4},\ \tfrac{1}{8}$（cubic B-spline curve 的規則）
-
-</v-click>
+- Regular vertex：自己 $\tfrac{10}{16}$，6 個鄰居各 $\tfrac{1}{16}$
 
 ::right::
 
@@ -434,41 +666,107 @@ layout: two-cols
 
 連續性也跟 Catmull-Clark 一樣：規則的地方 C2，奇異點上 C1。
 
-（按一下）如果 mesh 有邊界，或是有想保留的摺痕，要用特殊的規則，不然邊界會被往內拉、縮起來。
+regular 的舊頂點記一組數字：自己十六分之十，六個鄰居各十六分之一。
 
-邊界上，邊的新點直接放中點。舊的頂點只看邊界上左右兩個鄰居，權重是八分之一、四分之三、八分之一。這組數字前面看過，就是三次 B-spline 曲線的 subdivision 規則。意思是邊界那條線，自己會變成一條三次 B-spline 曲線，不受裡面的面影響。
+如果 mesh 有邊界，還要用特別的規則，下一頁講。
+-->
+
+---
+layout: two-cols
+---
+
+# Loop 的 boundary
+
+不特別處理的話，boundary 會被裡面的點往內拉、縮起來。
+
+- Boundary 上的 edge：新點放在 <span class="key">中點</span>
+- Boundary 上的舊點：只看 boundary 上的左右兩個鄰居
+  $\tfrac18,\ \tfrac34,\ \tfrac18$
+- 這就是 <span class="key">cubic B-spline 曲線</span>的規則
+  → boundary 自己變成一條平滑的曲線
+
+<div class="small mt-2">想保留的銳利 edge（crease）也用同一套規則。</div>
+
+::right::
+
+<svg viewBox="0 70 340 160" width="100%" class="mx-auto">
+<polygon points="10,95 115,95 60,190" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="115,95 225,95 170,190" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="225,95 330,95 280,190" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="60,190 170,190 115,95" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="170,190 280,190 225,95" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="0,190 60,190 10,95" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="280,190 340,190 330,95" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="0" y1="190" x2="340" y2="190" stroke="#64748b" stroke-width="4" />
+<line x1="170" y1="190" x2="115" y2="95" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" />
+<circle cx="115" cy="95" r="7" fill="#94a3b8" />
+<text x="115" y="81" fill="#94a3b8" text-anchor="middle" style="font-size: 13px; font-weight: 600">不看</text>
+<line x1="170" y1="190" x2="225" y2="95" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" />
+<circle cx="225" cy="95" r="7" fill="#94a3b8" />
+<text x="225" y="81" fill="#94a3b8" text-anchor="middle" style="font-size: 13px; font-weight: 600">不看</text>
+<line x1="60" y1="190" x2="170" y2="190" stroke="#2563eb" stroke-width="4" />
+<line x1="170" y1="190" x2="280" y2="190" stroke="#2563eb" stroke-width="4" />
+<circle cx="60" cy="190" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="280" cy="190" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="170" cy="190" r="11" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="60" y="220" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">1/8</text>
+<text x="280" y="220" fill="#2563eb" text-anchor="middle" style="font-size: 16px; font-weight: 600">1/8</text>
+<text x="170" y="220" fill="#f97316" text-anchor="middle" style="font-size: 16px; font-weight: 600">3/4</text>
+<text x="115" y="220" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 600">boundary</text>
+</svg>
+
+<!--
+Loop 遇到邊界怎麼辦？如果照一般的規則，邊界上的點會被裡面的點往內拉，整個邊界縮進去，形狀就跑掉了。
+
+所以邊界用特別的規則，有兩條。
+
+第一條，邊界上的邊，新的點就放在中點。
+
+第二條，邊界上的舊頂點，看右圖。粗黑線是邊界，橘色是要移動的舊頂點。它上面還連著兩個裡面的點，灰色虛線，這些「不看」。只看邊界上左右兩個藍色的鄰居。權重是：自己四分之三，左右各八分之一。
+
+這組數字前面看過，就是三次 B-spline 曲線的切法。意思是邊界那條線，自己會照曲線的規則變成一條平滑的三次 B-spline 曲線，完全不受裡面的面影響。
+
+想保留的銳利邊，也就是 crease，用的也是同一套規則，所以那條邊不會被磨掉。這個在第 7 段 Making Creases 還會再講。
 -->
 
 ---
 
 # Loop vs. Butterfly
 
-| | Modified Butterfly | Loop |
-|---|---|---|
-| 類型 | Interpolating | Approximating |
-| 舊的 vertex | 不動 | 會移動 |
-| 通過 control points | ✓ | ✗（小一圈） |
-| 平滑度 | $C^1$ | $C^2$（extraordinary 是 $C^1$） |
-| 缺點 | Wiggles、怕 noise | 形狀會縮小 |
+<div class="flex gap-4 items-start">
+<div class="flex-1">
 
-<div class="small mt-4">切法一樣：每個 triangle 切成 4 個。差別只在點放哪裡。</div>
+| | Butterfly | Loop |
+|---|---|---|
+| 類型 | Interp. | Approx. |
+| 舊的 vertex | 不動 | 會移動 |
+| 通過紅點 | ✓ | ✗（小一圈） |
+| 平滑度 | $C^1$ | $C^2$ |
+| 缺點 | Wiggles | 會縮小 |
+
+</div>
+<MeshSubdivision shape="octahedron" scheme="butterfly" :level="3" marks color="#34d399" :width="250" :height="230" title="Modified Butterfly" />
+<MeshSubdivision shape="octahedron" scheme="loop" :level="3" marks color="#a78bfa" :width="250" :height="230" title="Loop" />
+</div>
+
+<div class="small mt-2">切法一樣：每個 triangle 切成 4 個。差別只在點放哪裡。</div>
 
 <!--
-三角形的兩個方法都講完了，放在一起比。
+三角形的兩個方法講完了，放在一起比。右邊兩個都是從同一個正八面體開始，切三次。紅點是原本的六個頂點。
 
-先講一樣的地方：切法完全一樣，每條邊中間加一個點，一個三角形變四個。它們的 topological rule 是同一個。差別全部在 geometric rule，也就是點放哪裡。
+先講一樣的地方：切法完全一樣，每條邊中間加一個點，一個三角形變四個。差別全部在點放哪裡。
 
-第一列，類型。Butterfly 是 interpolating，Loop 是 approximating。
+第一列，Butterfly 是 interpolating，Loop 是 approximating。
 
-第二列，舊的頂點。Butterfly 不動，所以每一輪只要算邊上的新點。Loop 會移動，所以每一輪要算兩種點。
+第二列，Butterfly 的舊點不動，所以每一輪只算邊上的新點。Loop 的舊點會移動，每一輪要算兩種點。
 
-第三列，會不會通過控制點。Butterfly 會。Loop 不會，曲面會比 control mesh 小一圈。
+第三列，看圖：左邊 Butterfly 紅點都還在表面上。右邊 Loop 紅點都在表面外面，因為整個曲面縮小了一圈。
 
-第四列，平滑度。Butterfly 只有 C1。Loop 是 C2，只有在奇異點上是 C1。
+第四列，Butterfly 只有 C1，Loop 是 C2，奇異點上是 C1。
 
-第五列，缺點。Butterfly 的表面容易有小波浪，而且控制點有誤差的話會完全保留下來。Loop 的缺點是形狀會縮小，沒辦法精確控制曲面通過哪裡。
+第五列，Butterfly 的缺點是表面容易有小波浪，可以把左邊轉一轉看紅點附近；Loop 的缺點是會縮小，沒辦法精確控制曲面通過哪裡。
 
-所以結論是：除非一定要通過控制點，不然用 Loop。
+結論：除非一定要通過控制點，不然用 Loop。
 -->
 
 ---
