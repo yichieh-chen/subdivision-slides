@@ -18,7 +18,11 @@ const path = (p: P2[]) => p.map(q => q.join(',')).join(' ')
 const mid = (a: P2, b: P2): P2 => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
 
 const isCubic = computed(() => props.scheme === 'cubic')
-const rule = computed(() => (isCubic.value ? cubic : fourPoint))
+/** cubic B-spline rule with the usual boundary rule: the two end points stay where they are */
+function cubicOpen(p: P2[]): P2[] {
+  return [p[0], ...cubic(p), p[p.length - 1]]
+}
+const rule = computed(() => (isCubic.value ? cubicOpen : fourPoint))
 const last = computed(() => (isCubic.value ? 5 : 4))
 const s = computed(() => Math.max(0, Math.min(last.value, props.step)))
 
@@ -40,10 +44,10 @@ const caption = computed(() => (isCubic.value
   ? [
       '一開始：只有 control polygon',
       '① Edge points：每條邊的中點放一個新點（½、½）',
-      '② Vertex points：舊的點往兩邊鄰居靠近一點（⅛、¾、⅛）',
-      '③ Connect：把新的點連起來，舊的折線丟掉',
+      '② Vertex points：舊的點往兩邊鄰居靠近一點（⅛、¾、⅛），頭尾不動',
+      '③ Connect：照順序連起來，舊的折線丟掉',
       '④ Repeat：對新的折線再做一次',
-      '重複很多次之後，就是一條 smooth curve（不通過 control points）',
+      '重複很多次之後，就是一條 smooth curve（不通過中間的 P2、P3）',
     ]
   : [
       '一開始：只有 control polygon',
@@ -52,6 +56,9 @@ const caption = computed(() => (isCubic.value
       '③ Repeat：對新的折線再做一次',
       '重複很多次之後，就是一條通過所有 control points 的 smooth curve',
     ])[s.value])
+
+/** where each P label sits relative to its point, so that no edge runs through it */
+const NAME: P2[] = [[-30, 5], [-8, -14], [0, -14], [13, 5]]
 
 const RED = '#dc2626'
 const BLUE = '#2563eb'
@@ -69,26 +76,26 @@ const BLUE = '#2563eb'
       <!-- cubic, step 2: which three points one vertex point is made from -->
       <g v-if="isCubic && s === 2" class="appear">
         <polyline :points="path([P[0], P[1], P[2]])" fill="none" stroke="#93c5fd" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.6" />
-        <text :x="P[0][0] + 14" :y="P[0][1] + 6" class="w" :fill="BLUE">⅛</text>
-        <text :x="P[1][0] - 30" :y="P[1][1] + 4" class="w" :fill="BLUE">¾</text>
-        <text :x="P[2][0] + 16" :y="P[2][1] + 22" class="w" :fill="BLUE">⅛</text>
+        <text :x="P[0][0] + 18" :y="P[0][1] + 12" class="w" :fill="BLUE">⅛</text>
+        <text :x="P[1][0] - 34" :y="P[1][1] + 4" class="w" :fill="BLUE">¾</text>
+        <text :x="P[2][0] - 40" :y="P[2][1] + 28" class="w" :fill="BLUE">⅛</text>
       </g>
       <!-- 4-point, step 1: which four points one new point is made from -->
       <g v-if="!isCubic && s === 1" class="appear">
         <polyline :points="path(P)" fill="none" stroke="#fca5a5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" />
-        <text :x="P[0][0] + 14" :y="P[0][1] + 6" class="w" :fill="RED">−1/16</text>
-        <text :x="P[1][0] - 46" :y="P[1][1] + 6" class="w" :fill="RED">9/16</text>
-        <text :x="P[2][0] + 16" :y="P[2][1] + 24" class="w" :fill="RED">9/16</text>
-        <text :x="P[3][0] - 56" :y="P[3][1] + 6" class="w" :fill="RED">−1/16</text>
+        <text :x="P[0][0] + 18" :y="P[0][1] + 12" class="w" :fill="RED">−1/16</text>
+        <text :x="P[1][0] - 52" :y="P[1][1] + 4" class="w" :fill="RED">9/16</text>
+        <text :x="P[2][0] - 48" :y="P[2][1] + 28" class="w" :fill="RED">9/16</text>
+        <text :x="P[3][0] - 66" :y="P[3][1] + 12" class="w" :fill="RED">−1/16</text>
       </g>
 
       <!-- old control points -->
       <g
         v-for="(p, i) in P" :key="i"
-        :opacity="isCubic ? (s >= 2 ? 0.35 : 1) : 1"
+        :opacity="isCubic && s >= 2 && i > 0 && i < P.length - 1 ? 0.35 : 1"
       >
         <circle :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#0f172a" stroke-width="2" />
-        <text :x="p[0] - 6" :y="p[1] - 12" style="font-size: 15px" fill="#0f172a">P{{ i + 1 }}</text>
+        <text :x="p[0] + NAME[i][0]" :y="p[1] + NAME[i][1]" class="name" fill="#0f172a">P{{ i + 1 }}</text>
       </g>
 
       <!-- first round, connected -->
@@ -102,7 +109,7 @@ const BLUE = '#2563eb'
         <g v-if="s >= 1 && s < at.limit" :opacity="s >= at.repeat ? 0.3 : 1">
           <circle v-for="(p, i) in edgePts" :key="`e${i}`" class="appear" :cx="p[0]" :cy="p[1]" r="5" :fill="RED" />
           <template v-if="s === 1">
-            <text v-for="(p, i) in edgePts" :key="`et${i}`" :x="p[0] + 9" :y="p[1] + 17" class="w" :fill="RED">½</text>
+            <text v-for="(p, i) in edgePts" :key="`et${i}`" :x="p[0] + (i === 2 ? -22 : 9)" :y="p[1] + 20" class="w" :fill="RED">½</text>
           </template>
         </g>
         <g v-if="s >= 2 && s < at.limit" :opacity="s >= at.repeat ? 0.3 : 1">
@@ -144,6 +151,20 @@ const BLUE = '#2563eb'
 .w {
   font-size: 15px;
   font-weight: 600;
+}
+.name {
+  font-size: 15px;
+}
+/* a white outline keeps labels readable where a line passes behind them */
+.w,
+.name {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+svg {
+  overflow: visible;
 }
 .appear {
   animation: appear 0.45s ease both;
