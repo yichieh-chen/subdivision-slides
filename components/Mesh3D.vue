@@ -26,6 +26,8 @@ const props = withDefaults(defineProps<{
   pitch?: number
   zoom?: number
   autoRotate?: boolean
+  /** hide points on the far side (only sensible for convex shapes centred on the origin) */
+  frontPoints?: boolean
 }>(), {
   points: () => [],
   width: 420,
@@ -150,7 +152,9 @@ function draw() {
     ctx.globalAlpha = 1
   }
 
-  const pts = props.points.map(p => ({ ...p, q: project(p.p) })).sort((a, b) => a.q[2] - b.q[2])
+  const pts = props.points.map(p => ({ ...p, q: project(p.p) }))
+    .filter(p => !props.frontPoints || p.q[2] > -0.05)
+    .sort((a, b) => a.q[2] - b.q[2])
   for (const p of pts) {
     ctx.beginPath()
     ctx.arc(p.q[0], p.q[1], p.r ?? 5, 0, Math.PI * 2)

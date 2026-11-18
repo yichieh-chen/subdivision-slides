@@ -14,12 +14,100 @@ layout: section
 
 <div class="flex justify-center gap-12 mt-2">
   <ShapeView kind="uv-sphere" title="經緯度切法" color="#e2725b">
-    南北極的三角形又細又擠，degree 很高
+    中間是四邊形，但格子越往南北極越擠；<br>極點是一圈細長的三角形，degree 很高
   </ShapeView>
   <ShapeView kind="ico-sphere" title="Subdivision 切法" color="#5b8def">
-    每個三角形大小幾乎一樣
+    全部是三角形，大小幾乎一樣
   </ShapeView>
 </div>
+
+---
+layout: two-cols
+---
+
+# Degree 高會有什麼問題？
+
+一個 vertex 的 <span class="key">degree</span> = 有幾條 edge 連到它。
+
+極點接了所有經線，degree 很高：
+
+- 周圍的三角形 <span class="key">又細又長</span>
+- 光影和貼圖在那附近容易不自然
+- 一小塊地方擠了很多點，<b>浪費</b>
+
+<div class="small mt-4">拉 slider：degree 越高，三角形越細。</div>
+
+::right::
+
+<div class="mt-10">
+  <DegreeFan :degree="24" />
+</div>
+
+<!--
+先定義 degree：一個點連出去幾條邊。
+紅點就是極點。一圈是 360 度，連 24 條邊的話每個三角形只分到 15 度，一定又尖又細。
+把 slider 往左拉到 6：這時候每個三角形剛好是正三角形，最平均。
+-->
+
+---
+
+# 實際貼圖會怎樣？
+
+<div class="mt-2">把一張 <b>每格一樣大</b> 的棋盤格，貼到經緯度切法的球上：</div>
+
+<div class="mt-2">
+  <PoleTexture :size="225" />
+</div>
+
+<div class="mt-1">
+
+- 赤道附近：格子還算方正
+- 越往極點：格子被 <span class="key">擠成細長條</span>，最後全部擠進同一個點
+
+</div>
+
+<!--
+這是把貼圖實際貼上去的結果，不是示意圖：每個格子在原圖上都一樣大。
+貼圖最上面那一整排，在球上全部要塞進極點這一個點，所以圖案在那裡一定會被擠壓。
+地球儀、天空球在極點附近常看到的「一圈放射狀」就是這個原因。
+可以拖曳把球轉到側面，對比赤道和極點。
+-->
+
+---
+layout: two-cols
+---
+
+# Extraordinary points
+
+Subdivision 的規則是照「正常」的點設計的：
+
+- 三角形 mesh：degree <span class="key">6</span>
+- 四邊形 mesh：degree <span class="key">4</span>
+
+這種點叫 <span class="key">regular</span>，其他都叫 <span class="key">extraordinary</span>。
+
+<v-click>
+
+- Extraordinary point 附近比較不平滑
+- Degree 離正常值越遠，通常越糟
+- 所以這種點 <b>越少越好</b>
+
+</v-click>
+
+::right::
+
+<MeshSubdivision
+  shape="octahedron" :shapes="['octahedron', 'icosahedron']" scheme="sphere"
+  :level="2" :max-level="4" :cage="false" marks front-marks :width="400" :height="270"
+  title="紅點是 extraordinary，其他都是 regular"
+/>
+
+<!--
+三角形 mesh 裡 degree 6 最「正常」，就像上一頁 slider 拉到 6 的樣子。
+右邊這顆球只有紅色那幾個點不是 degree 6（八面體是 4，二十面體是 5），其他全部都是 6。
+對比經緯度切法：極點的 degree 是二十幾。
+這顆球怎麼切出來的？下一頁。之後每個 scheme 都會遇到 extraordinary points，是整份報告反覆出現的主題。
+-->
 
 ---
 layout: two-cols
@@ -35,17 +123,6 @@ layout: two-cols
 1. 每條 edge 的中點插入一個新 vertex
 2. 把所有 vertex <span class="key">往外推到球面上</span>
 3. 每個 triangle 切成 4 個
-
-<v-click>
-
-<div class="small mt-4">
-
-觀察：新長出來的 vertex 的 degree 都是 6（regular）。
-只有最一開始的那幾個點 degree 不是 6，叫做 <span class="key">extraordinary points</span>。
-
-</div>
-
-</v-click>
 
 ::right::
 
