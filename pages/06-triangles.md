@@ -10,45 +10,190 @@ Modified Butterfly 與 Loop
 剛剛的 Catmull-Clark 最適合四邊形。但是很多 mesh 是三角形的，例如掃描出來的模型、遊戲裡的模型。
 
 這一段講兩個專門給三角形 mesh 用的方法：Modified Butterfly 和 Loop。一個是 interpolating，一個是 approximating，剛好可以對比。
+
+開始之前先花四頁講三件事：三角形 mesh 的 regular 是什麼、三角形怎麼切、切完之後奇異點會不會變多。
+-->
+
+---
+
+# 為什麼 Triangle Mesh 的 regular 是 6？
+
+<span class="key">Regular</span> = 整齊鋪滿的時候，每個 vertex 的樣子。看一圈 360° 要幾個 face 才圍得滿：
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+<svg viewBox="20 8 200 212" width="290" class="mx-auto">
+<rect x="78" y="58" width="84" height="84" fill="#16a34a22" />
+<line x1="36" y1="16" x2="36" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="36" y1="16" x2="204" y2="16" stroke="#94a3b8" stroke-width="1" />
+<line x1="78" y1="16" x2="78" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="36" y1="58" x2="204" y2="58" stroke="#94a3b8" stroke-width="1" />
+<line x1="120" y1="16" x2="120" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="36" y1="100" x2="204" y2="100" stroke="#94a3b8" stroke-width="1" />
+<line x1="162" y1="16" x2="162" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="36" y1="142" x2="204" y2="142" stroke="#94a3b8" stroke-width="1" />
+<line x1="204" y1="16" x2="204" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="36" y1="184" x2="204" y2="184" stroke="#94a3b8" stroke-width="1" />
+<line x1="120" y1="100" x2="162.0" y2="100.0" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="120.0" y2="58.0" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="78.0" y2="100.0" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="120.0" y2="142.0" stroke="#16a34a" stroke-width="4" />
+<text x="136.3" y="87.7" fill="#64748b" text-anchor="middle" style="font-size: 12px; font-weight: 500">90°</text>
+<text x="103.7" y="87.7" fill="#64748b" text-anchor="middle" style="font-size: 12px; font-weight: 500">90°</text>
+<text x="103.7" y="120.3" fill="#64748b" text-anchor="middle" style="font-size: 12px; font-weight: 500">90°</text>
+<text x="136.3" y="120.3" fill="#64748b" text-anchor="middle" style="font-size: 12px; font-weight: 500">90°</text>
+<circle cx="120" cy="100" r="8" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<text x="120" y="212" fill="#16a34a" text-anchor="middle" style="font-size: 15px; font-weight: 600">4 個圍一圈 → degree 4</text>
+</svg>
+
+<div class="small text-center">正方形的角是 90°：360 ÷ 90 = 4</div>
+</div>
+<div>
+
+<svg viewBox="20 8 200 212" width="290" class="mx-auto">
+<polygon points="166.0,100.0 143.0,60.2 97.0,60.2 74.0,100.0 97.0,139.8 143.0,139.8" fill="#16a34a22" stroke="none" stroke-width="0" />
+<line x1="28.0" y1="20.3" x2="74.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="20.3" x2="51.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="20.3" x2="120.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="20.3" x2="97.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="20.3" x2="166.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="20.3" x2="143.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="20.3" x2="212.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="20.3" x2="189.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="60.2" x2="74.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="60.2" x2="97.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="60.2" x2="74.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="60.2" x2="120.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="60.2" x2="143.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="60.2" x2="120.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="60.2" x2="166.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="60.2" x2="189.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="60.2" x2="166.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="189.0" y1="60.2" x2="212.0" y2="20.3" stroke="#94a3b8" stroke-width="1" />
+<line x1="189.0" y1="60.2" x2="212.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="100.0" x2="51.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="100.0" x2="74.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="100.0" x2="51.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="100.0" x2="97.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="100.0" x2="120.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="100.0" x2="97.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="100.0" x2="143.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="100.0" x2="166.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="100.0" x2="143.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="100.0" x2="189.0" y2="60.2" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="100.0" x2="212.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="100.0" x2="189.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="139.8" x2="74.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="139.8" x2="97.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="51.0" y1="139.8" x2="74.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="139.8" x2="120.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="139.8" x2="143.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="97.0" y1="139.8" x2="120.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="139.8" x2="166.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="139.8" x2="189.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="143.0" y1="139.8" x2="166.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="189.0" y1="139.8" x2="212.0" y2="100.0" stroke="#94a3b8" stroke-width="1" />
+<line x1="189.0" y1="139.8" x2="212.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="179.7" x2="51.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="28.0" y1="179.7" x2="74.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="179.7" x2="97.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="74.0" y1="179.7" x2="120.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="179.7" x2="143.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="120.0" y1="179.7" x2="166.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="179.7" x2="189.0" y2="139.8" stroke="#94a3b8" stroke-width="1" />
+<line x1="166.0" y1="179.7" x2="212.0" y2="179.7" stroke="#94a3b8" stroke-width="1" />
+<line x1="120" y1="100" x2="166.0" y2="100.0" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="143.0" y2="60.2" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="97.0" y2="60.2" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="74.0" y2="100.0" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="97.0" y2="139.8" stroke="#16a34a" stroke-width="4" />
+<line x1="120" y1="100" x2="143.0" y2="139.8" stroke="#16a34a" stroke-width="4" />
+<text x="141.7" y="91.5" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<text x="120.0" y="79.0" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<text x="98.3" y="91.5" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<text x="98.3" y="116.5" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<text x="120.0" y="129.0" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<text x="141.7" y="116.5" fill="#64748b" text-anchor="middle" style="font-size: 11px; font-weight: 500">60°</text>
+<circle cx="120" cy="100" r="8" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<text x="120" y="212" fill="#16a34a" text-anchor="middle" style="font-size: 15px; font-weight: 600">6 個圍一圈 → degree 6</text>
+</svg>
+
+<div class="small text-center">正三角形的角是 60°：360 ÷ 60 = 6</div>
+</div>
+</div>
+
+<div class="small mt-2">
+
+概念和前面一樣，只是數字不同：quad 的 regular 是 4，triangle 的 regular 是 <span class="key">6</span>。不是這個數字的就是 extraordinary。
+
+</div>
+
+<!--
+前面講四邊形的時候說，連四條邊的頂點是 regular，不是四條的是 extraordinary。到了三角形，這個數字變成六。為什麼會變？這頁先講清楚。
+
+Regular 的意思是：如果 mesh 排得最整齊，像磁磚一樣鋪滿，每個頂點會長什麼樣子。
+
+看左邊，用正方形鋪。中間綠色的點，周圍要圍滿一圈三百六十度。正方形的一個角是九十度，三百六十除以九十是四，所以剛好四個正方形圍一圈。四個正方形就有四條邊從這個點出去，所以 degree 是四。
+
+看右邊，用正三角形鋪。正三角形的一個角是六十度，三百六十除以六十是六，所以要六個三角形才圍得滿一圈。六個三角形就有六條邊從這個點出去，所以 degree 是六。
+
+所以 regular 和 extraordinary 的概念跟前面完全一樣：regular 就是「整齊鋪滿時的樣子」，extraordinary 就是「不是那個樣子」。只是用四邊形鋪的時候那個數字是四，用三角形鋪的時候是六。
+
+接下來講的 Butterfly 和 Loop 都是給三角形 mesh 用的，所以這一段裡，regular 是 degree 六，不是六的就是奇異點。
 -->
 
 ---
 layout: two-cols
 ---
 
-# Regular 與 Extraordinary
+# 切法：1 個變 4 個
 
-Triangle mesh 的 subdivision 都是同一種切法：
-每條 edge 切一半，<span class="key">每個 face 切成 4 個</span>。
+1. 每條 edge 的中間加一個新點
+2. 把 3 個新點連起來
 
-- 新長出來的 vertex，degree 一定是 **6** → <span class="key">regular</span>
-- Degree 不是 6 的 vertex → <span class="key">extraordinary</span>
-- Extraordinary vertex 的數量不會增加，只會是原本 control mesh 上的那些
+Butterfly 和 Loop <span class="key">切法一樣</span>，差別只在點放哪：
 
-<div class="small mt-4">
-
-右邊拉 $n$，看 Loop 對不同 degree 用的權重。
-
-</div>
+| | 新的點 | 舊的點 |
+|---|---|---|
+| Butterfly | 用周圍的點算 | <b>不動</b> |
+| Loop | 用周圍的點算 | <b>會移動</b> |
 
 ::right::
 
-<Stencil kind="loop-vertex" />
+<svg viewBox="0 20 420 180" width="100%" class="mx-auto">
+<polygon points="20,165 170,165 95,35" fill="#94a3b81a" stroke="#64748b" stroke-width="2" />
+<polygon points="250,165 400,165 325,35" fill="#94a3b81a" stroke="#64748b" stroke-width="2" />
+<line x1="325.0" y1="165.0" x2="362.5" y2="100.0" stroke="#2563eb" stroke-width="3" />
+<line x1="362.5" y1="100.0" x2="287.5" y2="100.0" stroke="#2563eb" stroke-width="3" />
+<line x1="287.5" y1="100.0" x2="325.0" y2="165.0" stroke="#2563eb" stroke-width="3" />
+<circle cx="20" cy="165" r="6" fill="#64748b" />
+<circle cx="170" cy="165" r="6" fill="#64748b" />
+<circle cx="95" cy="35" r="6" fill="#64748b" />
+<circle cx="250" cy="165" r="6" fill="#64748b" />
+<circle cx="400" cy="165" r="6" fill="#64748b" />
+<circle cx="325" cy="35" r="6" fill="#64748b" />
+<circle cx="325.0" cy="165.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="362.5" cy="100.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="287.5" cy="100.0" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<line x1="190" y1="100" x2="228" y2="100" stroke="#64748b" stroke-width="3" />
+<polygon points="238,100 226,93 226,107" fill="#64748b" />
+<text x="95" y="190" fill="currentColor" text-anchor="middle" style="font-size: 15px; font-weight: 600">1 個 triangle</text>
+<text x="325" y="190" fill="currentColor" text-anchor="middle" style="font-size: 15px; font-weight: 600">4 個 triangles</text>
+</svg>
+
+<div class="small text-center mt-4">藍點是新的點。這是 topological rule（怎麼連）；<br>點放哪裡是 geometric rule，後面再講。</div>
 
 <!--
-三角形的方法，切法都一樣：每條邊的中間加一個點，把這三個新點連起來，一個三角形就變成四個小三角形。這是 topological rule，Butterfly 和 Loop 都用這個。兩個方法的差別只在 geometric rule，也就是點放在哪裡。
+再來看三角形怎麼切。這一段的兩個方法，Butterfly 和 Loop，切法是一樣的。
 
-再來是 regular 的定義。四邊形格子是連四條邊算正常。三角形格子是連六條邊算正常，想像蜂巢的形狀，一個點周圍剛好六個三角形。
+看右圖。左邊是一個三角形。第一步，在每條邊的中間加一個新的點，就是藍色的三個點。第二步，把這三個藍點連起來。原本的一個三角形就變成四個小三角形：三個角各一個，中間一個倒過來的。
 
-切的時候，每條邊中間新加的點，一定剛好連六條邊，所以新的點全部是 regular。
+這是「怎麼連」的規則，也就是 topological rule。Butterfly 和 Loop 在這裡完全一樣。
 
-Degree 不是六的就是 extraordinary。它們只會是一開始 control mesh 上就有的那些頂點，切再多次數量也不會增加。例如正二十面體每個頂點連五條邊，所以那十二個頂點一直是奇異點，其他新長出來的全部是 regular。
+它們不一樣的地方是「點放在哪裡」，也就是 geometric rule。看左邊的表：新的點，兩個方法都是用周圍的點加權平均算出來的，只是用的權重不同。舊的點，Butterfly 不動，所以曲面會通過原本的點；Loop 會移動，所以曲面不通過原本的點。
 
-這種「大部分規則、只有少數幾個奇異點」的 mesh 叫 semi-regular mesh。
-
-regular 的頂點，自己的權重是十六分之十，六個鄰居各十六分之一。
-
-所以每個方法的規則都要寫兩套：一套給 regular 的地方，一套處理奇異點。右邊這張圖是 Loop 的權重，可以拉 n 看不同 degree 的權重怎麼變，等一下講 Loop 的時候會再回來。
+權重是多少，後面每個方法各自講。
 -->
 
 ---
@@ -64,8 +209,7 @@ Edge 上的新點 <b style="color:#f97316">●</b> 會連到 <span class="key">6
 
 <div class="small mt-4">
 
-所以新的點 degree 一定是 6。<br>
-例：icosahedron 的 12 個 vertices 都是 degree 5，切幾次都是這 12 個 extraordinary vertices。
+加起來 6 條，所以新的點 degree 一定是 6 → 一定是 regular。
 
 </div>
 
@@ -92,7 +236,7 @@ Edge 上的新點 <b style="color:#f97316">●</b> 會連到 <span class="key">6
 </svg>
 
 <!--
-上一頁說新長出來的點一定是 degree 6。為什麼？這頁數給大家看。
+切完之後，新加的那些點是 regular 還是 extraordinary？這頁數給大家看。
 
 右邊的圖是兩個三角形，共用中間那條橫的邊。藍色是舊的頂點。每條邊的中間都加一個新點：橘色是中間這條邊上的新點，綠色是另外四條邊上的新點。
 
@@ -106,7 +250,124 @@ Edge 上的新點 <b style="color:#f97316">●</b> 會連到 <span class="key">6
 
 總共六條。不管 mesh 長什麼樣子，只要一條邊是被兩個三角形共用，結果都是六。所以新的點一定是 regular。
 
-這就代表奇異點只會是一開始 control mesh 上就有的那些頂點。例如正二十面體有十二個頂點，每個都連五條邊，所以奇異點永遠就是這十二個，其他新長出來的幾十個、幾百個點全部都是 regular。
+那舊的點呢？下一頁。
+-->
+
+---
+
+# 所以 extraordinary vertex 不會變多
+
+<div class="grid grid-cols-3 gap-6 items-center">
+<div>
+
+<svg viewBox="0 5 220 215" width="100%" class="mx-auto">
+<polygon points="110,100 110.0,18.0 32.0,74.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 32.0,74.7 61.8,166.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 61.8,166.3 158.2,166.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 158.2,166.3 188.0,74.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 188.0,74.7 110.0,18.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="110" y1="100" x2="110.0" y2="18.0" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="32.0" y2="74.7" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="61.8" y2="166.3" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="158.2" y2="166.3" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="188.0" y2="74.7" stroke="#dc2626" stroke-width="4" />
+<circle cx="110.0" cy="18.0" r="6" fill="#64748b" />
+<circle cx="32.0" cy="74.7" r="6" fill="#64748b" />
+<circle cx="61.8" cy="166.3" r="6" fill="#64748b" />
+<circle cx="158.2" cy="166.3" r="6" fill="#64748b" />
+<circle cx="188.0" cy="74.7" r="6" fill="#64748b" />
+<circle cx="110" cy="100" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="110" y="212" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">切之前：連 5 條</text>
+</svg>
+
+</div>
+<div>
+
+<svg viewBox="0 5 220 215" width="100%" class="mx-auto">
+<polygon points="110,100 110.0,18.0 32.0,74.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 32.0,74.7 61.8,166.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 61.8,166.3 158.2,166.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 158.2,166.3 188.0,74.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="110,100 188.0,74.7 110.0,18.0" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="110.0" y1="59.0" x2="71.0" y2="87.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="110.0" y1="59.0" x2="71.0" y2="46.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="71.0" y1="87.3" x2="71.0" y2="46.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="71.0" y1="87.3" x2="85.9" y2="133.2" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="71.0" y1="87.3" x2="46.9" y2="120.5" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="85.9" y1="133.2" x2="46.9" y2="120.5" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="85.9" y1="133.2" x2="134.1" y2="133.2" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="85.9" y1="133.2" x2="110.0" y2="166.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="134.1" y1="133.2" x2="110.0" y2="166.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="134.1" y1="133.2" x2="149.0" y2="87.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="134.1" y1="133.2" x2="173.1" y2="120.5" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="149.0" y1="87.3" x2="173.1" y2="120.5" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="149.0" y1="87.3" x2="110.0" y2="59.0" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="149.0" y1="87.3" x2="149.0" y2="46.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="110.0" y1="59.0" x2="149.0" y2="46.3" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="110.0" y1="59.0" x2="110" y2="100" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110.0" y1="59.0" x2="110.0" y2="18.0" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110.0" y1="59.0" x2="71.0" y2="87.3" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110.0" y1="59.0" x2="149.0" y2="87.3" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110.0" y1="59.0" x2="71.0" y2="46.3" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110.0" y1="59.0" x2="149.0" y2="46.3" stroke="#16a34a" stroke-width="3.5" />
+<line x1="110" y1="100" x2="71.0" y2="87.3" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="85.9" y2="133.2" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="134.1" y2="133.2" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="149.0" y2="87.3" stroke="#dc2626" stroke-width="4" />
+<line x1="110" y1="100" x2="110.0" y2="59.0" stroke="#dc2626" stroke-width="6" />
+<line x1="110" y1="100" x2="110.0" y2="59.0" stroke="#16a34a" stroke-width="2.5" />
+<circle cx="110.0" cy="18.0" r="6" fill="#64748b" />
+<circle cx="32.0" cy="74.7" r="6" fill="#64748b" />
+<circle cx="61.8" cy="166.3" r="6" fill="#64748b" />
+<circle cx="158.2" cy="166.3" r="6" fill="#64748b" />
+<circle cx="188.0" cy="74.7" r="6" fill="#64748b" />
+<circle cx="71.0" cy="46.3" r="5" fill="#94a3b8" />
+<circle cx="46.9" cy="120.5" r="5" fill="#94a3b8" />
+<circle cx="110.0" cy="166.3" r="5" fill="#94a3b8" />
+<circle cx="173.1" cy="120.5" r="5" fill="#94a3b8" />
+<circle cx="149.0" cy="46.3" r="5" fill="#94a3b8" />
+<circle cx="71.0" cy="87.3" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="85.9" cy="133.2" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="134.1" cy="133.2" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="149.0" cy="87.3" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="110.0" cy="59.0" r="8" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="110" cy="100" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="110" y="212" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">切之後：還是 5 條</text>
+</svg>
+
+</div>
+<div>
+
+- <b style="color:#dc2626">舊的點</b>：每條 edge 只剩一半連著它 → degree 不變
+- <b style="color:#16a34a">新的點</b>：一定是 6（上一頁）
+
+→ Extraordinary vertex 只會是 <span class="key">control mesh 原本就有的</span>
+
+</div>
+</div>
+
+<div class="small mt-2">
+
+例：icosahedron 的 12 個角都是 degree 5 → 不管切幾次，永遠是這 12 個。其他幾百個新的點全部是 regular。
+
+</div>
+
+<!--
+上一頁說新的點一定是 degree 六。那舊的點呢？
+
+看左邊的圖。紅色的點連了五條邊，五個三角形圍著它，所以它是 degree 五的奇異點。
+
+中間是切一次之後。每個三角形都被切成四個。看紅色的點：原本連出去的五條邊，每條都被中間的新點切成兩半，紅點只連著靠近自己的那一半。所以它還是連五條，degree 沒有變。
+
+再看綠色的點，它是其中一條邊上新加的點。數它連出去的線：五條綠色的，加上連到紅點那條紅綠重疊的，剛好六條，跟上一頁說的一樣。
+
+所以結論是：舊的點 degree 不變，新的點一定是六。奇異點只會是 control mesh 一開始就有的那些，切再多次也不會變多。
+
+例如正二十面體，它的十二個角每個都是 degree 五。不管切幾次，奇異點永遠就是這十二個，其他新長出來的幾百個、幾千個點全部都是 regular。前面暖身那段看到球上的紅點就是它們。
+
+這種大部分規則、只有少數幾個奇異點的 mesh，有個名字叫 semi-regular mesh。
+
+所以等一下每個方法的規則都會有兩套：一套給 regular 的地方，一套專門處理這少數幾個奇異點。
 -->
 
 ---
