@@ -29,6 +29,7 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `DegreeFan`：調整一個 vertex 的 degree，看周圍的三角形怎麼變細
   - `PoleTexture`：把棋盤格貼到經緯度球上，看圖案在極點被擠壓
   - `SphereStep`：把 sphere subdivision 的一輪拆成三步，搭配切面圖
+  - `TerrainStep`：把 fractal terrain 的一輪拆成三步，再看下一輪幅度怎麼縮小
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
   - `CornerCut`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
   - `Stencil`：Butterfly 與 Loop 的權重圖
