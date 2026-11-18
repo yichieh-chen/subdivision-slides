@@ -14,6 +14,8 @@ export interface MeshLayer {
   wire?: boolean
   /** draw the edges of filled faces */
   edges?: boolean
+  /** colour for faces seen from behind, e.g. the inside showing through a gap (turns off culling) */
+  backColor?: string
 }
 export interface Point3D { p: V3, color: string, r?: number, /** text drawn next to the point */ label?: string }
 /** a highlighted line between two points in space */
@@ -48,6 +50,50 @@ const pitch = ref(props.pitch)
 const dragging = ref(false)
 const isActive = useIsSlideActive()
 let raf = 0
+
+interface MeshInfo { lines: [number, number][], /** 1 or -1 when the mesh is closed and consistently oriented, else 0 */ facing: number }
+const infoCache = new WeakMap<Mesh, MeshInfo>()
+/** edge list and orientation of a mesh, worked out once per mesh instead of once per frame */
+function meshInfo(m: Mesh): MeshInfo {
+  let info = infoCache.get(m)
+  if (info)
+    return info
+  const lines: [number, number][] = []
+  const dirs = new Map<string, number>()
+  let closed = true
+  for (const e of buildEdges(m).values()) {
+    lines.push([e.a, e.b])
+    if (e.faces.length !== 2)
+      closed = false
+  }
+  let vol = 0
+  for (const f of m.f) {
+    for (let i = 0; i < f.length; i++) {
+      const a = f[i]
+      const b = f[(i + 1) % f.length]
+      // a shared edge must be walked once in each direction
+      const k = a < b ? `${a}_${b}` : `${b}_${a}`
+      dirs.set(k, (dirs.get(k) ?? 0) + (a < b ? 1 : -1))
+    }
+    const p0 = m.v[f[0]]
+    for (let i = 1; i < f.length - 1; i++) {
+      const p1 = m.v[f[i]]
+      const p2 = m.v[f[i + 1]]
+      vol += p0[0] * (p1[1] * p2[2] - p1[2] * p2[1]) + p0[1] * (p1[2] * p2[0] - p1[0] * p2[2]) + p0[2] * (p1[0] * p2[1] - p1[1] * p2[0])
+    }
+  }
+  if (closed) {
+    for (const d of dirs.values()) {
+      if (d !== 0) {
+        closed = false
+        break
+      }
+    }
+  }
+  info = { lines, facing: closed && vol !== 0 ? Math.sign(vol) : 0 }
+  infoCache.set(m, info)
+  return info
+}
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '')
@@ -99,9 +145,11 @@ function draw() {
       continue
     }
     const base = hexToRgb(layer.color ?? '#5b8def')
+    const back = layer.backColor ? hexToRgb(layer.backColor) : null
     const manyFaces = layer.mesh.f.length > 2500
+    // a closed surface hides its own back faces, so they never need drawing
+    const facing = back ? 1 : meshInfo(layer.mesh).facing
     layer.mesh.f.forEach((f, fi) => {
-      const pts = f.map(i => pv[i])
       // Newell normal in view space, for simple two-sided shading
       let nx = 0
       let ny = 0
@@ -115,9 +163,14 @@ function draw() {
         nz += (a[0] - b[0]) * (a[1] + b[1])
         z += a[2]
       }
+      const c = vv[f[0]]
+      const toward = (-nx * c[0] - ny * c[1] + nz * (D - c[2])) * facing
+      if (toward < 0 && !back)
+        return
+      const pts = f.map(i => pv[i])
       const l = Math.hypot(nx, ny, nz) || 1
       const shade = 0.45 + 0.55 * Math.abs((nx * 0.35 + ny * 0.45 + nz * 0.82) / l)
-      const rgb = layer.faceColors ? hexToRgb(layer.faceColors[fi]) : base
+      const rgb = back && toward < 0 ? back : layer.faceColors ? hexToRgb(layer.faceColors[fi]) : base
       const col = rgb.map(v => Math.round(v * shade))
       polys.push({
         pts,
@@ -147,9 +200,9 @@ function draw() {
     ctx.lineWidth = 1.3
     ctx.setLineDash([5, 4])
     ctx.beginPath()
-    for (const e of buildEdges(w.layer.mesh).values()) {
-      ctx.moveTo(w.pts[e.a][0], w.pts[e.a][1])
-      ctx.lineTo(w.pts[e.b][0], w.pts[e.b][1])
+    for (const [a, b] of meshInfo(w.layer.mesh).lines) {
+      ctx.moveTo(w.pts[a][0], w.pts[a][1])
+      ctx.lineTo(w.pts[b][0], w.pts[b][1])
     }
     ctx.stroke()
     ctx.setLineDash([])

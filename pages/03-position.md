@@ -28,21 +28,27 @@ Subdivision 拿到兩邊的優點：像 NURBS 一樣 smooth、好控制，又像
 </v-click>
 
 ---
-layout: two-cols
+clicks: 1
 ---
 
 # 任意 topology 的例子
 
-右邊是一個有 <span class="key">洞</span> 的形狀。
+同一個有 <span class="key">兩個洞</span> 的形狀，兩種做法。按下一步，在同一個地方各調一下。
 
-- 用 NURBS：要拆成很多塊 patch 再縫起來
-- 用 subdivision：整個 mesh 直接切，不用管洞
+<PatchCompare :step="$clicks" />
 
-<div class="small mt-6">拉 slider 看它怎麼變平滑；勾 control mesh 看原本的形狀。</div>
+<div class="small mt-2 text-center">左邊是示意圖：每塊 patch 都是一張 4 邊形的 grid，一張包不住有洞、有分岔的形狀，只能拼。拖曳可旋轉。</div>
 
-::right::
+<!--
+這頁是把上一頁表格裡「形狀限制」那一格畫出來。
+左邊：NURBS 的每一塊 patch 都是一張四邊形的 grid，所以這個形狀要拆成很多塊，一塊一個顏色。
+右邊：subdivision 只有一個 control mesh，就是虛線那個方塊形狀。
 
-<MeshSubdivision shape="ring" :shapes="['ring', 'tshape']" scheme="catmull-clark" :level="2" :width="400" :height="290" />
+[click] 現在兩邊在同一個位置調一下。
+左邊只動了一塊 patch，它的邊界就跟鄰居對不上，中間裂開看得到裡面，這就是 crack。
+實際上動畫師要把旁邊每一塊都一起調，接縫才會合。
+右邊只拉一個 control point（紅點），旁邊的表面自動跟著變，永遠是一整片。
+-->
 
 ---
 layout: two-cols
@@ -66,7 +72,7 @@ layout: two-cols
 ::right::
 
 <MeshSubdivision
-  shape="hand" scheme="catmull-clark" :level="3" :max-level="3" :width="420" :height="300" :zoom="1.15"
+  shape="hand" scheme="catmull-clark" :level="2" :max-level="2" :width="420" :height="300" :zoom="1.15"
   title="示意：一個粗的 control mesh → 平滑的手"
 />
 
@@ -75,6 +81,6 @@ layout: two-cols
 <!--
 右邊不是電影裡的模型，是我們自己用方塊堆的一隻手，用來示意 Pixar 的做法。
 把 slider 拉到 0：動畫師實際在調的就是這個很粗的 control mesh，只有幾十個點。
-拉回 3：算出來的是平滑的手，而且手指分岔的地方沒有任何接縫。
+拉回 2：算出來的是平滑的手，而且手指分岔的地方沒有任何接縫。
 Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很多力氣處理 patch 之間的接縫。
 -->
