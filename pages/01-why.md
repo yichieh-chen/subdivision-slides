@@ -126,10 +126,42 @@ Subdivision = 重複做下面兩個動作：
 <SplitDemo :step="$clicks" />
 
 ---
+clicks: 1
+---
+
+# Step 1：決定新的 sample 在哪
+
+把小圖放大，和把粗 mesh 變細，第一步都是 <span class="key">先加入新的 sample</span>。
+
+<SampleCompare :stage="$clicks" />
+
+<!--
+先用大家熟悉的例子：把一張小圖放大。
+左邊 3×3 的小圖放大後格子變多，多出來的 pixel 還沒有顏色。
+右邊的 mesh 也一樣：每條 edge 插入一個新 vertex，但它該放哪裡還沒決定。這就是上一頁的 Refine。
+-->
+
+---
+clicks: 1
+---
+
+# Step 2：決定新 sample 的值
+
+新的 sample 沒有憑空出現的資訊，只能 <span class="key">看附近舊的 sample</span> 來決定。
+
+<SampleCompare :stage="$clicks + 1" />
+
+<!--
+左邊：新 pixel 的顏色，是旁邊舊 pixel 混出來的。看橘色框那格，是左右兩格的平均。
+右邊：新 vertex 的位置，也是用附近的舊 vertices 算出來的。看比較大的橘點，它用了圈起來的那四個舊點。
+這就是上一頁的 Smooth。
+-->
+
+---
 
 # 跟 Image 放大很像
 
-把一張小圖放大，和把一個粗 mesh 變細，其實是同一種思路：
+整理一下，把小圖放大和把粗 mesh 變細是同一種思路：
 
 | | Image enlargement | Subdivision |
 |---|---|---|
