@@ -888,183 +888,495 @@ Quad mesh：degree 4 是 <span class="key">regular</span>，其他都是 <span c
 
 為什麼要在意？因為 Catmull-Clark 的規則是照著 degree 4 設計的。在奇異點那裡，曲面會比較不平滑。所以接下來要問兩個問題：切的時候，奇異點會不會變多？為什麼它那裡比較不平滑？
 -->
+
 ---
-clicks: 1
+clicks: 2
 ---
 
-# 切一次：每個 face 的中心會變成什麼？
+# 切一次：face 中間的新點連幾條？
 
-Face point 會連到這個 face <span class="key">每條 edge 上的 edge point</span> → 連幾條 = 這個 face 有幾條邊
+<div class="grid grid-cols-3 gap-4 items-center">
+<div class="col-span-2">
+
+<svg viewBox="0 0 470 185" width="490" class="mx-auto">
+<polygon points="148.7,34.3 41.3,34.3 41.3,141.7 148.7,141.7" fill="#94a3b81a" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<text x="95" y="178" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之前</text>
+<line x1="195" y1="88" x2="254" y2="88" stroke="#64748b" stroke-width="3" stroke-linecap="round" /><polygon points="262,88 250,81 250,95" fill="#64748b" />
+<polygon points="365.0,88.0 418.7,88.0 418.7,34.3 365.0,34.3" fill="#fde68a88" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="365.0,88.0 365.0,34.3 311.3,34.3 311.3,88.0" fill="#bfdbfe99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="365.0,88.0 311.3,88.0 311.3,141.7 365.0,141.7" fill="#bbf7d099" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="365.0,88.0 365.0,141.7 418.7,141.7 418.7,88.0" fill="#fecaca99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<line x1="365.0" y1="88.0" x2="365.0" y2="34.3" stroke="#16a34a" stroke-width="5" stroke-linecap="round" />
+<line x1="365.0" y1="88.0" x2="311.3" y2="88.0" stroke="#16a34a" stroke-width="5" stroke-linecap="round" />
+<line x1="365.0" y1="88.0" x2="365.0" y2="141.7" stroke="#16a34a" stroke-width="5" stroke-linecap="round" />
+<line x1="365.0" y1="88.0" x2="418.7" y2="88.0" stroke="#16a34a" stroke-width="5" stroke-linecap="round" />
+<circle cx="148.7" cy="34.3" r="5" fill="#64748b" />
+<circle cx="41.3" cy="34.3" r="5" fill="#64748b" />
+<circle cx="41.3" cy="141.7" r="5" fill="#64748b" />
+<circle cx="148.7" cy="141.7" r="5" fill="#64748b" />
+<circle cx="418.7" cy="34.3" r="5" fill="#64748b" />
+<circle cx="311.3" cy="34.3" r="5" fill="#64748b" />
+<circle cx="311.3" cy="141.7" r="5" fill="#64748b" />
+<circle cx="418.7" cy="141.7" r="5" fill="#64748b" />
+<circle cx="365.0" cy="34.3" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="311.3" cy="88.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="365.0" cy="141.7" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="418.7" cy="88.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="365.0" cy="88.0" r="15" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="365.0" cy="88.0" r="8" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="365.0" cy="50.4" r="10" fill="#16a34a" stroke="#fff" stroke-width="1.5" /><text x="365.0" y="54.9" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">1</text>
+<circle cx="327.4" cy="88.0" r="10" fill="#16a34a" stroke="#fff" stroke-width="1.5" /><text x="327.4" y="92.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">2</text>
+<circle cx="365.0" cy="125.6" r="10" fill="#16a34a" stroke="#fff" stroke-width="1.5" /><text x="365.0" y="130.1" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">3</text>
+<circle cx="402.6" cy="88.0" r="10" fill="#16a34a" stroke="#fff" stroke-width="1.5" /><text x="402.6" y="92.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">4</text>
+<text x="365" y="178" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之後：4 個四邊形</text>
+</svg>
+
+</div>
+<div>
+
+**四邊形的 face**
+
+中間的新點連 <b style="color:#16a34a">4</b> 條
+→ <b style="color:#16a34a">正常 ✓</b>
+
+</div>
+</div>
+
+<div v-click="1" class="grid grid-cols-3 gap-4 items-center">
+<div class="col-span-2">
+
+<svg viewBox="0 0 470 185" width="490" class="mx-auto">
+<polygon points="95.0,14.0 20.5,143.0 169.5,143.0" fill="#94a3b81a" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<text x="95" y="178" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之前</text>
+<line x1="195" y1="88" x2="254" y2="88" stroke="#64748b" stroke-width="3" stroke-linecap="round" /><polygon points="262,88 250,81 250,95" fill="#64748b" />
+<polygon points="365.0,100.0 402.2,78.5 365.0,14.0 327.8,78.5" fill="#fde68a88" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="365.0,100.0 327.8,78.5 290.5,143.0 365.0,143.0" fill="#bfdbfe99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="365.0,100.0 365.0,143.0 439.5,143.0 402.2,78.5" fill="#bbf7d099" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<line x1="365.0" y1="100.0" x2="327.8" y2="78.5" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<line x1="365.0" y1="100.0" x2="365.0" y2="143.0" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<line x1="365.0" y1="100.0" x2="402.2" y2="78.5" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<circle cx="95.0" cy="14.0" r="5" fill="#64748b" />
+<circle cx="20.5" cy="143.0" r="5" fill="#64748b" />
+<circle cx="169.5" cy="143.0" r="5" fill="#64748b" />
+<circle cx="365.0" cy="14.0" r="5" fill="#64748b" />
+<circle cx="290.5" cy="143.0" r="5" fill="#64748b" />
+<circle cx="439.5" cy="143.0" r="5" fill="#64748b" />
+<circle cx="327.8" cy="78.5" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="365.0" cy="143.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="402.2" cy="78.5" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="365.0" cy="100.0" r="15" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="365.0" cy="100.0" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<circle cx="338.9" cy="85.0" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="338.9" y="89.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">1</text>
+<circle cx="365.0" cy="130.1" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="365.0" y="134.6" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">2</text>
+<circle cx="391.1" cy="85.0" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="391.1" y="89.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">3</text>
+<text x="365" y="178" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之後：3 個四邊形</text>
+</svg>
+
+</div>
+<div>
+
+**三角形的 face**
+
+中間的新點只連 <b style="color:#dc2626">3</b> 條
+→ <b style="color:#dc2626">奇異點 ✗</b>
+
+</div>
+</div>
+
+<div v-click="2" class="small">
+
+三角形被切成 3 個四邊形，所以三角形<span class="key">不見了</span>；但它中間留下<span class="key">一個奇異點</span>。
+
+</div>
+
+<!--
+現在看 Catmull-Clark 切一次的時候，會不會產生新的奇異點。只要看一件事：每個面中間新加的那個點，連了幾條線。
+
+先看上面那一排，一個四邊形的面。左邊是切之前。右邊是切之後：中間加一個點，四條邊的中間各加一個藍色的點，中間的點連到四個藍點。看虛線圈起來的中間那個點，數它的線：一、二、三、四，四條。四條是正常的，所以它是 regular。而且這個四邊形被切成四個小四邊形，四種顏色各一塊。
+
+（按一下）再看下面那一排，一個三角形的面。一樣的做法：中間加一個點，三條邊的中間各加一個藍點，中間的點連到三個藍點。數它的線：一、二、三，只有三條。不是四條，所以這個點是奇異點。
+
+為什麼只有三條？因為三角形只有三條邊，中間的點對每條邊各連一條線，所以就是三條。面有幾條邊，中間的點就連幾條。
+
+（按一下）再看一次右下角的圖：三角形被切成三塊，每一塊都是四邊形。所以切完之後，三角形這個面不見了，全部變成四邊形。但是它不是完全沒留下痕跡：它的中間留下了一個只連三條線的點，也就是一個奇異點。
+
+這就是「不是四邊形的面，切完會消失，但中間會留下一個奇異點」的意思。
+-->
+
+---
+clicks: 2
+---
+
+# 再切下去：奇異點不會變多
+
+繼續切剛剛那個三角形。<b style="color:#dc2626">紅色</b> = 奇異點，<b style="color:#16a34a">綠色</b> = 正常的點（連 4 條）
 
 <div class="grid grid-cols-3 gap-6 mt-2">
 <div>
 
-<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
-<polygon points="150.9,41.1 49.1,41.1 49.1,142.9 150.9,142.9" fill="#f973160f" stroke="#64748b" stroke-width="2" />
-<line x1="100" y1="92" x2="100.0" y2="41.1" stroke="#16a34a" stroke-width="4" />
-<line x1="100" y1="92" x2="49.1" y2="92.0" stroke="#16a34a" stroke-width="4" />
-<line x1="100" y1="92" x2="100.0" y2="142.9" stroke="#16a34a" stroke-width="4" />
-<line x1="100" y1="92" x2="150.9" y2="92.0" stroke="#16a34a" stroke-width="4" />
-<circle cx="100.0" cy="41.1" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="49.1" cy="92.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="100.0" cy="142.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="150.9" cy="92.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="150.9" cy="41.1" r="4" fill="#64748b" />
-<circle cx="49.1" cy="41.1" r="4" fill="#64748b" />
-<circle cx="49.1" cy="142.9" r="4" fill="#64748b" />
-<circle cx="150.9" cy="142.9" r="4" fill="#64748b" />
-<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
-<text x="100" y="192" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 4 ✓</text>
+<svg viewBox="0 0 260 215" width="100%" class="mx-auto">
+<line x1="130.0" y1="139.3" x2="72.5" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="15" y1="205" x2="72.5" y2="106.5" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="15" y1="205" x2="130.0" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="130.0" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="245" y1="205" x2="130.0" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="245" y1="205" x2="187.5" y2="106.5" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="187.5" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130" y1="8" x2="187.5" y2="106.5" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130" y1="8" x2="72.5" y2="106.5" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<circle cx="130.0" cy="139.3" r="17" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="130.0" cy="139.3" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
 </svg>
 
-<div class="small text-center">Quad → 4 個 quads</div>
+<div class="text-center"><b>切 1 次</b><br><span class="small">奇異點 <b style="color:#dc2626">1</b> 個，正常 0 個</span></div>
 </div>
-<div>
+<div v-click="1">
 
-<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
-<polygon points="100.0,20.0 37.6,128.0 162.4,128.0" fill="#f973160f" stroke="#64748b" stroke-width="2" />
-<line x1="100" y1="92" x2="68.8" y2="74.0" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="100.0" y2="128.0" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="131.2" y2="74.0" stroke="#dc2626" stroke-width="4" />
-<circle cx="68.8" cy="74.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="100.0" cy="128.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="131.2" cy="74.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="100.0" cy="20.0" r="4" fill="#64748b" />
-<circle cx="37.6" cy="128.0" r="4" fill="#64748b" />
-<circle cx="162.4" cy="128.0" r="4" fill="#64748b" />
-<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
-<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 3 ✗</text>
+<svg viewBox="0 0 260 215" width="100%" class="mx-auto">
+<line x1="86.9" y1="164.0" x2="130.0" y2="172.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="130.0" y2="172.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="101.2" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="101.2" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="101.2" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="43.8" y2="155.8" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="43.8" y2="155.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="15" y1="205" x2="43.8" y2="155.8" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="15" y1="205" x2="72.5" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="72.5" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="72.5" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="130.0" y2="172.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="158.8" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="158.8" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="172.2" x2="173.1" y2="164.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="187.5" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="187.5" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="245" y1="205" x2="187.5" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="245" y1="205" x2="216.2" y2="155.8" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="216.2" y2="155.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="216.2" y2="155.8" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="158.8" y2="122.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="122.9" x2="130.0" y2="90.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="122.9" x2="130.0" y2="90.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="158.8" y2="57.2" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="158.8" y2="57.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130" y1="8" x2="158.8" y2="57.2" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130" y1="8" x2="101.2" y2="57.2" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="101.2" y2="57.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="101.2" y2="57.2" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<circle cx="86.9" cy="164.0" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="101.2" cy="122.9" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="130.0" cy="172.2" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="173.1" cy="164.0" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="158.8" cy="122.9" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="130.0" cy="90.1" r="5.5" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="130.0" cy="139.3" r="17" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="130.0" cy="139.3" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
 </svg>
 
-<div class="small text-center">Triangle → 3 個 quads</div>
+<div class="text-center"><b>切 2 次</b><br><span class="small">奇異點 <b style="color:#dc2626">1</b> 個，正常 6 個</span></div>
 </div>
-<div>
+<div v-click="2">
 
-<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
-<polygon points="100.0,20.0 31.5,69.8 57.7,150.2 142.3,150.2 168.5,69.8" fill="#f973160f" stroke="#64748b" stroke-width="2" />
-<line x1="100" y1="92" x2="65.8" y2="44.9" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="44.6" y2="110.0" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="100.0" y2="150.2" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="155.4" y2="110.0" stroke="#dc2626" stroke-width="4" />
-<line x1="100" y1="92" x2="134.2" y2="44.9" stroke="#dc2626" stroke-width="4" />
-<circle cx="65.8" cy="44.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="44.6" cy="110.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="100.0" cy="150.2" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="155.4" cy="110.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="134.2" cy="44.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="100.0" cy="20.0" r="4" fill="#64748b" />
-<circle cx="31.5" cy="69.8" r="4" fill="#64748b" />
-<circle cx="57.7" cy="150.2" r="4" fill="#64748b" />
-<circle cx="142.3" cy="150.2" r="4" fill="#64748b" />
-<circle cx="168.5" cy="69.8" r="4" fill="#64748b" />
-<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
-<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 5 ✗</text>
+<svg viewBox="0 0 260 215" width="100%" class="mx-auto">
+<line x1="112.0" y1="149.6" x2="94.1" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="94.1" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="108.4" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="112.0" y1="149.6" x2="108.4" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="172.2" x2="108.4" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="172.2" x2="130.0" y2="155.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="112.0" y1="149.6" x2="130.0" y2="155.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="130.0" y2="155.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="115.6" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="112.0" y1="149.6" x2="115.6" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="122.9" x2="115.6" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="122.9" x2="94.1" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="76.1" y1="137.3" x2="65.3" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="65.3" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="94.1" y1="143.4" x2="76.1" y2="137.3" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="122.9" x2="86.9" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="76.1" y1="137.3" x2="86.9" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="86.9" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="58.1" y2="131.1" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="76.1" y1="137.3" x2="58.1" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="43.8" y1="155.8" x2="58.1" y2="131.1" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="43.8" y1="155.8" x2="65.3" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="54.5" y1="182.4" x2="79.7" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="86.9" y1="164.0" x2="79.7" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="65.3" y1="159.9" x2="54.5" y2="182.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="43.8" y1="155.8" x2="29.4" y2="180.4" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="54.5" y1="182.4" x2="29.4" y2="180.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="15" y1="205" x2="29.4" y2="180.4" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="15" y1="205" x2="43.8" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="54.5" y1="182.4" x2="43.8" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="205.0" x2="43.8" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="72.5" y1="205.0" x2="79.7" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="108.4" y1="168.1" x2="104.8" y2="186.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="79.7" y1="184.5" x2="104.8" y2="186.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="205.0" x2="101.2" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="104.8" y1="186.5" x2="101.2" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="101.2" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="130.0" y2="188.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="104.8" y1="186.5" x2="130.0" y2="188.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="172.2" x2="130.0" y2="188.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="148.0" y1="149.6" x2="151.6" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="151.6" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="165.9" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="148.0" y1="149.6" x2="165.9" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="122.9" x2="165.9" y2="143.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="122.9" x2="144.4" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="148.0" y1="149.6" x2="144.4" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="139.3" x2="144.4" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="155.8" x2="148.0" y2="149.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="172.2" x2="151.6" y2="168.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="155.2" y1="186.5" x2="180.3" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="180.3" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="151.6" y1="168.1" x2="155.2" y2="186.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="188.6" x2="155.2" y2="186.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="205.0" x2="158.8" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="155.2" y1="186.5" x2="158.8" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="205.0" x2="158.8" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="187.5" y1="205.0" x2="180.3" y2="184.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="205.5" y1="182.4" x2="194.7" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="164.0" x2="194.7" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="180.3" y1="184.5" x2="205.5" y2="182.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="205.0" x2="216.2" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="205.5" y1="182.4" x2="216.2" y2="205.0" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="245" y1="205" x2="216.2" y2="205.0" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="245" y1="205" x2="230.6" y2="180.4" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="205.5" y1="182.4" x2="230.6" y2="180.4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="216.2" y1="155.8" x2="230.6" y2="180.4" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="216.2" y1="155.8" x2="194.7" y2="159.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="165.9" y1="143.4" x2="183.9" y2="137.3" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="194.7" y1="159.9" x2="183.9" y2="137.3" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="216.2" y1="155.8" x2="201.9" y2="131.1" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="183.9" y1="137.3" x2="201.9" y2="131.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="201.9" y2="131.1" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="173.1" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="183.9" y1="137.3" x2="173.1" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="122.9" x2="173.1" y2="114.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="118.8" x2="144.4" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="144.4" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="115.6" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="118.8" x2="115.6" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="122.9" x2="115.6" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="115.6" y1="131.1" x2="130.0" y2="118.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="144.4" y1="131.1" x2="130.0" y2="118.8" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="122.9" x2="144.4" y2="106.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="94.2" x2="144.4" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="144.4" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="144.4" y1="106.5" x2="158.8" y2="94.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="173.1" y1="114.7" x2="158.8" y2="94.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="187.5" y1="106.5" x2="173.1" y2="81.9" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="158.8" y1="94.2" x2="173.1" y2="81.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="57.2" x2="173.1" y2="81.9" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="158.8" y1="57.2" x2="144.4" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="53.1" x2="115.6" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130.0" y1="90.1" x2="115.6" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="144.4" y1="73.7" x2="130.0" y2="53.1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="158.8" y1="57.2" x2="144.4" y2="32.6" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="53.1" x2="144.4" y2="32.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="130" y1="8" x2="144.4" y2="32.6" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130" y1="8" x2="115.6" y2="32.6" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="130.0" y1="53.1" x2="115.6" y2="32.6" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="57.2" x2="115.6" y2="32.6" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="101.2" y1="57.2" x2="115.6" y2="73.7" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="115.6" y1="106.5" x2="101.2" y2="94.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="115.6" y1="73.7" x2="101.2" y2="94.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="101.2" y1="57.2" x2="86.9" y2="81.9" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="101.2" y1="94.2" x2="86.9" y2="81.9" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<line x1="72.5" y1="106.5" x2="86.9" y2="81.9" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+<line x1="86.9" y1="114.7" x2="101.2" y2="94.2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+<circle cx="86.9" cy="164.0" r="3.6" fill="#16a34a" />
+<circle cx="101.2" cy="122.9" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="172.2" r="3.6" fill="#16a34a" />
+<circle cx="173.1" cy="164.0" r="3.6" fill="#16a34a" />
+<circle cx="158.8" cy="122.9" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="90.1" r="3.6" fill="#16a34a" />
+<circle cx="112.0" cy="149.6" r="3.6" fill="#16a34a" />
+<circle cx="108.4" cy="168.1" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="155.8" r="3.6" fill="#16a34a" />
+<circle cx="115.6" cy="131.1" r="3.6" fill="#16a34a" />
+<circle cx="94.1" cy="143.4" r="3.6" fill="#16a34a" />
+<circle cx="76.1" cy="137.3" r="3.6" fill="#16a34a" />
+<circle cx="86.9" cy="114.7" r="3.6" fill="#16a34a" />
+<circle cx="65.3" cy="159.9" r="3.6" fill="#16a34a" />
+<circle cx="54.5" cy="182.4" r="3.6" fill="#16a34a" />
+<circle cx="79.7" cy="184.5" r="3.6" fill="#16a34a" />
+<circle cx="104.8" cy="186.5" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="188.6" r="3.6" fill="#16a34a" />
+<circle cx="148.0" cy="149.6" r="3.6" fill="#16a34a" />
+<circle cx="165.9" cy="143.4" r="3.6" fill="#16a34a" />
+<circle cx="144.4" cy="131.1" r="3.6" fill="#16a34a" />
+<circle cx="151.6" cy="168.1" r="3.6" fill="#16a34a" />
+<circle cx="155.2" cy="186.5" r="3.6" fill="#16a34a" />
+<circle cx="180.3" cy="184.5" r="3.6" fill="#16a34a" />
+<circle cx="205.5" cy="182.4" r="3.6" fill="#16a34a" />
+<circle cx="194.7" cy="159.9" r="3.6" fill="#16a34a" />
+<circle cx="183.9" cy="137.3" r="3.6" fill="#16a34a" />
+<circle cx="173.1" cy="114.7" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="118.8" r="3.6" fill="#16a34a" />
+<circle cx="115.6" cy="106.5" r="3.6" fill="#16a34a" />
+<circle cx="144.4" cy="106.5" r="3.6" fill="#16a34a" />
+<circle cx="158.8" cy="94.2" r="3.6" fill="#16a34a" />
+<circle cx="144.4" cy="73.7" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="53.1" r="3.6" fill="#16a34a" />
+<circle cx="115.6" cy="73.7" r="3.6" fill="#16a34a" />
+<circle cx="101.2" cy="94.2" r="3.6" fill="#16a34a" />
+<circle cx="130.0" cy="139.3" r="17" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="130.0" cy="139.3" r="9" fill="#dc2626" stroke="#fff" stroke-width="2" />
 </svg>
 
-<div class="small text-center">Pentagon → 5 個 quads</div>
+<div class="text-center"><b>切 3 次</b><br><span class="small">奇異點 <b style="color:#dc2626">1</b> 個，正常 36 個</span></div>
 </div>
 </div>
 
-<div v-click="1" class="mt-2">
+<div class="small mt-2">
 
-不是 quad 的 face：切完就<span class="key">消失</span>（全變 quads），但它的中心留下<span class="key">一個 extraordinary vertex</span>。
+新加的點全部是綠色 → 奇異點<span class="key">永遠只有中間那 1 個</span>。（只算裡面的點，不算最外圈。）
 
 </div>
 
 <!--
-現在看 Catmull-Clark 切一次的時候，會不會產生新的奇異點。先看新的 face point，就是每個面中間那個橘色的點。
+那繼續切下去，奇異點會不會越來越多？直接切給大家看。
 
-回想 Catmull-Clark 第四步「連線」：face point 會連到這個面每一條邊上的 edge point，就是藍色的點。所以 face point 連幾條線，就看這個面有幾條邊。
+左邊是上一頁的結果：一個三角形切一次，變成三個四邊形，中間紅色的是奇異點，連三條線。這時候裡面只有它一個點，所以奇異點一個，正常的點零個。
 
-左邊是四邊形：四條邊，中心連四條線，degree 4，regular，沒問題。這個四邊形被切成四個小四邊形。
+（按一下）再切一次。每個四邊形又被切成四個。看紅色的點：它還在原來的位置，還是只連三條線，還是奇異點。新加進來的點是綠色的，數任何一個綠點，它都剛好連四條線，全部是正常的。所以奇異點還是一個，正常的點變成6個。
 
-中間是三角形：三條邊，中心只連三條線，degree 3，是奇異點。三角形被切成三個四邊形。
+（按一下）再切一次。紅色的點還是那一個。綠色的點變成36個，每一個都連四條線。
 
-右邊是五邊形：五條邊，中心連五條線，degree 5，也是奇異點。五邊形被切成五個四邊形。
+所以切再多次，奇異點都只有中間那一個，不會變多。變多的全部是正常的點。
 
-（按一下）所以結論是：不是四邊形的面，切一次之後就消失了，因為它被切成好幾個四邊形。但是它不是完全沒留下痕跡，它的中心會變成一個奇異點，degree 等於原本那個面的邊數。
+這也說明另一件事：奇異點旁邊正常的區域越來越大、越來越密，不正常的地方被擠到只剩中間那一個點。
+
+為什麼新加的點都剛好連四條？下一頁說明。
 -->
----
-clicks: 1
+
 ---
 
-# 其他的點呢？
+# 為什麼新加的點都是正常的？
 
-<div class="grid grid-cols-2 gap-8">
+第 1 次切完之後，所有 face 都是四邊形。之後每次只會多出兩種新點：
+
+<div class="grid grid-cols-3 gap-6 mt-2">
 <div>
 
-<svg viewBox="0 0 240 160" width="100%" class="mx-auto">
-<polygon points="30,25 120,25 120,115 30,115" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
-<polygon points="120,25 210,25 210,115 120,115" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
-<line x1="75.0" y1="70.0" x2="75.0" y2="25" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="75.0" y1="70.0" x2="75.0" y2="115" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="75.0" y1="70.0" x2="30" y2="70.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="165.0" y1="70.0" x2="165.0" y2="25" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="165.0" y1="70.0" x2="165.0" y2="115" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="165.0" y1="70.0" x2="210" y2="70.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="120" y1="70.0" x2="120" y2="25" stroke="#2563eb" stroke-width="4" />
-<line x1="120" y1="70.0" x2="120" y2="115" stroke="#2563eb" stroke-width="4" />
-<line x1="120" y1="70.0" x2="75.0" y2="70.0" stroke="#2563eb" stroke-width="4" />
-<line x1="120" y1="70.0" x2="165.0" y2="70.0" stroke="#2563eb" stroke-width="4" />
-<circle cx="75.0" cy="70.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
-<circle cx="165.0" cy="70.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
-<circle cx="120" cy="70.0" r="8" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="120" cy="25" r="5" fill="#64748b" />
-<circle cx="120" cy="115" r="5" fill="#64748b" />
-<text x="120" y="150" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">edge point：連 4 條 ✓</text>
+<svg viewBox="0 0 240 150" width="100%" class="mx-auto">
+<polygon points="120,75 50.0,75.0 50,15 120.0,15.0" fill="#fde68a88" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="120,75 120.0,15.0 190,15 190.0,75.0" fill="#bfdbfe99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="120,75 190.0,75.0 190,135 120.0,135.0" fill="#bbf7d099" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="120,75 120.0,135.0 50,135 50.0,75.0" fill="#fecaca99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<line x1="120" y1="75" x2="120.0" y2="15.0" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75" x2="190.0" y2="75.0" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75" x2="120.0" y2="135.0" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75" x2="50.0" y2="75.0" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+<circle cx="120.0" cy="15.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="190.0" cy="75.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="120.0" cy="135.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="50.0" cy="75.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="50" cy="15" r="5" fill="#64748b" />
+<circle cx="190" cy="15" r="5" fill="#64748b" />
+<circle cx="190" cy="135" r="5" fill="#64748b" />
+<circle cx="50" cy="135" r="5" fill="#64748b" />
+<circle cx="120" cy="75" r="18" fill="none" stroke="#f97316" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="120" cy="75" r="9" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="120.0" cy="39.0" r="10" fill="#f97316" stroke="#fff" stroke-width="1.5" /><text x="120.0" y="43.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">1</text>
+<circle cx="162.0" cy="75.0" r="10" fill="#f97316" stroke="#fff" stroke-width="1.5" /><text x="162.0" y="79.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">2</text>
+<circle cx="120.0" cy="111.0" r="10" fill="#f97316" stroke="#fff" stroke-width="1.5" /><text x="120.0" y="115.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">3</text>
+<circle cx="78.0" cy="75.0" r="10" fill="#f97316" stroke="#fff" stroke-width="1.5" /><text x="78.0" y="79.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">4</text>
 </svg>
 
-<div class="small">舊 edge 剩下的兩半（2 條）＋兩邊的 face point（2 條）→ <b>一定是 4</b></div>
+<div class="small"><b style="color:#f97316">面中間的新點</b><br>四邊形有 4 條邊，各連一條 → <b>4 條</b></div>
 </div>
 <div>
 
-<svg viewBox="0 0 240 160" width="100%" class="mx-auto">
-<polygon points="120,72 120.0,20.0 75.0,46.0 75.0,98.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
-<line x1="97.5" y1="59.0" x2="120.0" y2="46.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="97.5" y1="59.0" x2="97.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<circle cx="97.5" cy="59.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
-<polygon points="120,72 75.0,98.0 120.0,124.0 165.0,98.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
-<line x1="120.0" y1="98.0" x2="97.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="120.0" y1="98.0" x2="142.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<circle cx="120.0" cy="98.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
-<polygon points="120,72 165.0,98.0 165.0,46.0 120.0,20.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
-<line x1="142.5" y1="59.0" x2="142.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<line x1="142.5" y1="59.0" x2="120.0" y2="46.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-<circle cx="142.5" cy="59.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
-<line x1="120" y1="72" x2="120.0" y2="46.0" stroke="#dc2626" stroke-width="4" />
-<line x1="120" y1="72" x2="97.5" y2="85.0" stroke="#dc2626" stroke-width="4" />
-<line x1="120" y1="72" x2="142.5" y2="85.0" stroke="#dc2626" stroke-width="4" />
-<circle cx="120.0" cy="46.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="97.5" cy="85.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<circle cx="142.5" cy="85.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<svg viewBox="0 0 240 150" width="100%" class="mx-auto">
+<polygon points="20,20 120,20 120,130 20,130" fill="#fde68a88" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<polygon points="120,20 220,20 220,130 120,130" fill="#bfdbfe99" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
+<line x1="70.0" y1="75.0" x2="70.0" y2="20" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="70.0" y1="75.0" x2="70.0" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="70.0" y1="75.0" x2="20" y2="75.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="170.0" y1="75.0" x2="170.0" y2="20" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="170.0" y1="75.0" x2="170.0" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="170.0" y1="75.0" x2="220" y2="75.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="120" y1="75.0" x2="120" y2="20" stroke="#2563eb" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75.0" x2="120" y2="130" stroke="#2563eb" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75.0" x2="70.0" y2="75.0" stroke="#2563eb" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="75.0" x2="170.0" y2="75.0" stroke="#2563eb" stroke-width="5" stroke-linecap="round" />
+<circle cx="70.0" cy="75.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="170.0" cy="75.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="120" cy="20" r="5" fill="#64748b" />
+<circle cx="120" cy="130" r="5" fill="#64748b" />
+<circle cx="120" cy="75.0" r="18" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4 3" />
+<circle cx="120" cy="75.0" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="120.0" cy="40.9" r="10" fill="#2563eb" stroke="#fff" stroke-width="1.5" /><text x="120.0" y="45.4" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">1</text>
+<circle cx="120.0" cy="109.1" r="10" fill="#2563eb" stroke="#fff" stroke-width="1.5" /><text x="120.0" y="113.6" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">2</text>
+<circle cx="89.0" cy="75.0" r="10" fill="#2563eb" stroke="#fff" stroke-width="1.5" /><text x="89.0" y="79.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">3</text>
+<circle cx="151.0" cy="75.0" r="10" fill="#2563eb" stroke="#fff" stroke-width="1.5" /><text x="151.0" y="79.5" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">4</text>
+</svg>
+
+<div class="small"><b style="color:#2563eb">邊上的新點</b><br>舊 edge 的兩半（1、2）＋兩邊面的中心（3、4）→ <b>4 條</b></div>
+</div>
+<div>
+
+<svg viewBox="25 -8 190 166" width="100%" class="mx-auto">
+<polygon points="120,72 120.0,10.0 66.3,41.0 66.3,103.0" fill="#fde68a88" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round" />
+<line x1="93.2" y1="56.5" x2="120.0" y2="41.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="93.2" y1="56.5" x2="93.2" y2="87.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="93.2" y1="56.5" x2="93.2" y2="25.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="93.2" y1="56.5" x2="66.3" y2="72.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<circle cx="93.2" cy="56.5" r="5" fill="#f97316" stroke="#fff" stroke-width="2" />
+<polygon points="120,72 66.3,103.0 120.0,134.0 173.7,103.0" fill="#bfdbfe99" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round" />
+<line x1="120.0" y1="103.0" x2="93.2" y2="87.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="120.0" y1="103.0" x2="146.8" y2="87.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="120.0" y1="103.0" x2="93.2" y2="118.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="120.0" y1="103.0" x2="146.8" y2="118.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<circle cx="120.0" cy="103.0" r="5" fill="#f97316" stroke="#fff" stroke-width="2" />
+<polygon points="120,72 173.7,103.0 173.7,41.0 120.0,10.0" fill="#bbf7d099" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round" />
+<line x1="146.8" y1="56.5" x2="146.8" y2="87.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="146.8" y1="56.5" x2="120.0" y2="41.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="146.8" y1="56.5" x2="173.7" y2="72.0" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="146.8" y1="56.5" x2="146.8" y2="25.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" />
+<circle cx="146.8" cy="56.5" r="5" fill="#f97316" stroke="#fff" stroke-width="2" />
+<line x1="120" y1="72" x2="120.0" y2="41.0" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="72" x2="93.2" y2="87.5" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<line x1="120" y1="72" x2="146.8" y2="87.5" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+<circle cx="120.0" cy="41.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="93.2" cy="87.5" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="146.8" cy="87.5" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="120" cy="72" r="14" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
 <circle cx="120" cy="72" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
-<text x="120" y="150" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">舊的 vertex：還是 3 條</text>
+<circle cx="134.0" cy="48.8" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="134.0" y="53.2" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">1</text>
+<circle cx="92.9" cy="71.5" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="92.9" y="76.0" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">2</text>
+<circle cx="133.1" cy="95.7" r="10" fill="#dc2626" stroke="#fff" stroke-width="1.5" /><text x="133.1" y="100.2" fill="#fff" text-anchor="middle" style="font-size: 13px; font-weight: 700">3</text>
 </svg>
 
-<div class="small">每條舊 edge 剩一半，連到 edge point → <b>degree 不變</b></div>
+<div class="small"><b style="color:#dc2626">原本的點</b><br>每條 edge 被切半，還是連著它 → 原本 3 條，<b>還是 3 條</b></div>
 </div>
 </div>
 
-<div v-click="1" class="mt-4">
+<div class="mt-2">
 
-- **第 1 輪**：extraordinary = 原本的 ＋ 每個非 quad face 一個
-- **第 2 輪起**：face 全是 quad → 新的點都是 degree 4 → <span class="key">數量不再增加</span>
+新的點一定是 4 條，舊的點不會變 → <span class="key">不會再有新的奇異點</span>。
 
 </div>
 
 <!--
-上一頁看了 face point。切完之後還有兩種點：edge point 和舊的頂點。
+上一頁看到新加的點全部是正常的。這頁說明為什麼。
 
-左邊是 edge point。兩個面共用中間那條邊，藍色的 edge point 在這條邊上。它連出去的線有四條：往上、往下各一條，是原本那條邊被切成的兩半；往左、往右各一條，連到兩邊的 face point，橘色的點。二加二，一定是四條。不管 mesh 長什麼樣子，一條邊永遠是被兩個面共用，所以 edge point 一定是 degree 4，一定是 regular。
+重點是：切完第一次之後，所有的面都已經是四邊形了。所以從第二次開始，每次切只會多出兩種新的點。
 
-右邊是舊的頂點。用 degree 3 的角當例子。切完之後，原本連出去的三條邊，每條都被 edge point 切成兩半，舊的頂點只連到靠近自己的那一半。所以它還是連三條，degree 沒有變。原本是奇異點的，切完還是奇異點；原本是 regular 的，切完還是 regular。
+左邊，面中間的新點，橘色那個。因為面是四邊形，有四條邊，中間的點對每條邊各連一條線，一、二、三、四，四條。
 
-（按一下）把三種點放在一起：
+中間，邊上的新點，藍色那個。這條邊左右各有一個面。它的線有四條：一和二是原本那條邊被切成的上下兩半；三和四是連到左右兩個面的中心。不管 mesh 長什麼樣子，一條邊一定是被兩個面共用，所以一定是二加二，四條。
 
-第一輪，奇異點等於原本就有的，再加上每個不是四邊形的面各留下一個。
+所以新加的點不是橘色就是藍色，兩種都是四條，全部是正常的點。
 
-第二輪開始，所有的面都已經是四邊形了。上一頁說四邊形的中心是 degree 4，這一頁說 edge point 一定是 degree 4，舊的點 degree 不變。所以從第二輪開始，新產生的點全部是 regular，奇異點的數量不會再增加。
+右邊是原本就有的點，用連三條邊的奇異點當例子。切完之後，它的三條邊各被藍點切成兩半，它只連到靠近自己的那一半。一、二、三，還是三條。所以原本是奇異點的還是奇異點，原本正常的還是正常，都不會變。
+
+合起來：新的點一定是四條，舊的點不會變。所以第一次切完之後，不會再有新的奇異點。
 -->
+
 ---
 layout: two-cols
 ---
