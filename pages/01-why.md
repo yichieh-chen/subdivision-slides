@@ -10,6 +10,40 @@ layout: section
 layout: two-cols
 ---
 
+# 先認識四個名詞
+
+- <span class="key">Polygon mesh</span><br>
+  用很多小多邊形拼成的 3D 表面
+
+- <span class="key">Coarse mesh</span><br>
+  點很少的 mesh，好調但有稜有角
+
+- <span class="key">Control mesh</span><br>
+  用來「控制」形狀的 coarse mesh（虛線）
+
+- <span class="key">Control points</span><br>
+  Control mesh 上的點（紅點）
+
+::right::
+
+<div class="flex justify-center items-center gap-1 mt-16">
+  <MeshSubdivision shape="cube" :level="0" marks :controls="false" :width="205" :height="200" :zoom="0.8" title="Coarse mesh" />
+  <div class="text-3xl opacity-40">→</div>
+  <MeshSubdivision shape="cube" :level="3" marks :controls="false" :width="205" :height="200" :zoom="0.8" title="切細之後" />
+</div>
+
+<div class="small mt-4 text-center">左：8 個 vertices、12 條 edges、6 個 faces（點、邊、面）。<br>右：人只給了這 8 個點，其他都是算出來的。</div>
+
+<!--
+先把名詞講清楚，後面每一頁都會用到。
+3D 模型通常是用很多小多邊形拼起來的，叫 polygon mesh。點少的叫 coarse mesh。
+因為我們是用它來控制最後的形狀，所以也叫 control mesh，上面的點叫 control points。
+-->
+
+---
+layout: two-cols
+---
+
 # Smooth versus General
 
 - **Polygon mesh** 很通用，什麼形狀都能表示
@@ -31,6 +65,41 @@ layout: two-cols
 
 <!--
 先讓大家自己拉 slider：一個 cube 只有 8 個點，拉到 level 4 就變成一顆很圓的東西。
+-->
+
+---
+layout: two-cols
+clicks: 1
+---
+
+# 拉動 control point
+
+要改形狀，就去拉 <span class="key">control mesh</span> 上的點：
+
+- 平滑的 surface 會被 <span class="key">拉過去</span>
+- 會不會 <b>碰到</b> 那個點，由演算法決定
+
+<div class="small">這裡用的 Catmull-Clark 不會碰到；有些 scheme 會。</div>
+
+<v-click>
+
+**而且影響是 <span class="key">局部</span> 的（local control）**
+
+- 只有被拉的點 <b>附近</b> 會變形
+- 離得遠的地方完全不動
+- 改鼻子，不會動到耳朵
+
+</v-click>
+
+::right::
+
+<ControlPull :shape="$clicks >= 1 ? 'bar' : 'cube'" :highlight="$clicks >= 1" :pull="0.6" />
+
+<!--
+拉 slider：橘色的 control point 往外移，裡面的 surface 跟著鼓出去。
+這個例子裡 surface 沒有碰到那個點，但這是 Catmull-Clark 的特性，不是所有 scheme 都這樣；等一下講 interpolating / approximating 會再回來。
+按下一步換成長條：橘色是有變形的部分，藍色是完全沒動的部分。
+原因後面會看到：每個新的點都只用「附近」的舊點算出來。
 -->
 
 ---
