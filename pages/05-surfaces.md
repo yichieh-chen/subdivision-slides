@@ -546,7 +546,7 @@ $$v_{new} = \frac{F + 2R + (n-3)\,v_{old}}{n}$$
 
 <div class="small">
 
-$F$：周圍 face points 的平均　$R$：周圍 edge 中點的平均
+$F$：周圍 face points 的平均　$R$：周圍 edge 中點的平均<br>（中點 = 舊 edge 兩端點的平均，<b>不是</b>藍色的 edge point）
 
 </div>
 
@@ -570,7 +570,7 @@ $F$：周圍 face points 的平均　$R$：周圍 edge 中點的平均
 
 Face point 是面上所有頂點的平均。Edge point 是兩個端點加兩個 face point，除以四。
 
-舊頂點的公式比較長。n 是這個頂點連了幾條邊。F 是它周圍所有 face point 的平均。R 是它周圍所有邊的中點的平均。新位置是 F 加兩倍 R 加 n 減 3 倍的舊位置，全部除以 n。
+舊頂點的公式比較長。n 是這個頂點連了幾條邊。F 是它周圍所有 face point 的平均。R 是它周圍所有邊的中點的平均。注意這裡的中點就是原本那條邊兩個端點的平均，不是第二步算出來的藍色 edge point。新位置是 F 加兩倍 R 加 n 減 3 倍的舊位置，全部除以 n。
 
 用最常見的情況代進去看：n 等於 4 的時候，是 F 加 2R 加 1 倍的自己，除以 4。也就是自己只佔四分之一，其他四分之三都是被鄰居拉過去的。
 
@@ -595,7 +595,7 @@ $$v_{new} = \frac{F + 2R + (n-3)\,v_{old}}{n}$$
 | 誰 | 佔多少 |
 |---|---|
 | 自己 $v_{old}$ | $\tfrac14$ |
-| $R$：edge 中點的平均 | $\tfrac24$ |
+| $R$：舊 edge 中點的平均（不是 edge point） | $\tfrac24$ |
 | $F$：face points 的平均 | $\tfrac14$ |
 
 </div>
