@@ -126,6 +126,23 @@ Subdivision = 重複做下面兩個動作：
 <SplitDemo :step="$clicks" />
 
 ---
+clicks: 3
+---
+
+# 只有 Refine，沒有 Smooth？
+
+兩邊每次都切得一模一樣，差別只在切完之後有沒有 <span class="key">移動 vertices</span>。
+
+<RefineCompare :step="$clicks" />
+
+<!--
+每按一下，兩邊各切一次。面的數量完全一樣，也就是 topology 一樣。
+左邊新的點都留在原本的面上，所以不管切幾次，外形還是那個方塊。
+右邊切完之後把點移到新位置，才會越來越圓。
+結論：Refine 只是提供更多可以動的點，真正讓形狀變平滑的是 Smooth。
+-->
+
+---
 clicks: 1
 ---
 
@@ -244,10 +261,10 @@ layout: two-cols
 
 # Interpolating
 
-原本的 control points <span class="key">不會動</span>。
+演算法 <span class="key">不會移動</span> control points。
 
 - 每一輪只決定 <b>新插入的點</b> 放哪裡
-- 舊的點留在原地
+- 舊的點每一輪都留在原地
 - Limit curve 一定 <span class="key">通過</span> control points
 
 <div class="small mt-4">像連連看：筆一定要經過每個點。<br>拖一個點試試看，曲線永遠穿過它。</div>
@@ -269,7 +286,7 @@ layout: two-cols
 
 # Approximating
 
-原本的 control points <span class="key">也會被移動</span>。
+演算法 <span class="key">也會移動</span> control points。
 
 - 每一輪，舊的點也重新做平均
 - Limit curve 只 <span class="key">靠近</span> control points
