@@ -119,6 +119,8 @@ export const shapes: Record<string, () => Mesh> = {
   cube: () => voxels([[0, 0, 0]]),
   tshape: () => voxels([[0, 0, 0], [1, 0, 0], [2, 0, 0], [1, 1, 0]]),
   ring: () => voxels([[0, 0, 0], [1, 0, 0], [2, 0, 0], [0, 1, 0], [2, 1, 0], [0, 2, 0], [1, 2, 0], [2, 2, 0]]),
+  // a bar with two holes: no single grid of patches can wrap it
+  double: () => voxels([0, 1, 2, 3, 4].flatMap(x => [0, 1, 2].filter(y => y !== 1 || x % 2 === 0).map((y): V3 => [x, y, 0]))),
   // a blocky hand: wrist, palm, three fingers and a thumb
   hand: () => voxels([
     [1, -1, 0], [2, -1, 0], [3, -1, 0],
@@ -155,6 +157,7 @@ export const shapeLabels: Record<string, string> = {
   tshape: 'T-shape',
   ring: 'Ring',
   hand: 'Hand',
+  double: 'Two holes',
   tetrahedron: 'Tetrahedron',
   octahedron: 'Octahedron',
   icosahedron: 'Icosahedron',
