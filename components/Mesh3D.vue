@@ -15,11 +15,14 @@ export interface MeshLayer {
   /** draw the edges of filled faces */
   edges?: boolean
 }
-export interface Point3D { p: V3, color: string, r?: number }
+export interface Point3D { p: V3, color: string, r?: number, /** text drawn next to the point */ label?: string }
+/** a highlighted line between two points in space */
+export interface Segment3D { a: V3, b: V3, color: string, width?: number }
 
 const props = withDefaults(defineProps<{
   layers: MeshLayer[]
   points?: Point3D[]
+  segments?: Segment3D[]
   width?: number
   height?: number
   yaw?: number
@@ -30,6 +33,7 @@ const props = withDefaults(defineProps<{
   frontPoints?: boolean
 }>(), {
   points: () => [],
+  segments: () => [],
   width: 420,
   height: 340,
   yaw: 0.6,
@@ -152,6 +156,18 @@ function draw() {
     ctx.globalAlpha = 1
   }
 
+  ctx.lineCap = 'round'
+  for (const s of props.segments) {
+    const a = project(s.a)
+    const b = project(s.b)
+    ctx.strokeStyle = s.color
+    ctx.lineWidth = s.width ?? 4
+    ctx.beginPath()
+    ctx.moveTo(a[0], a[1])
+    ctx.lineTo(b[0], b[1])
+    ctx.stroke()
+  }
+
   const pts = props.points.map(p => ({ ...p, q: project(p.p) }))
     .filter(p => !props.frontPoints || p.q[2] > -0.05)
     .sort((a, b) => a.q[2] - b.q[2])
@@ -163,6 +179,19 @@ function draw() {
     ctx.strokeStyle = '#fff'
     ctx.lineWidth = 1.5
     ctx.stroke()
+  }
+  ctx.font = '700 15px "Noto Sans TC", sans-serif'
+  ctx.textBaseline = 'middle'
+  for (const p of pts) {
+    if (!p.label)
+      continue
+    const x = p.q[0] + (p.r ?? 5) + 4
+    const y = p.q[1] - (p.r ?? 5) - 3
+    ctx.lineWidth = 4
+    ctx.strokeStyle = '#fff'
+    ctx.strokeText(p.label, x, y)
+    ctx.fillStyle = p.color
+    ctx.fillText(p.label, x, y)
   }
 }
 
@@ -189,7 +218,7 @@ function onUp() {
   dragging.value = false
 }
 
-watch(() => [props.layers, props.points, props.width, props.height, props.zoom], draw)
+watch(() => [props.layers, props.points, props.segments, props.width, props.height, props.zoom], draw)
 onMounted(() => {
   draw()
   raf = requestAnimationFrame(tick)

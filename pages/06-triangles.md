@@ -372,11 +372,51 @@ Edge 上的新點 <b style="color:#f97316">●</b> 會連到 <span class="key">6
 
 ---
 layout: two-cols
+clicks: 3
+---
+
+# Butterfly：先看它在做什麼
+
+每按一下，切一輪：
+
+- 三角形越來越多，形狀<span class="key">越來越圓</span>
+- <b style="color:#ef4444">紅點</b>是原本的 control points
+- 紅點<span class="key">一直在表面上</span>，沒有離開
+
+<div class="small mt-4">
+
+曲面一定會通過原本的點，這種方法叫 <b>interpolating</b>。
+
+</div>
+
+::right::
+
+<MeshSubdivision
+  shape="icosahedron" scheme="butterfly" :level="$clicks" :max-level="3" marks color="#34d399"
+  :width="400" :height="300"
+/>
+
+<!--
+先不講公式，直接看 Butterfly 在做什麼。
+
+右邊是一個正二十面體，二十個三角形。紅色的點是它原本的十二個頂點，也就是 control points。
+
+（按一下）切一輪。每個三角形變成四個，形狀開始變圓。注意紅點，它們還在表面上。
+
+（按一下）再切一輪。更圓了。紅點還是在表面上。
+
+（按一下）第三輪。已經很像一顆球了，紅點還是貼在表面上，沒有離開。
+
+所以 Butterfly 做的事情就是：讓形狀越切越圓，但是原本的點一個都不動，曲面一定會通過它們。這種方法叫 interpolating。
+
+接下來幾頁講它是怎麼做到的。
+-->
+
+---
+layout: two-cols
 ---
 
 # Butterfly：每一輪只做一件事
-
-Butterfly 是 <span class="key">interpolating</span>：
 
 - 舊的點：<b>完全不動</b>
 - 新的點：每條 edge 上加一個
@@ -387,7 +427,7 @@ Butterfly 是 <span class="key">interpolating</span>：
 
 ::right::
 
-<svg viewBox="0 10 445 190" width="100%" class="mx-auto">
+<svg viewBox="0 10 470 190" width="100%" class="mx-auto">
 <polygon points="25,165 185,165 105,30" fill="#94a3b81a" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
 <line x1="198" y1="105" x2="242.2" y2="105.0" stroke="#64748b" stroke-width="3" stroke-linecap="round" /><polygon points="250,105 241.9,108.9 241.9,101.1" fill="#64748b" />
 <circle cx="25" cy="165" r="7" fill="#334155" stroke="#fff" stroke-width="2" />
@@ -403,6 +443,8 @@ Butterfly 是 <span class="key">interpolating</span>：
 <circle cx="340.0" cy="174.9" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
 <circle cx="388.8" cy="92.5" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
 <circle cx="291.2" cy="92.5" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="326" y="32" fill="#334155" text-anchor="end" style="font-size: 14px; font-weight: 600">舊的點：不動</text>
+<text x="400.8" y="90.5" fill="#f97316" text-anchor="start" style="font-size: 14px; font-weight: 600">新的點</text>
 <text x="105" y="192" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之前</text>
 <text x="340" y="192" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之後</text>
 </svg>
@@ -410,100 +452,191 @@ Butterfly 是 <span class="key">interpolating</span>：
 <div class="small text-center mt-2">黑色是舊的點，位置沒有變。<b style="color:#f97316">橘色</b>是新的點。</div>
 
 <!--
-先講 Butterfly。它是 interpolating 的方法，意思是曲面會通過原本的控制點。
-
 要通過原本的點，最簡單的做法就是：舊的點完全不要動。
 
-看右圖。左邊是切之前的一個三角形。右邊是切之後：黑色的三個點是舊的點，位置跟左邊一模一樣，沒有動。橘色的三個是新加的點，每條邊上一個。然後照前面講的切法，連成四個小三角形。
+看右圖，這是其中一個三角形。左邊是切之前。右邊是切之後：黑色的三個點是舊的點，圖上標「舊的點：不動」，位置跟左邊一模一樣。橘色的三個是新加的點，每條邊上一個。然後連成四個小三角形。
 
 所以 Butterfly 每一輪只做一件事：算出橘色的新點要放在哪裡。整個方法就只有這一個問題。
+-->
 
-注意橘色的點沒有剛好在邊的正中間，而是稍微往外凸一點。這樣一直切下去，形狀才會變圓。至於凸多少、怎麼算，下一頁一步一步講。
+---
+clicks: 3
+---
+
+# 最簡單的想法：新點放在中點？
+
+<div class="flex gap-4 items-start">
+<div class="flex-1">
+
+每按一下，兩邊各切一輪。
+
+- **左：只放中點**
+  三角形變多了，但<span class="key">形狀完全沒變</span>
+- **右：Butterfly**
+  越切越圓
+
+<div class="small mt-4">
+
+所以新的點不能只看 edge 的兩端。還要看<b>周圍的點</b>，才知道表面往哪裡彎。
+
+</div>
+
+</div>
+<MeshSubdivision shape="icosahedron" scheme="split" :level="$clicks" :max-level="3" :cage="false" color="#94a3b8" :width="270" :height="250" title="只放中點" />
+<MeshSubdivision shape="icosahedron" scheme="butterfly" :level="$clicks" :max-level="3" :cage="false" color="#34d399" :width="270" :height="250" title="Butterfly" />
+</div>
+
+<!--
+新的點要放哪裡？最簡單的想法是：就放在那條邊的正中間。
+
+我們試試看。左邊是「只放中點」的切法，右邊是 Butterfly。兩邊從同一個正二十面體開始。
+
+（按一下）切一輪。左邊每個三角形都變成四個小的，但是這四個小三角形都還在原本那個大三角形的平面上。所以形狀看起來跟原來一模一樣，只是線變多了。右邊已經開始變圓。
+
+（按一下）（按一下）再切兩輪。左邊還是原來那個有稜有角的二十面體，一點都沒有變圓。右邊已經像一顆球。
+
+所以只放中點是沒有用的。原因是：中點只用到這條邊的兩個端點，它不知道旁邊的面是往哪個方向彎。要讓形狀變圓，算新點的時候必須把周圍更多的點也看進來。
+
+Butterfly 看的是周圍哪些點？接下來三頁，一步一步加。
 -->
 
 ---
 layout: two-cols
-clicks: 3
 ---
 
-# 新的點怎麼算？
+# ① 先看兩個端點 a
 
-<div v-click="1">
+<b style="color:#2563eb">a</b> = 這條 edge 的兩個端點，各佔 $\tfrac12$。<br>只用 a 的話，新點就是中點。
 
-**① 兩個端點** <b style="color:#2563eb">a</b>：各 $\tfrac12$
-
-<div class="small">只做這步，新點就是 edge 的中點。</div>
-
-</div>
-<div v-click="2">
-
-**② 兩邊的對角** <b style="color:#16a34a">b</b>：各 $\tfrac18$
-
-<div class="small">把兩邊 triangle 的形狀也算進來。</div>
-
-</div>
-<div v-click="3">
-
-**③ 更外面的四個點** <b style="color:#dc2626">c</b>：各 $-\tfrac{1}{16}$
-
-<div class="small">
-
-負的：把新點往外推。<br>
-全部加起來：$2 \cdot \tfrac12 + 2 \cdot \tfrac18 - 4 \cdot \tfrac{1}{16} = 1$
-
-</div>
-
-</div>
-
-::right::
-
-<svg viewBox="25 45 270 215" width="100%" class="mx-auto">
+<svg viewBox="20 48 280 208" width="330" class="mx-auto">
 <polygon points="120,150 200,150 160,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
 <polygon points="120,150 200,150 160,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
 <polygon points="120,150 160,80.7 80,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
 <polygon points="120,150 160,219.3 80,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
 <polygon points="200,150 160,80.7 240,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
 <polygon points="200,150 160,219.3 240,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
-<g v-click="1">
-<line x1="120" y1="150" x2="200" y2="150" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
+<line x1="120" y1="150" x2="200" y2="150" stroke="#f97316" stroke-width="4" stroke-linecap="round" />
+<g opacity="1">
 <circle cx="120" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
 <circle cx="200" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
-<text x="102" y="156" fill="#2563eb" text-anchor="end" style="font-size: 17px; font-weight: 600">1/2</text>
-<text x="218" y="156" fill="#2563eb" text-anchor="start" style="font-size: 17px; font-weight: 600">1/2</text>
+<text x="104" y="156" fill="#2563eb" text-anchor="end" style="font-size: 16px; font-weight: 600">a：1/2</text>
+<text x="216" y="156" fill="#2563eb" text-anchor="start" style="font-size: 16px; font-weight: 600">a：1/2</text>
 </g>
-<g v-click="2">
-<circle cx="160" cy="80.7" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
-<circle cx="160" cy="219.3" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
-<text x="160" y="64.7" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">1/8</text>
-<text x="160" y="247.3" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">1/8</text>
-</g>
-<g v-click="3">
-<circle cx="80" cy="80.7" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
-<text x="80" y="64.7" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">−1/16</text>
-<circle cx="80" cy="219.3" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
-<text x="80" y="247.3" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">−1/16</text>
-<circle cx="240" cy="80.7" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
-<text x="240" y="64.7" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">−1/16</text>
-<circle cx="240" cy="219.3" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
-<text x="240" y="247.3" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">−1/16</text>
-</g>
-<circle cx="160.0" cy="150.0" r="9" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="160.0" cy="150.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
 </svg>
 
-<div class="small text-center"><b style="color:#f97316">橘色</b>：要算的新點</div>
+::right::
+
+<TriStencil3D mode="butterfly" :step="1" />
 
 <!--
-橘色的點是我們要算的新點，它在中間那條邊上。它的位置是周圍一些點的加權平均。我們一步一步把用到的點加進來。
+左邊是平面的示意圖，右邊是同一件事畫在真的 3D 模型上，可以拖曳旋轉。兩邊顏色是對應的。
 
-（按一下）第一步，先用這條邊的兩個端點，藍色的 a。兩個各佔二分之一。如果只做這一步，新的點就是兩個端點的平均，也就是這條邊的中點。但這樣不夠，中點還在原本的平面上，切再多次也不會變圓。
+橘色的線是我們要切的那條邊，橘色的點是要算的新點。
 
-（按一下）第二步，加上綠色的 b。這條邊的上面和下面各有一個三角形，b 就是這兩個三角形的另一個角。兩個各佔八分之一。這一步是把兩邊三角形的形狀也考慮進來。
+第一步，先看這條邊的兩個端點，藍色的 a。兩個各佔二分之一。
 
-（按一下）第三步，再加上紅色的 c，更外面的四個點。它們的權重是負的十六分之一。負的意思是：新的點要往「遠離 c」的方向移動，也就是被往外推。這樣新的點就會比中點再凸出去一點，曲面才會變圓。為什麼一定要負的，下下頁有一張圖專門解釋。
+如果只用 a，新的點就是兩個端點的平均，也就是中點。上一頁看過了，只放中點形狀不會變圓。所以還要加別的點。
+-->
 
-最後檢查：兩個二分之一是 1，兩個八分之一是四分之一，四個負十六分之一是負四分之一。1 加四分之一減四分之一，剛好是 1。權重加起來是 1，才是一個合理的加權平均。
+---
+layout: two-cols
+---
 
-這八個點的形狀像一隻蝴蝶，中間是身體，兩邊是翅膀，所以叫 Butterfly。
+# ② 加上兩邊的對角 b
+
+這條 edge 兩邊各有一個 triangle。<br><b style="color:#16a34a">b</b> = 那兩個 triangle 的另一個角，各佔 $\tfrac18$。
+
+<svg viewBox="20 48 280 208" width="330" class="mx-auto">
+<polygon points="120,150 200,150 160,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 200,150 160,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 160,80.7 80,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 160,219.3 80,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="200,150 160,80.7 240,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="200,150 160,219.3 240,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<line x1="120" y1="150" x2="200" y2="150" stroke="#f97316" stroke-width="4" stroke-linecap="round" />
+<g opacity="1">
+<circle cx="160" cy="80.7" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="160" cy="219.3" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<text x="160" y="64.7" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b：1/8</text>
+<text x="160" y="247.3" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b：1/8</text>
+</g>
+<g opacity="0.35">
+<circle cx="120" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="200" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="104" y="156" fill="#2563eb" text-anchor="end" style="font-size: 16px; font-weight: 600">a：1/2</text>
+<text x="216" y="156" fill="#2563eb" text-anchor="start" style="font-size: 16px; font-weight: 600">a：1/2</text>
+</g>
+<circle cx="160.0" cy="150.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+</svg>
+
+::right::
+
+<TriStencil3D mode="butterfly" :step="2" />
+
+<!--
+第二步，加上綠色的 b。
+
+這條橘色的邊，兩邊各貼著一個三角形。看右邊的 3D 圖，邊的上面一個三角形、下面一個三角形。b 就是這兩個三角形的另外那個角，一邊一個。
+
+b 各佔八分之一。它們的作用是把這條邊兩側的面的形狀也考慮進來。
+
+到這裡用了四個點：兩個 a、兩個 b。
+-->
+
+---
+layout: two-cols
+---
+
+# ③ 再加外面一圈的 c
+
+<b style="color:#dc2626">c</b> = 再外面一圈的四個點，各佔 $-\tfrac{1}{16}$。<br>負的 = 把新點往外推。合計 $1 + \tfrac14 - \tfrac14 = 1$。
+
+<svg viewBox="20 48 280 208" width="330" class="mx-auto">
+<polygon points="120,150 200,150 160,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 200,150 160,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 160,80.7 80,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="120,150 160,219.3 80,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="200,150 160,80.7 240,80.7" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<polygon points="200,150 160,219.3 240,219.3" fill="#94a3b81a" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" />
+<line x1="120" y1="150" x2="200" y2="150" stroke="#f97316" stroke-width="4" stroke-linecap="round" />
+<g opacity="1">
+<circle cx="80" cy="80.7" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="80" y="64.7" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">c：−1/16</text>
+<circle cx="80" cy="219.3" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="80" y="247.3" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">c：−1/16</text>
+<circle cx="240" cy="80.7" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="240" y="64.7" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">c：−1/16</text>
+<circle cx="240" cy="219.3" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="240" y="247.3" fill="#dc2626" text-anchor="middle" style="font-size: 15px; font-weight: 600">c：−1/16</text>
+</g>
+<g opacity="0.35">
+<circle cx="160" cy="80.7" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<circle cx="160" cy="219.3" r="9" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<text x="160" y="64.7" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b：1/8</text>
+<text x="160" y="247.3" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">b：1/8</text>
+</g>
+<g opacity="0.35">
+<circle cx="120" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="200" cy="150" r="11" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="104" y="156" fill="#2563eb" text-anchor="end" style="font-size: 16px; font-weight: 600">a：1/2</text>
+<text x="216" y="156" fill="#2563eb" text-anchor="start" style="font-size: 16px; font-weight: 600">a：1/2</text>
+</g>
+<circle cx="160.0" cy="150.0" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+</svg>
+
+::right::
+
+<TriStencil3D mode="butterfly" :step="3" />
+
+<!--
+第三步，加上紅色的 c，更外面的四個點。看 3D 圖，它們在 a 和 b 的外面，左邊兩個、右邊兩個。
+
+c 的權重是負的十六分之一。負的意思是：新的點要往「遠離 c」的方向移動，也就是被往外推。這樣新的點就會比中點再凸出去一點，形狀才會變圓。為什麼一定要負的，下下頁有一張圖解釋。
+
+最後檢查權重：兩個二分之一是 1，兩個八分之一是四分之一，四個負十六分之一是負四分之一。1 加四分之一減四分之一，剛好是 1。
+
+所以 Butterfly 算一個新點，總共用八個點：兩個 a、兩個 b、四個 c。這八個點排起來，中間是身體、兩邊是翅膀，像一隻蝴蝶，所以叫 Butterfly。
 -->
 
 ---
@@ -523,7 +656,7 @@ layout: two-cols
 
 <div class="small mt-2">
 
-$w = 0$ 就是上一頁。$w$ 決定 surface 貼 control mesh 貼得多緊。
+$w = 0$ 就是前三頁的版本。$w$ 決定 surface 貼 control mesh 貼得多緊。
 
 </div>
 
@@ -532,11 +665,11 @@ $w = 0$ 就是上一頁。$w$ 決定 surface 貼 control mesh 貼得多緊。
 <Stencil kind="butterfly" />
 
 <!--
-上一頁是最簡單的版本。老師投影片上的完整版多了一個參數 w，還多用了兩個點 d。
+前三頁是最簡單的版本。老師投影片上的完整版多了一個參數 w，還多用了兩個點 d。
 
 看左邊的表。a 是邊的兩個端點，權重是二分之一減 w。b 是兩邊的對角，八分之一加 2w。c 是外面四個點，負的十六分之一減 w。d 是沿著這條邊往兩頭再延伸出去的兩個點，權重就是 w。
 
-把 w 設成 0，d 就沒有作用，其他三個剛好就是上一頁的二分之一、八分之一、負十六分之一。
+把 w 設成 0，d 就沒有作用，其他三個剛好就是前面的二分之一、八分之一、負十六分之一。
 
 不管 w 是多少，全部加起來都還是 1。w 是一個可以調的參數，決定曲面貼原本的 control mesh 貼得多緊。右邊可以拉 w，看每個點的權重怎麼變。
 
@@ -545,20 +678,29 @@ $w = 0$ 就是上一頁。$w$ 決定 surface 貼 control mesh 貼得多緊。
 
 ---
 layout: two-cols
+clicks: 2
 ---
 
-# Butterfly：為什麼 c 是負的？
+# 為什麼 c 一定要是負的？
 
-<v-clicks>
+從側面看（右圖）：
 
-- 權重加起來是 1（$w = 0$）：
-  $2 \cdot \tfrac12 + 2 \cdot \tfrac18 + 4 \cdot \left(-\tfrac{1}{16}\right) = 1$
-- 權重全是正的 → 新點落在舊點<span class="key">之間</span> → 越切越扁
-- Butterfly 的舊點不能動 → 新點要<span class="key">往外推</span>才會圓 → 需要負的權重
+- 權重全是正的 → 新點只會落在舊點<span class="key">之間</span> → 不會凸出去
 
-</v-clicks>
+<div v-click="1">
 
-<div class="small mt-4">右圖是側面（2D 剖面）。和曲線的 4-point scheme 同一個道理。</div>
+- c 是負的 → 新點被往<span class="key">遠離 c</span> 的方向推
+
+</div>
+<div v-click="2">
+
+**算算看**：a、b 的高度都是 1，c 的高度是 0
+
+新點的高度 $= 1 + \tfrac14 - 0 = 1.25$
+
+<div class="small">比 a 還高 → 凸出去了 → 才會變圓。</div>
+
+</div>
 
 ::right::
 
@@ -570,27 +712,32 @@ layout: two-cols
 <circle cx="110" cy="95" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
 <circle cx="230" cy="95" r="9" fill="#2563eb" stroke="#fff" stroke-width="2" />
 <circle cx="170.0" cy="95.0" r="6" fill="#94a3b8" />
-<line x1="170.0" y1="95.0" x2="170.0" y2="84.1" stroke="#16a34a" stroke-width="2.5" />
-<polygon points="170.0,76.1 164.0,87.1 176.0,87.1" fill="#16a34a" />
+<line x1="170.0" y1="93.0" x2="170.0" y2="87.2" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" /><polygon points="170.0,86.1 173.0,92.4 167.0,92.4" fill="#16a34a" />
 <circle cx="170.0" cy="78.1" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
-<text x="24" y="258" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">c</text>
-<text x="316" y="258" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">c</text>
-<text x="104" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 17px; font-weight: 600">a</text>
-<text x="236" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 17px; font-weight: 600">a</text>
-<text x="170.0" y="143.0" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">灰點：只用 a，還是平的</text>
-<text x="170.0" y="60.1" fill="#f97316" text-anchor="middle" style="font-size: 15px; font-weight: 600">加上負的 c：往外推</text>
+<text x="24" y="258" fill="#dc2626" text-anchor="start" style="font-size: 15px; font-weight: 600">c（高度 0）</text>
+<text x="316" y="258" fill="#dc2626" text-anchor="end" style="font-size: 15px; font-weight: 600">c（高度 0）</text>
+<text x="104" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 15px; font-weight: 600">a（高度 1）</text>
+<text x="236" y="79" fill="#2563eb" text-anchor="middle" style="font-size: 15px; font-weight: 600">a（高度 1）</text>
+<text x="170.0" y="139.0" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">灰點：只用 a，還在直線上</text>
+<text x="170.0" y="58.1" fill="#f97316" text-anchor="middle" style="font-size: 15px; font-weight: 600">新的點：被往外推</text>
 </svg>
 
 <!--
-前面說 c 的權重是負的，是為了把新點往外推。這頁用一張側面的圖解釋為什麼一定要這樣。
+前面說 c 的權重是負的，是為了把新點往外推。這頁解釋為什麼一定要這樣。
 
-（按一下）先確認權重加起來是 1。用 w 等於 0 算：兩個 a 各二分之一，加起來 1；兩個 b 各八分之一，加起來四分之一；四個 c 各負十六分之一，加起來負四分之一。1 加四分之一減四分之一，剛好是 1。
+右圖是從側面看曲面的剖面，像一座小山。藍色的兩個 a 是要切的邊的兩端，在山頂，高度是 1。紅色的兩個 c 在更外面的山腳，高度是 0。
 
-（按一下）如果權重全部是正的會怎樣？新的點就是周圍幾個點的平均，一定落在那幾個點的「中間」。看右圖，這是從側面看曲面的剖面。藍色的兩個 a 是要切的邊的兩端，紅色的兩個 c 在更外面。如果只用 a，新的點就是灰色的中點，剛好在直線上，還是平的。這樣切再多次，形狀都不會變圓。
+如果權重全部是正的，新的點就是這些點的平均，一定落在它們「之間」。只用 a 的話就是灰色的點，剛好在兩個 a 中間的直線上。這樣山頂永遠是平的，不會變圓。
 
-（按一下）Approximating 的方法可以接受，因為舊的點也會一起往內移。但 Butterfly 是 interpolating，舊的點不能動。要變圓，新的點必須比中點再凸出去一點。負的權重就是在做這件事：c 的權重是負的，等於把新的點往「遠離 c」的方向推，就是綠色箭頭，推到橘色的位置。橘色虛線就是變圓之後的樣子。
+（按一下）Butterfly 的舊點不能動，所以要變圓，新的點必須比灰點再高一點，凸出去。c 的權重是負的，等於把新的點往遠離 c 的方向推。c 在下面，所以新的點被往上推，就是綠色箭頭，推到橘色的位置。
 
-這跟前面曲線的 4-point scheme 是一模一樣的道理，那裡兩端的權重也是負的十六分之一。
+（按一下）用數字算一次。假設 a 和 b 的高度都是 1，c 的高度是 0。兩個 a 各二分之一，貢獻 1。兩個 b 各八分之一，貢獻四分之一。四個 c 高度是 0，沒有貢獻。加起來是 1.25。
+
+新的點高度是 1.25，比旁邊的 a 還高。它凸出去了，形狀就變圓了。
+
+如果 c 的權重是正的，為了讓總和還是 1，a 和 b 的權重就得變小，算出來會比 1 低，新的點反而凹下去。
+
+這跟前面曲線的 4-point scheme 是同一個道理，那裡兩端的權重也是負的。
 -->
 
 ---
@@ -772,7 +919,45 @@ Regular vertex 一定是 6 條 edge，所以位置是固定的。
 layout: two-cols
 ---
 
-# Modified 的特殊規則
+# 奇異點那一端：只看它的一圈
+
+不用蝴蝶了。改成只看<b style="color:#dc2626">奇異點</b>這一端：
+
+- <b style="color:#dc2626">紅色</b>：奇異點 $v$（這裡連 5 條 edge）
+- <b style="color:#f97316">橘色</b>：要切的 edge 和新的點
+- <b style="color:#2563eb">藍色</b>：$v$ 的一圈鄰居
+
+<div class="mt-4">
+
+算新點只用<span class="key">紅色和藍色</span>，其他的點都不看。
+
+</div>
+
+::right::
+
+<TriStencil3D mode="extra" />
+
+<!--
+奇異點那一端換成什麼規則？先看 3D 圖，知道它用到哪些點。
+
+紅色的點是一個奇異點，可以數一下它連出去的線，只有五條，不是六條。
+
+橘色的線是我們要切的邊，它的一端就是這個奇異點。橘色的點是要算的新點。
+
+藍色的點是這個奇異點周圍一圈的鄰居，五個。
+
+Modified Butterfly 的規則是：算這個新點的時候，只用紅色的奇異點自己，加上藍色這一圈鄰居。其他的點，包括邊的另一端旁邊的那些點，全部不看。
+
+因為只看奇異點自己這一圈，所以不管它連幾條邊，三條、四條、五條、七條，都一定算得出來，不會有「蝴蝶湊不齊」的問題。
+
+每個點的權重是多少，下一頁用連四條邊的例子來看。
+-->
+
+---
+layout: two-cols
+---
+
+# 特殊規則的權重
 
 Edge 的一端 $v$ 是 extraordinary（degree $N$）→ 蝴蝶湊不出來
 
@@ -816,9 +1001,7 @@ $\tfrac34 + \tfrac38 + 0 - \tfrac18 + 0 = 1$
 </svg>
 
 <!--
-奇異點那一端換成什麼規則？
-
-Modified Butterfly 的做法是：不用蝴蝶了，改成只看奇異點那一端。用奇異點 v 本身，加上它周圍一圈的鄰居來算新的點。
+上一頁知道了用哪些點，這頁看每個點的權重。用一個連四條邊的奇異點當例子，畫成平面的圖比較好標數字。
 
 看右圖。中間黑色的 v 是 degree 4 的奇異點，周圍四個鄰居。橘色是要切的邊，它的另一端叫 e0，然後逆時針繞一圈，叫 e1、e2、e3。
 
@@ -999,39 +1182,6 @@ N 大於等於 5 的時候用一條公式，裡面是 cosine，j 是第幾個鄰
 layout: two-cols
 ---
 
-# Modified Butterfly 的結果
-
-- Regular 的地方：用蝴蝶
-- 奇異點附近：用特殊規則
-- 舊的點從頭到尾都沒有動
-
-<v-click>
-
-<b style="color:#ef4444">●</b> 原本的 control points 都還在 surface 上 → <span class="key">interpolating</span>
-
-</v-click>
-
-::right::
-
-<MeshSubdivision
-  shape="icosahedron" :shapes="['icosahedron', 'octahedron', 'tshape']" scheme="butterfly"
-  :level="1" :max-level="4" marks color="#34d399" :width="400" :height="290"
-/>
-
-<!--
-把規則都放進去，實際切切看。
-
-右邊是正二十面體。它的十二個頂點每個都只連五條邊，全部是奇異點。所以第一輪每條邊的兩端都是奇異點，用的是「兩端各算一次再平均」。第二輪開始，新的點都是 regular，大部分的邊就用原本的蝴蝶，只有碰到那十二個點的邊用特殊規則。
-
-可以把 level 往上拉，越切越圓。
-
-（按一下）紅色的點是原本的十二個控制點。不管切幾次，紅點都還在曲面上，因為舊的點從頭到尾都沒有移動過。這就是 interpolating。
--->
-
----
-layout: two-cols
----
-
 # Boundary 怎麼辦？
 
 Boundary 外面沒有鄰居 → 蝴蝶的 10 個點湊不齊
@@ -1123,24 +1273,65 @@ Butterfly 會通過所有控制點，聽起來很理想，那為什麼大家不�
 
 ---
 layout: two-cols
+clicks: 3
+---
+
+# Loop：先看它在做什麼
+
+每按一下，切一輪：
+
+- 形狀一樣<span class="key">越來越圓</span>
+- <b style="color:#ef4444">紅點</b>是原本的 control points
+- 這次紅點<span class="key">留在外面</span>，表面縮到裡面去了
+
+<div class="small mt-4">
+
+曲面不通過原本的點，這種方法叫 <b>approximating</b>。<br>
+換來的好處：比 Butterfly 更平滑。
+
+</div>
+
+::right::
+
+<MeshSubdivision
+  shape="icosahedron" scheme="loop" :level="$clicks" :max-level="3" marks color="#a78bfa"
+  :width="400" :height="300"
+/>
+
+<!--
+接下來是 Loop。一樣先不講公式，直接看它在做什麼。
+
+右邊是同一個正二十面體，紅點是原本的十二個頂點。虛線是原本的形狀。
+
+（按一下）切一輪。形狀變圓了。但是注意紅點：它們還在原本的位置，可是表面已經不在那裡了，表面縮到紅點的裡面。
+
+（按一下）（按一下）再切兩輪。越來越圓，也越來越像球，但是整顆球比原本的二十面體小了一圈，紅點全部浮在外面。
+
+所以 Loop 跟 Butterfly 最大的差別是：它不通過原本的點。這種方法叫 approximating。
+
+為什麼要這樣？因為放棄「一定要通過原本的點」之後，可以做出更平滑的曲面。Butterfly 是 C1，Loop 是 C2。
+
+Loop 這個名字是人名，Charles Loop，不是因為規則裡有迴圈。
+-->
+
+---
+layout: two-cols
 ---
 
 # Loop：每一輪做兩件事
-
-Loop 是 <span class="key">approximating</span>（以 Charles Loop 命名）：
 
 1. 每條 edge 上<b>加新的點</b>
 2. <b>舊的點也要移動</b>（Butterfly 沒有這一步）
 
 <div class="small mt-4">
 
-舊的點被鄰居往內拉 → surface 會比 control mesh 小一圈。
+舊的點每一輪都被鄰居往內拉，所以表面會比 control mesh 小一圈。
 
 </div>
 
 ::right::
 
-<svg viewBox="0 10 445 190" width="100%" class="mx-auto">
+<svg viewBox="0 10 470 190" width="100%" class="mx-auto">
 <polygon points="25,165 185,165 105,30" fill="#94a3b81a" stroke="#64748b" stroke-width="2" stroke-linejoin="round" />
 <line x1="198" y1="105" x2="242.2" y2="105.0" stroke="#64748b" stroke-width="3" stroke-linecap="round" /><polygon points="250,105 241.9,108.9 241.9,101.1" fill="#64748b" />
 <circle cx="25" cy="165" r="7" fill="#334155" stroke="#fff" stroke-width="2" />
@@ -1162,6 +1353,8 @@ Loop 是 <span class="key">approximating</span>（以 Charles Loop 命名）：
 <circle cx="340.0" cy="162.3" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
 <circle cx="377.6" cy="98.8" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
 <circle cx="302.4" cy="98.8" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<text x="326" y="32" fill="#7c3aed" text-anchor="end" style="font-size: 14px; font-weight: 600">舊的點：往內移</text>
+<text x="389.6" y="96.8" fill="#2563eb" text-anchor="start" style="font-size: 14px; font-weight: 600">新的點</text>
 <text x="105" y="192" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之前</text>
 <text x="340" y="192" fill="#64748b" text-anchor="middle" style="font-size: 14px; font-weight: 500">切之後</text>
 </svg>
@@ -1169,15 +1362,13 @@ Loop 是 <span class="key">approximating</span>（以 Charles Loop 命名）：
 <div class="small text-center mt-2">虛線圓：舊的點原本的位置。<b style="color:#7c3aed">紫色</b>：移動之後。<b style="color:#2563eb">藍色</b>：新的點。</div>
 
 <!--
-接下來是 Loop。Loop 是人名，Charles Loop，不是因為規則裡有迴圈。
+Loop 的切法跟 Butterfly 一樣，一個三角形切成四個。不一樣的是舊的點也會動。
 
-它的切法跟 Butterfly 一樣，一個三角形切成四個。不一樣的是，它是 approximating，所以舊的點也會動。
+看右圖，可以跟 Butterfly 那張對照。左邊是切之前。右邊是切之後：虛線的圓圈是舊的點原本的位置，紫色是它們移動之後的位置，箭頭表示移動的方向，三個角都往裡面縮了一點。藍色是每條邊上新加的點。
 
-看右圖，跟 Butterfly 那張對照。左邊是切之前。右邊是切之後：虛線的圓圈是舊的點原本的位置，紫色是它們移動之後的位置，三個角都往裡面縮了一點。藍色是每條邊上新加的點。
+所以 Loop 每一輪做兩件事。第一，每條邊上加一個新的點。第二，舊的點也要移動，這是 Butterfly 沒有的。
 
-所以 Loop 每一輪做兩件事。第一，每條邊上加一個新的點，這個跟 Butterfly 一樣要算位置。第二，舊的點也要移動，這是 Butterfly 沒有的。
-
-因為舊的點每一輪都被往裡面拉，所以最後的曲面會比原本的 control mesh 小一圈，不會通過原本的控制點。
+因為舊的點每一輪都被往裡面拉，所以最後的曲面會比原本的 control mesh 小一圈，就是上一頁看到的樣子。
 
 接下來兩頁，分別講這兩件事怎麼算。
 -->
@@ -1188,10 +1379,10 @@ layout: two-cols
 
 # Loop ①：edge 上的新點
 
-一條 edge 兩邊各有一個 triangle，附近有 4 個點：
+<b style="color:#f97316">橘色</b>的 edge 兩邊各有一個 triangle，附近有 4 個點：
 
-- Edge 的兩個端點：各 $\tfrac38$
-- 兩個對角：各 $\tfrac18$
+- <b style="color:#2563eb">Edge 的兩個端點</b>：各 $\tfrac38$
+- <b style="color:#16a34a">兩邊的對角</b>：各 $\tfrac18$
 
 $$e = \tfrac38 (v_1 + v_2) + \tfrac18 (v_3 + v_4)$$
 
@@ -1201,9 +1392,7 @@ $$e = \tfrac38 (v_1 + v_2) + \tfrac18 (v_3 + v_4)$$
 
 例：端點 $(0,0)$、$(4,0)$，對角 $(2,4)$、$(2,-2)$
 
-$\tfrac38 (4,0) + \tfrac18 (4,2) = (2,\ 0.25)$
-
-中點是 $(2,0)$；新點被比較遠的那個對角往上拉了一點。
+$\tfrac38 (4,0) + \tfrac18 (4,2) = (2,\ 0.25)$　中點是 $(2,0)$，被比較遠的對角拉上去一點。
 
 </div>
 
@@ -1211,20 +1400,22 @@ $\tfrac38 (4,0) + \tfrac18 (4,2) = (2,\ 0.25)$
 
 ::right::
 
-<Stencil kind="loop-edge" />
+<TriStencil3D mode="loop-edge" />
 
 <!--
 第一件事，邊上的新點。
 
-看右圖。中間橘色的是要算的新點，它在一條邊上。這條邊的上面和下面各有一個三角形，所以附近總共有四個點：藍色的是這條邊的兩個端點，綠色的是兩個三角形的另一個角。
+看右邊的 3D 圖。橘色的線是要切的邊，橘色的點是要算的新點。這條邊的兩邊各有一個三角形，所以附近總共有四個點。
 
-權重是：兩個端點各八分之三，兩個對角各八分之一。兩個八分之三加兩個八分之一，剛好是 1。端點離新點比較近，所以權重比較大。
+藍色的是這條邊的兩個端點，圖上標八分之三。綠色的是兩個三角形的另一個角，標八分之一。
 
-跟 Butterfly 比，這裡只用四個點，而且全部是正的，沒有負的權重。
+兩個八分之三加兩個八分之一，剛好是 1。端點離新點比較近，所以權重比較大。
+
+跟 Butterfly 比：Butterfly 用八個點，而且有負的權重。Loop 只用四個點，全部是正的，簡單很多。
 
 （按一下）用數字算一次。假設兩個端點是 (0,0) 和 (4,0)，兩個對角是 (2,4) 和 (2,負2)。端點加起來是 (4,0)，乘八分之三，是 (1.5, 0)。對角加起來是 (4,2)，乘八分之一，是 (0.5, 0.25)。兩個相加是 (2, 0.25)。
 
-這條邊的中點是 (2,0)。新的點在 (2, 0.25)，比中點高一點點，因為上面那個對角比較遠，把它稍微往上拉了。
+這條邊的中點是 (2,0)。新的點在 (2, 0.25)，比中點高一點點，因為上面那個對角離得比較遠，把它稍微往上拉了。
 -->
 
 ---
@@ -1297,6 +1488,55 @@ $n = 6$ 時 $\beta = \tfrac{1}{16}$。例：自己比鄰居高 1，移動後只�
 舉個例子感受一下。假設六個鄰居都在同一個高度，中間這個點比它們高 1，像一個小山頂。移動之後，它只比鄰居高十六分之十，大約 0.63。山頂被拉低了。每切一輪都這樣拉一次，凸出來的地方就越來越平、越來越圓，整個曲面也就縮小一圈。
 
 如果這個點不是六個鄰居呢？下一頁。
+-->
+
+---
+layout: two-cols
+---
+
+# 為什麼表面會小一圈？
+
+看一個凸出來的點（側面）：
+
+<svg viewBox="0 25 300 180" width="330" class="mx-auto">
+<line x1="10" y1="170" x2="270" y2="170" stroke="#94a3b8" stroke-width="1" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="30" y1="170" x2="140" y2="50" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="140" y1="50" x2="250" y2="170" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4" />
+<line x1="30" y1="170" x2="140" y2="95.0" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" />
+<line x1="140" y1="95.0" x2="250" y2="170" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" />
+<circle cx="30" cy="170" r="8" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="250" cy="170" r="8" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="140" cy="50" r="8" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3" />
+<line x1="140" y1="60" x2="140.0" y2="81.2" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" /><polygon points="140,85.0 136.5,77.8 143.5,77.8" fill="#7c3aed" />
+<circle cx="140" cy="95.0" r="9" fill="#7c3aed" stroke="#fff" stroke-width="2" />
+<text x="154" y="54" fill="#64748b" text-anchor="start" style="font-size: 14px; font-weight: 600">原本：高 1</text>
+<text x="154" y="101.0" fill="#7c3aed" text-anchor="start" style="font-size: 14px; font-weight: 600">移動後：高 0.63</text>
+<text x="30" y="196" fill="#2563eb" text-anchor="middle" style="font-size: 14px; font-weight: 600">鄰居</text>
+<text x="250" y="196" fill="#2563eb" text-anchor="middle" style="font-size: 14px; font-weight: 600">鄰居</text>
+</svg>
+
+- 凸出來的點被鄰居<span class="key">拉低</span>
+- 每一輪都拉一次 → 尖角被磨掉 → 整體縮小
+
+::right::
+
+<MeshSubdivision
+  shape="octahedron" :shapes="['octahedron', 'tetrahedron', 'icosahedron']" scheme="loop"
+  :level="2" :max-level="4" marks color="#a78bfa" :width="400" :height="290"
+/>
+
+<div class="small text-center">紅點：原本的角。越尖的角，被磨掉越多。</div>
+
+<!--
+上一頁說舊的點會被鄰居拉過去。這頁看它造成什麼結果。
+
+左邊的圖是從側面看。中間有一個點凸出來，比左右兩個藍色的鄰居高 1，像一個山頂。虛線是原本的形狀。
+
+移動的時候，它自己只留十六分之十，其他都是被鄰居拉走的。鄰居都比它低，所以它會被往下拉。算出來，它只剩下 0.63 的高度，就是紫色的位置。
+
+每切一輪，所有凸出來的點都會這樣被拉低一次。所以尖的地方越來越鈍，形狀越來越圓，整個曲面也就越來越小。
+
+右邊是 3D 的樣子。紅色的點是原本的角，表面已經縮到它們的裡面。可以換成正四面體看看，正四面體的角最尖，所以縮得最多；正二十面體的角比較鈍，縮得比較少。
 -->
 
 ---
