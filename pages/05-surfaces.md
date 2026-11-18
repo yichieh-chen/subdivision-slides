@@ -808,25 +808,279 @@ $= \tfrac13\left(\tfrac13 + \tfrac43\right) = \tfrac59 \approx 0.56$
 -->
 
 ---
+
+# Extraordinary Vertex 是什麼？
+
+數一個 vertex 連了幾條 edge，叫它的 <span class="key">degree</span>。
+
+<div class="grid grid-cols-3 gap-6 mt-2">
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="100,92 100.0,46.0 54.0,46.0 54.0,92.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 54.0,92.0 54.0,138.0 100.0,138.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 100.0,138.0 146.0,138.0 146.0,92.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 146.0,92.0 146.0,46.0 100.0,46.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="100" y1="92" x2="100.0" y2="46.0" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="54.0" y2="92.0" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="100.0" y2="138.0" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="146.0" y2="92.0" stroke="#16a34a" stroke-width="4" />
+<circle cx="100" cy="92" r="8" fill="#16a34a" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">degree 4 → regular</text>
+</svg>
+
+<div class="small text-center">像棋盤，最正常</div>
+</div>
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="100,92 100.0,46.0 60.2,69.0 60.2,115.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 60.2,115.0 100.0,138.0 139.8,115.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 139.8,115.0 139.8,69.0 100.0,46.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="100" y1="92" x2="100.0" y2="46.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="60.2" y2="115.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="139.8" y2="115.0" stroke="#dc2626" stroke-width="4" />
+<circle cx="100" cy="92" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">degree 3</text>
+</svg>
+
+<div class="small text-center">例：cube 的 8 個角</div>
+</div>
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="100,92 100.0,46.0 56.3,31.8 56.3,77.8" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 56.3,77.8 29.2,115.0 73.0,129.2" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 73.0,129.2 100.0,166.4 127.0,129.2" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 127.0,129.2 170.8,115.0 143.7,77.8" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,92 143.7,77.8 143.7,31.8 100.0,46.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="100" y1="92" x2="100.0" y2="46.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="56.3" y2="77.8" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="73.0" y2="129.2" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="127.0" y2="129.2" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="143.7" y2="77.8" stroke="#dc2626" stroke-width="4" />
+<circle cx="100" cy="92" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">degree 5</text>
+</svg>
+
+<div class="small text-center">5 個 face 圍著一個點</div>
+</div>
+</div>
+
+<div class="small mt-2">
+
+Quad mesh：degree 4 是 <span class="key">regular</span>，其他都是 <span class="key">extraordinary</span>。（Triangle mesh 是 degree 6，暖身那段看過。）
+
+</div>
+
+<!--
+前面一直說 Catmull-Clark「幾乎」到處都是 C2，例外就是 extraordinary vertex。這幾頁把它講清楚。
+
+先教一個詞：degree。數一個頂點連了幾條邊，那個數字就是它的 degree。圖上粗的線就是要數的邊。
+
+左邊這個點連了四條邊，degree 4。四個四邊形圍著它，就像棋盤上的一個交叉點。四邊形 mesh 裡這是最正常的情況，叫 regular。
+
+中間這個點只連三條邊，degree 3。三個面圍著它。立方體的八個角就是這樣，每個角只有三個面。
+
+右邊這個點連了五條邊，degree 5，五個面圍著它。
+
+規則就一句話：四邊形 mesh 裡 degree 4 是 regular，不是 4 的都叫 extraordinary，中文可以叫奇異點。三角形 mesh 的標準不一樣，是 6，前面暖身那段已經看過。
+
+為什麼要在意？因為 Catmull-Clark 的規則是照著 degree 4 設計的。在奇異點那裡，曲面會比較不平滑。所以接下來要問兩個問題：切的時候，奇異點會不會變多？為什麼它那裡比較不平滑？
+-->
+---
+clicks: 1
+---
+
+# 切一次：每個 face 的中心會變成什麼？
+
+Face point 會連到這個 face <span class="key">每條 edge 上的 edge point</span> → 連幾條 = 這個 face 有幾條邊
+
+<div class="grid grid-cols-3 gap-6 mt-2">
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="150.9,41.1 49.1,41.1 49.1,142.9 150.9,142.9" fill="#f973160f" stroke="#64748b" stroke-width="2" />
+<line x1="100" y1="92" x2="100.0" y2="41.1" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="49.1" y2="92.0" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="100.0" y2="142.9" stroke="#16a34a" stroke-width="4" />
+<line x1="100" y1="92" x2="150.9" y2="92.0" stroke="#16a34a" stroke-width="4" />
+<circle cx="100.0" cy="41.1" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="49.1" cy="92.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="100.0" cy="142.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="150.9" cy="92.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="150.9" cy="41.1" r="4" fill="#64748b" />
+<circle cx="49.1" cy="41.1" r="4" fill="#64748b" />
+<circle cx="49.1" cy="142.9" r="4" fill="#64748b" />
+<circle cx="150.9" cy="142.9" r="4" fill="#64748b" />
+<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 4 ✓</text>
+</svg>
+
+<div class="small text-center">Quad → 4 個 quads</div>
+</div>
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="100.0,20.0 37.6,128.0 162.4,128.0" fill="#f973160f" stroke="#64748b" stroke-width="2" />
+<line x1="100" y1="92" x2="68.8" y2="74.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="100.0" y2="128.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="131.2" y2="74.0" stroke="#dc2626" stroke-width="4" />
+<circle cx="68.8" cy="74.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="100.0" cy="128.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="131.2" cy="74.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="100.0" cy="20.0" r="4" fill="#64748b" />
+<circle cx="37.6" cy="128.0" r="4" fill="#64748b" />
+<circle cx="162.4" cy="128.0" r="4" fill="#64748b" />
+<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 3 ✗</text>
+</svg>
+
+<div class="small text-center">Triangle → 3 個 quads</div>
+</div>
+<div>
+
+<svg viewBox="0 0 200 200" width="100%" class="mx-auto">
+<polygon points="100.0,20.0 31.5,69.8 57.7,150.2 142.3,150.2 168.5,69.8" fill="#f973160f" stroke="#64748b" stroke-width="2" />
+<line x1="100" y1="92" x2="65.8" y2="44.9" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="44.6" y2="110.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="100.0" y2="150.2" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="155.4" y2="110.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="92" x2="134.2" y2="44.9" stroke="#dc2626" stroke-width="4" />
+<circle cx="65.8" cy="44.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="44.6" cy="110.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="100.0" cy="150.2" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="155.4" cy="110.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="134.2" cy="44.9" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="100.0" cy="20.0" r="4" fill="#64748b" />
+<circle cx="31.5" cy="69.8" r="4" fill="#64748b" />
+<circle cx="57.7" cy="150.2" r="4" fill="#64748b" />
+<circle cx="142.3" cy="150.2" r="4" fill="#64748b" />
+<circle cx="168.5" cy="69.8" r="4" fill="#64748b" />
+<circle cx="100" cy="92" r="8" fill="#f97316" stroke="#fff" stroke-width="2" />
+<text x="100" y="192" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">中心 degree 5 ✗</text>
+</svg>
+
+<div class="small text-center">Pentagon → 5 個 quads</div>
+</div>
+</div>
+
+<div v-click="1" class="mt-2">
+
+不是 quad 的 face：切完就<span class="key">消失</span>（全變 quads），但它的中心留下<span class="key">一個 extraordinary vertex</span>。
+
+</div>
+
+<!--
+現在看 Catmull-Clark 切一次的時候，會不會產生新的奇異點。先看新的 face point，就是每個面中間那個橘色的點。
+
+回想 Catmull-Clark 第四步「連線」：face point 會連到這個面每一條邊上的 edge point，就是藍色的點。所以 face point 連幾條線，就看這個面有幾條邊。
+
+左邊是四邊形：四條邊，中心連四條線，degree 4，regular，沒問題。這個四邊形被切成四個小四邊形。
+
+中間是三角形：三條邊，中心只連三條線，degree 3，是奇異點。三角形被切成三個四邊形。
+
+右邊是五邊形：五條邊，中心連五條線，degree 5，也是奇異點。五邊形被切成五個四邊形。
+
+（按一下）所以結論是：不是四邊形的面，切一次之後就消失了，因為它被切成好幾個四邊形。但是它不是完全沒留下痕跡，它的中心會變成一個奇異點，degree 等於原本那個面的邊數。
+-->
+---
+clicks: 1
+---
+
+# 其他的點呢？
+
+<div class="grid grid-cols-2 gap-8">
+<div>
+
+<svg viewBox="0 0 240 160" width="100%" class="mx-auto">
+<polygon points="30,25 120,25 120,115 30,115" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="120,25 210,25 210,115 120,115" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="75.0" y1="70.0" x2="75.0" y2="25" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="75.0" y1="70.0" x2="75.0" y2="115" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="75.0" y1="70.0" x2="30" y2="70.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="165.0" y1="70.0" x2="165.0" y2="25" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="165.0" y1="70.0" x2="165.0" y2="115" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="165.0" y1="70.0" x2="210" y2="70.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="120" y1="70.0" x2="120" y2="25" stroke="#2563eb" stroke-width="4" />
+<line x1="120" y1="70.0" x2="120" y2="115" stroke="#2563eb" stroke-width="4" />
+<line x1="120" y1="70.0" x2="75.0" y2="70.0" stroke="#2563eb" stroke-width="4" />
+<line x1="120" y1="70.0" x2="165.0" y2="70.0" stroke="#2563eb" stroke-width="4" />
+<circle cx="75.0" cy="70.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="165.0" cy="70.0" r="7" fill="#f97316" stroke="#fff" stroke-width="2" />
+<circle cx="120" cy="70.0" r="8" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="120" cy="25" r="5" fill="#64748b" />
+<circle cx="120" cy="115" r="5" fill="#64748b" />
+<text x="120" y="150" fill="#16a34a" text-anchor="middle" style="font-size: 17px; font-weight: 600">edge point：連 4 條 ✓</text>
+</svg>
+
+<div class="small">舊 edge 剩下的兩半（2 條）＋兩邊的 face point（2 條）→ <b>一定是 4</b></div>
+</div>
+<div>
+
+<svg viewBox="0 0 240 160" width="100%" class="mx-auto">
+<polygon points="120,72 120.0,20.0 75.0,46.0 75.0,98.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="97.5" y1="59.0" x2="120.0" y2="46.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="97.5" y1="59.0" x2="97.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<circle cx="97.5" cy="59.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
+<polygon points="120,72 75.0,98.0 120.0,124.0 165.0,98.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="120.0" y1="98.0" x2="97.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="120.0" y1="98.0" x2="142.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<circle cx="120.0" cy="98.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
+<polygon points="120,72 165.0,98.0 165.0,46.0 120.0,20.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="142.5" y1="59.0" x2="142.5" y2="85.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<line x1="142.5" y1="59.0" x2="120.0" y2="46.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
+<circle cx="142.5" cy="59.0" r="6" fill="#f97316" stroke="#fff" stroke-width="2" />
+<line x1="120" y1="72" x2="120.0" y2="46.0" stroke="#dc2626" stroke-width="4" />
+<line x1="120" y1="72" x2="97.5" y2="85.0" stroke="#dc2626" stroke-width="4" />
+<line x1="120" y1="72" x2="142.5" y2="85.0" stroke="#dc2626" stroke-width="4" />
+<circle cx="120.0" cy="46.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="97.5" cy="85.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="142.5" cy="85.0" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+<circle cx="120" cy="72" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="120" y="150" fill="#dc2626" text-anchor="middle" style="font-size: 17px; font-weight: 600">舊的 vertex：還是 3 條</text>
+</svg>
+
+<div class="small">每條舊 edge 剩一半，連到 edge point → <b>degree 不變</b></div>
+</div>
+</div>
+
+<div v-click="1" class="mt-4">
+
+- **第 1 輪**：extraordinary = 原本的 ＋ 每個非 quad face 一個
+- **第 2 輪起**：face 全是 quad → 新的點都是 degree 4 → <span class="key">數量不再增加</span>
+
+</div>
+
+<!--
+上一頁看了 face point。切完之後還有兩種點：edge point 和舊的頂點。
+
+左邊是 edge point。兩個面共用中間那條邊，藍色的 edge point 在這條邊上。它連出去的線有四條：往上、往下各一條，是原本那條邊被切成的兩半；往左、往右各一條，連到兩邊的 face point，橘色的點。二加二，一定是四條。不管 mesh 長什麼樣子，一條邊永遠是被兩個面共用，所以 edge point 一定是 degree 4，一定是 regular。
+
+右邊是舊的頂點。用 degree 3 的角當例子。切完之後，原本連出去的三條邊，每條都被 edge point 切成兩半，舊的頂點只連到靠近自己的那一半。所以它還是連三條，degree 沒有變。原本是奇異點的，切完還是奇異點；原本是 regular 的，切完還是 regular。
+
+（按一下）把三種點放在一起：
+
+第一輪，奇異點等於原本就有的，再加上每個不是四邊形的面各留下一個。
+
+第二輪開始，所有的面都已經是四邊形了。上一頁說四邊形的中心是 degree 4，這一頁說 edge point 一定是 degree 4，舊的點 degree 不變。所以從第二輪開始，新產生的點全部是 regular，奇異點的數量不會再增加。
+-->
+---
 layout: two-cols
 ---
 
-# Extraordinary Vertices
+# 數一數
 
-Quad mesh：degree 4 是 <span class="key">regular</span>，
-其他是 <span class="key">extraordinary vertex</span>。
+切一次之後的 extraordinary vertices
+= 原本就有的 ＋ 非 quad 的 face
 
-Catmull-Clark 切一次之後：
+| | 原本的 | 非 quad face | 切完 |
+|---|---|---|---|
+| Cube | 8（角） | 0 | **8** |
+| Tetrahedron | 4（角） | 4 | **8** |
+| GAMES101 | 2 | 2 | **4** |
 
-- 不是 quad 的 face 全部消失
-- 每個變成一個 extraordinary vertex
-
-<v-click>
-
-之後新的點 degree 都是 4
-→ 數量<span class="key">不會再增加</span>
-
-</v-click>
+<div class="small mt-2">之後再切幾次都一樣多。</div>
 
 ::right::
 
@@ -835,55 +1089,100 @@ Catmull-Clark 切一次之後：
   :level="1" :max-level="4" marks :width="400" :height="290"
 />
 
+<div class="small text-center">紅點是原本的 4 個角；另外 4 個在每個三角形的正中間</div>
+
 <!--
-剛剛一直說「幾乎到處 C2」，那個「幾乎」指的就是這頁要講的 extraordinary vertex，中文可以叫奇異點。
+用前兩頁的規則數三個例子。規則是：原本的奇異點，加上不是四邊形的面有幾個。
 
-先講什麼是正常。在一個全是四邊形的格子裡，像棋盤一樣，每個頂點都剛好連四條邊。連四條邊的叫 regular。不是四條的，例如三條或五條，就叫 extraordinary。
+立方體：六個面都是四邊形，不會多出新的奇異點。原本的八個角每個都是 degree 3。所以切一次之後是八個。
 
-Catmull-Clark 切一次會發生三件事。第一，每個面都被切成四邊形，所以三角形、五邊形這些不是四邊形的面全部消失。第二，但是那些面的 face point 會連出跟面的邊數一樣多的邊。例如一個三角形，它的 face point 連三條邊，所以它變成一個 degree 3 的奇異點。第三，原本就是奇異點的頂點還是奇異點，degree 不會變。
+正四面體：四個面都是三角形，所以會多出四個。原本的四個角也都是 degree 3，又四個。總共八個。右邊的 demo 就是正四面體，紅點是原本的四個角；另外四個奇異點在每個三角形面的正中間，可以轉轉看，那裡是三條線交在一起。
 
-右邊是正四面體，四個三角形。切一次之後，原本四個頂點都是 degree 3，再加上四個 face point 也是 degree 3，總共八個奇異點。
+第三個例子是 GAMES101 課程裡的：一個 mesh 大部分是四邊形，但是有兩個三角形，還有兩個 degree 5 的點。原本的奇異點是兩個 degree 5 的，加上兩個三角形各留下一個 degree 3 的，總共四個。
 
-（按一下）重點是再切下去不會變多。因為第二輪開始所有的面都是四邊形了，新產生的 face point 和 edge point 都剛好連四條邊。所以奇異點只有第一輪會增加，之後數量固定，只是周圍越切越密。
-
-曲面在規則的地方是 C2，只有在這幾個奇異點上降成 C1。因為數量很少而且固定，所以整體看起來還是很平滑。
+右邊可以把 level 往上拉，奇異點的數量不會變，只是周圍越切越密。
 -->
-
+---
+clicks: 1
 ---
 
-# Extraordinary Vertex：數一數
+# 為什麼那裡只有 $C^1$？
 
-| Control mesh | 切一次之後的 extraordinary vertices |
-|---|---|
-| Cube | 8 個角（degree 3） |
-| Tetrahedron | 4 個角 + 4 個 face points = 8 個（degree 3） |
-| 有 2 個 triangle、2 個 degree 5 的點 | 2 + 2 = 4 個 |
+<div class="grid grid-cols-2 gap-8">
+<div>
 
-<v-click>
+<svg viewBox="0 0 200 180" width="250" class="mx-auto">
+<rect x="80" y="62" width="40" height="40" fill="#16a34a33" stroke="none" />
+<line x1="40" y1="22" x2="40" y2="142" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="80" y1="22" x2="80" y2="142" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="120" y1="22" x2="120" y2="142" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="160" y1="22" x2="160" y2="142" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="40" y1="22" x2="160" y2="22" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="40" y1="62" x2="160" y2="62" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="40" y1="102" x2="160" y2="102" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="40" y1="142" x2="160" y2="142" stroke="#94a3b8" stroke-width="1.5" />
+<circle cx="40" cy="22" r="4" fill="#334155" />
+<circle cx="40" cy="62" r="4" fill="#334155" />
+<circle cx="40" cy="102" r="4" fill="#334155" />
+<circle cx="40" cy="142" r="4" fill="#334155" />
+<circle cx="80" cy="22" r="4" fill="#334155" />
+<circle cx="80" cy="62" r="4" fill="#334155" />
+<circle cx="80" cy="102" r="4" fill="#334155" />
+<circle cx="80" cy="142" r="4" fill="#334155" />
+<circle cx="120" cy="22" r="4" fill="#334155" />
+<circle cx="120" cy="62" r="4" fill="#334155" />
+<circle cx="120" cy="102" r="4" fill="#334155" />
+<circle cx="120" cy="142" r="4" fill="#334155" />
+<circle cx="160" cy="22" r="4" fill="#334155" />
+<circle cx="160" cy="62" r="4" fill="#334155" />
+<circle cx="160" cy="102" r="4" fill="#334155" />
+<circle cx="160" cy="142" r="4" fill="#334155" />
+<text x="100" y="172" fill="#16a34a" text-anchor="middle" style="font-size: 16px; font-weight: 600">4×4 個點 → B-spline ✓</text>
+</svg>
 
-**為什麼那裡只有 $C^1$？**
+<div class="small">
 
-- Regular 的地方：limit surface 就是 bicubic B-spline → $C^2$
-- Extraordinary vertex 周圍不是 regular grid，對不上 B-spline，只保證 $C^1$
+Regular：周圍是整齊的 4×4 格子 → 切出來就是 **bicubic B-spline** → $C^2$
 
-</v-click>
+</div>
+</div>
+<div>
+
+<svg viewBox="0 0 200 180" width="250" class="mx-auto">
+<polygon points="100,80 100.0,36.0 61.9,58.0 61.9,102.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,80 61.9,102.0 100.0,124.0 138.1,102.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<polygon points="100,80 138.1,102.0 138.1,58.0 100.0,36.0" fill="#94a3b81f" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="100" y1="80" x2="100.0" y2="36.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="80" x2="61.9" y2="102.0" stroke="#dc2626" stroke-width="4" />
+<line x1="100" y1="80" x2="138.1" y2="102.0" stroke="#dc2626" stroke-width="4" />
+<circle cx="100" cy="80" r="8" fill="#dc2626" stroke="#fff" stroke-width="2" />
+<text x="100" y="172" fill="#dc2626" text-anchor="middle" style="font-size: 16px; font-weight: 600">degree 3：湊不出 4×4</text>
+</svg>
+
+<div class="small">
+
+Extraordinary：沒有 4×4 格子可以對 → 規則照樣能算，但只保證 $C^1$
+
+</div>
+</div>
+</div>
+
+<div v-click="1" class="mt-4">
+
+每切一次，不整齊的範圍<span class="key">縮小一半</span> → 最後只剩那<span class="key">一個點</span>是 $C^1$，其他地方都是 $C^2$。
+
+</div>
 
 <!--
-用三個例子數一次。
+最後一個問題：為什麼曲面在奇異點那裡只有 C1？
 
-立方體：六個面都是四邊形，所以不會產生新的奇異點。原本的八個角每個連三條邊，degree 3，所以就是這八個。
+左邊是 regular 的情況。Catmull-Clark 的規則是從三次 B-spline 推廣來的。在整齊的四邊形格子上，一小塊曲面，例如綠色那格，由周圍四乘四、十六個控制點決定，算出來剛好就是雙三次 B-spline 曲面。B-spline 曲面我們知道是 C2，所以這裡是 C2。
 
-正四面體：四個角都是 degree 3，這是四個。另外四個面都是三角形，每個三角形的 face point 連三條邊，又多四個。總共八個。
+右邊是奇異點。只有三個面圍著中間這個點，排不出整齊的四乘四格子，所以那裡沒有一個 B-spline 曲面可以對上。Catmull-Clark 的規則在這裡還是照樣可以算，切出來的曲面也還是平滑的，但是數學上只能保證到 C1，也就是沒有摺痕，但曲率不一定連續。
 
-第三個例子是 GAMES101 課程裡的：一個 mesh 大部分是四邊形，但是有兩個三角形，還有兩個連了五條邊的頂點。切一次之後，兩個 degree 5 的頂點還在，兩個三角形各變成一個 degree 3 的奇異點，總共四個。而且不是四邊形的面變成零個。
+（按一下）那會不會整個曲面都被影響？不會。每切一次，奇異點周圍「不整齊」的那一圈就縮小一半，外面的部分都變成整齊的格子。一直切下去，不整齊的範圍縮到只剩那一個點。所以整個曲面只有奇異點那一個點是 C1，其他地方全部是 C2。
 
-（按一下）為什麼曲面在奇異點只有 C1？
-
-Catmull-Clark 的規則是照著三次 B-spline 設計的。在規則的四邊形格子上，它切出來的極限曲面剛好就是雙三次 B-spline 曲面，而 B-spline 曲面是 C2。
-
-但是奇異點周圍不是規則的格子，例如只有三個面圍著它，那裡沒有對應的 B-spline 曲面可以對上。規則在那裡仍然可以算、曲面仍然是平滑的，但是只能保證到 C1。
-
-好消息是奇異點的數量很少而且固定，所以整個曲面看起來還是很平滑。
+加上前面說的，奇異點數量很少而且固定。所以整體看起來還是很平滑。
 
 四邊形的方法講到這裡。接下來看專門給三角形 mesh 用的方法。
 -->
