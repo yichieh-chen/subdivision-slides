@@ -214,13 +214,19 @@ layout: two-cols
 Split_One_Level(mesh):
   copy old vertices
   for each edge:
-    create a new vertex  # 放哪？決定 scheme
+    create a new vertex  # 位置直接算好
     create two new edges
   for each face:
     create new edges inside
     create 4 new faces
   replace old mesh
 ```
+
+<v-click at="2">
+
+<div class="small">程式會<b>直接算出位移完的位置</b>，再連 triangle。<br>前面拆成三步只是為了好理解。</div>
+
+</v-click>
 
 <v-click at="5">
 
@@ -238,7 +244,8 @@ Split_One_Level(mesh):
 右邊的圖會跟著左邊標亮的那幾行變化。用兩個共用一條 edge 的 triangle 當例子。
 [click] 先把舊的 vertices 原封不動搬過來。
 [click] 對每條 edge：產生一個新 vertex，一條 edge 變兩條。「放哪」這一行決定了是哪種 scheme：推到球面是球，隨機上下推是 terrain。注意中間那條共用的 edge 只做一次。
-[click] 對每個 face：把新的 vertices 連起來，裡面多 3 條 edge，變成 4 個 faces。
+這裡要講清楚：Smooth 就藏在這一行。程式不會先放在中點、之後再回來移動，而是一次算出位移完的位置（圖上虛線圈是中點，橘點是實際位置），然後才連 triangle。前面拆成「插入、切、推」三步只是為了好理解，兩種順序結果一樣。
+[click] 對每個 face：把已經算好位置的新 vertices 連起來，裡面多 3 條 edge，變成 4 個 faces。
 [click] 換掉舊的 mesh，這一輪結束。4 個點變 9 個，2 個面變 8 個。
 [click] 真正難寫的是 data structure：給一條 edge，要能馬上找到它的兩個端點、兩邊的 face、鄰居的 vertex。後面的 scheme 都要靠鄰居算加權平均。
 -->

@@ -5,7 +5,8 @@ import { computed } from 'vue'
  * What each part of Split_One_Level does, on two triangles that share an edge:
  *   0  the input mesh
  *   1  copy old vertices
- *   2  for each edge: a new vertex, and the edge becomes two
+ *   2  for each edge: a new vertex, already at its final (moved) position,
+ *      and the edge becomes two
  *   3  for each face: new edges inside, four new faces
  *   4  the output mesh
  *   5  what the data structure has to answer for one edge
@@ -23,7 +24,11 @@ const EDGES = [[0, 1], [1, 2], [2, 0], [1, 3], [3, 2]]
 const SHARED = 1
 
 const mid = (a: P, b: P): P => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
-const M = EDGES.map(([a, b]) => mid(V[a], V[b]))
+/** the plain midpoints, shown only as a faint reference */
+const MID = EDGES.map(([a, b]) => mid(V[a], V[b]))
+/** where each new vertex really goes: the scheme moves it straight away */
+const PUSH: P[] = [[6, -20], [-22, -6], [-20, 8], [18, 12], [10, -20]]
+const M = MID.map((p, i): P => [p[0] + PUSH[i][0], p[1] + PUSH[i][1]])
 const edgeOf = (a: number, b: number) => EDGES.findIndex(e => (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a))
 
 const pts = (ps: P[]) => ps.map(p => p.join(',')).join(' ')
@@ -52,8 +57,8 @@ const TINT = [['#bbf7d0', '#6ee7a0'], ['#ddd6fe', '#b7a4fb']]
 const captions = [
   '輸入的 mesh：4 個 vertices、5 條 edges、2 個 faces',
   '舊的 vertices 原封不動搬過來',
-  '每條 edge：1 個新 vertex，1 條 edge 變 2 條',
-  '每個 face：裡面連 3 條新 edge，變成 4 個 faces',
+  '新 vertex 直接放在位移後的位置（虛線圈是中點）',
+  '把算好位置的新 vertices 連起來，變成 4 個 faces',
   '輸出的 mesh：9 個 vertices、16 條 edges、8 個 faces',
   '給一條 edge，要馬上找到它的 2 個端點和兩邊的 faces',
 ]
@@ -63,7 +68,7 @@ const captions = [
   <div class="demo" :style="{ width: `${width}px` }">
     <svg :width="width" :height="(H * width) / W" :viewBox="`0 0 ${W} ${H}`">
       <!-- faces -->
-      <template v-if="stage <= 2 || stage === 5">
+      <template v-if="stage <= 1 || stage === 5">
         <polygon
           v-for="(t, i) in TRIS" :key="`t${i}`" class="fade" :points="pts(t.map(j => V[j]))"
           :fill="stage === 5 ? (i ? '#ddd6fe' : '#bbf7d0') : '#dbeafe'" :opacity="stage === 1 ? 0.3 : 1"
@@ -116,6 +121,10 @@ const captions = [
         <text x="262" y="150" class="lbl face" text-anchor="middle">face 2</text>
       </g>
       <circle v-for="(p, i) in V" :key="`v${i}`" :cx="p[0]" :cy="p[1]" r="7" fill="#1e3a8a" />
+      <g v-if="stage === 2" class="appear">
+        <circle v-for="(p, i) in MID" :key="`g${i}`" :cx="p[0]" :cy="p[1]" r="6" fill="#fff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2" />
+        <line v-for="(p, i) in MID" :key="`a${i}`" :x1="p[0]" :y1="p[1]" :x2="M[i][0]" :y2="M[i][1]" stroke="#f97316" stroke-width="2" stroke-dasharray="2 3" />
+      </g>
       <template v-if="stage >= 2 && stage <= 4">
         <circle
           v-for="(p, i) in M" :key="`m${i}`" class="appear" :cx="p[0]" :cy="p[1]"
