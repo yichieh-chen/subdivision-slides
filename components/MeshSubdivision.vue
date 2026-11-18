@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<{
   cage?: boolean
   /** mark the original control vertices */
   marks?: boolean
+  /** only show the marks facing the viewer (for sphere-like shapes) */
+  frontMarks?: boolean
   color?: string
   width?: number
   height?: number
@@ -94,7 +96,7 @@ const points = computed<Point3D[]>(() =>
         {{ shapeLabels[s] }}
       </button>
     </div>
-    <Mesh3D :layers="layers" :points="points" :width="width" :height="height" :zoom="zoom" :auto-rotate="autoRotate" />
+    <Mesh3D :layers="layers" :points="points" :width="width" :height="height" :zoom="zoom" :auto-rotate="autoRotate" :front-points="frontMarks" />
     <div v-if="controls" class="demo-row">
       <label class="slider">
         <span>Level {{ Math.min(level, levels.length - 1) }}</span>

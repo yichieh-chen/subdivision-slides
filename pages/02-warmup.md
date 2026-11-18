@@ -25,6 +25,70 @@ layout: section
 layout: two-cols
 ---
 
+# Degree 高會有什麼問題？
+
+一個 vertex 的 <span class="key">degree</span> = 有幾條 edge 連到它。
+
+極點接了所有經線，degree 很高：
+
+- 周圍的三角形 <span class="key">又細又長</span>
+- 光影和貼圖在那附近容易不自然
+- 一小塊地方擠了很多點，<b>浪費</b>
+
+<div class="small mt-4">拉 slider：degree 越高，三角形越細。</div>
+
+::right::
+
+<div class="mt-10">
+  <DegreeFan :degree="24" />
+</div>
+
+<!--
+先定義 degree：一個點連出去幾條邊。
+紅點就是極點。一圈是 360 度，連 24 條邊的話每個三角形只分到 15 度，一定又尖又細。
+把 slider 往左拉到 6：這時候每個三角形剛好是正三角形，最平均。
+-->
+
+---
+layout: two-cols
+---
+
+# Extraordinary points
+
+Subdivision 的規則是照「正常」的點設計的：
+
+- 三角形 mesh：degree <span class="key">6</span>
+- 四邊形 mesh：degree <span class="key">4</span>
+
+這種點叫 <span class="key">regular</span>，其他都叫 <span class="key">extraordinary</span>。
+
+<v-click>
+
+- Extraordinary point 附近比較不平滑
+- Degree 離正常值越遠，通常越糟
+- 所以這種點 <b>越少越好</b>
+
+</v-click>
+
+::right::
+
+<MeshSubdivision
+  shape="octahedron" :shapes="['octahedron', 'icosahedron']" scheme="sphere"
+  :level="2" :max-level="4" :cage="false" marks front-marks :width="400" :height="270"
+  title="紅點是 extraordinary，其他都是 regular"
+/>
+
+<!--
+三角形 mesh 裡 degree 6 最「正常」，就像上一頁 slider 拉到 6 的樣子。
+右邊這顆球只有紅色那幾個點不是 degree 6（八面體是 4，二十面體是 5），其他全部都是 6。
+對比經緯度切法：極點的 degree 是二十幾。
+這顆球怎麼切出來的？下一頁。之後每個 scheme 都會遇到 extraordinary points，是整份報告反覆出現的主題。
+-->
+
+---
+layout: two-cols
+---
+
 # Sphere Subdivision
 
 從一個全是三角形的正多面體開始：
@@ -35,17 +99,6 @@ layout: two-cols
 1. 每條 edge 的中點插入一個新 vertex
 2. 把所有 vertex <span class="key">往外推到球面上</span>
 3. 每個 triangle 切成 4 個
-
-<v-click>
-
-<div class="small mt-4">
-
-觀察：新長出來的 vertex 的 degree 都是 6（regular）。
-只有最一開始的那幾個點 degree 不是 6，叫做 <span class="key">extraordinary points</span>。
-
-</div>
-
-</v-click>
 
 ::right::
 
