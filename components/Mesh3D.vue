@@ -44,6 +44,9 @@ const props = withDefaults(defineProps<{
   autoRotate: false,
 })
 
+/** tells the parent how the model is turned, so that a second picture can follow */
+const emit = defineEmits<{ view: [yaw: number, pitch: number] }>()
+
 const canvas = ref<HTMLCanvasElement>()
 const yaw = ref(props.yaw)
 const pitch = ref(props.pitch)
@@ -104,6 +107,7 @@ function draw() {
   const c = canvas.value
   if (!c)
     return
+  emit('view', yaw.value, pitch.value)
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   if (c.width !== props.width * dpr || c.height !== props.height * dpr) {
     c.width = props.width * dpr
