@@ -116,3 +116,63 @@ layout: two-cols
 
 Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很多力氣處理 patch 之間的接縫。
 -->
+
+---
+
+# 延伸：Subdivision 不只用在形狀
+
+切細之後有很多 vertices，就可以把 <span class="key">貼圖上的細節真的推出來</span>。兩邊用的是同一張高度貼圖。
+
+<BumpDisplace :level="3" />
+
+<div class="small mt-1 text-center">出處：Lee, Moreton, Hoppe, <i>Displaced Subdivision Surfaces</i>, SIGGRAPH 2000</div>
+
+<!--
+到目前為止都在講 subdivision 讓形狀變平滑。這頁講一個延伸：它跟貼圖也有關係。
+
+左邊是 bump mapping。球本身完全沒有動，只是照著貼圖去改每個 pixel 的 normal，讓光影看起來有凹凸。注意看邊緣：輪廓還是一個正圓，因為形狀根本沒變。
+
+右邊是 displacement mapping。同一張高度貼圖，但這次是真的把每個 vertex 沿著 normal 推出去或壓進去，所以連輪廓都是凹凸的。
+
+現在把右邊的 slider 拉到 0：只有 12 個 vertices，根本沒有東西可以推，看不出貼圖的樣子。
+
+慢慢往右拉：每切一次 vertices 變成大約四倍，細節才一層一層跑出來。
+
+所以 displacement 一定要搭配 subdivision：先切出夠多的 vertices，再照貼圖去推。
+
+回想前面的 fractal terrain，其實是同一個結構：切細，再把新的點推出去。差別只是 terrain 推的量是隨機的，這裡是從貼圖讀出來的。
+
+電影裡角色皮膚的皺紋、鱗片，大多是這樣做的。
+-->
+
+---
+layout: two-cols
+---
+
+# 延伸：設計貼圖的工具
+
+Vertex 上的任何數值都能用 <span class="key">加權平均</span> 一起細分。
+
+- **數位雕刻**（ZBrush、Blender Multires）<br>在高的 level 雕細節，存的是每一層的 <b>位移</b>
+- **Ptex**（Disney）<br>不用把模型攤平：每個 face 一張小貼圖
+- **UV 也要細分**<br>新的 vertices 也需要貼圖座標
+
+::right::
+
+<PerFaceTexture />
+
+<div class="small mt-4 text-center">出處：Burley, Lacewell,<br><i>Ptex: Per-Face Texture Mapping for Production Rendering</i>, 2008</div>
+
+<!--
+為什麼 subdivision 可以用在貼圖上？因為它的規則就是對 vertex 上的數值做加權平均。位置可以平均，顏色、貼圖座標、高度也都可以用同一套規則。
+
+舉三個實際的工具。
+
+第一個，數位雕刻軟體，像 ZBrush 或 Blender 的 Multires。美術在很高的 subdivision level 上雕細節，但軟體存的不是幾百萬個點的位置，而是每一層相對於平滑曲面位移了多少。好處是可以隨時回到低的 level 改大形狀，細節會跟著走。雕完可以輸出成上一頁的 displacement map。
+
+第二個，Ptex，Disney 做的貼圖格式。一般貼圖要先把 3D 模型攤平成一張 2D 的圖，很花時間，接縫也容易出問題。Ptex 不攤平，control mesh 的每一個 face 各自有一張小貼圖。右邊的圖是示意：一個顏色代表一個 face 自己的那張貼圖。Catmull-Clark 的 control mesh 幾乎都是四邊形，剛好一個 face 對應一張方形的貼圖，所以它是專門為 subdivision surface 設計的。
+
+第三個，UV 座標。Mesh 切細之後，新的 vertices 也需要貼圖座標，做法就是把 UV 當成 vertex 上的數值一起細分。
+
+這一頁是延伸，時間不夠可以只講第一點。
+-->
