@@ -32,6 +32,8 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `TerrainStep`：把 fractal terrain 的一輪拆成三步，再看下一輪幅度怎麼縮小
   - `SplitTrace`：跟著 pseudocode 的每一段，畫出 mesh 怎麼被切
   - `PatchCompare`：同一個形狀用很多塊 patch 拼，和用一個 subdivision surface 做的對照
+  - `BumpDisplace`：同一張高度貼圖，bump mapping 和 subdivision 加 displacement 的對照
+  - `AdaptiveTess`：距離決定切幾次的 adaptive tessellation 示範
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
   - `CornerCut`、`CurveSteps`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
   - `Stencil`：Butterfly 與 Loop 的權重圖

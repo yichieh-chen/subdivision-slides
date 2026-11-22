@@ -116,3 +116,61 @@ layout: two-cols
 
 Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很多力氣處理 patch 之間的接縫。
 -->
+
+---
+
+# 實際應用：遊戲裡的 Adaptive Tessellation
+
+遊戲只存粗的 control mesh，畫的時候才切細，而且 <span class="key">離鏡頭越遠切越少</span>。
+
+<AdaptiveTess />
+
+<!--
+電影可以一格算好幾個小時，遊戲一秒要畫 60 格，所以不能每個模型都切到最細。
+
+遊戲的做法是只存粗的 control mesh，畫的時候才由顯示卡切細，這叫 tessellation。而且會看距離決定切幾次，叫 adaptive tessellation。
+
+左邊是玩家看到的畫面，右邊是同一個時間實際拿去畫的 mesh，放大給大家看。
+
+現在把距離的 slider 往右拉。模型離鏡頭越遠，在畫面上越小。距離每變成兩倍，大小剩一半，所以少切一次就夠了，faces 的數量變成四分之一。
+
+拉到最遠：左邊只剩幾個 pixel，右邊其實只是最粗的 control mesh，但是玩家完全看不出來。
+
+再把 adaptive 的勾拿掉：現在不管多遠都畫最細的。左邊的畫面幾乎沒有差別，但是右邊要畫的 faces 是幾十倍、幾百倍。這些都是浪費掉的。
+
+判斷的原則很簡單：一個細節在螢幕上比一個 pixel 還小，就不值得用三角形去畫它。
+
+補充：同一個模型上，近的部分和遠的部分也可以切不同次數。這時候切得粗和切得細的交界要特別處理，不然會出現裂縫。這個裂縫後面的總結會再看到。
+-->
+
+---
+
+# 延伸：Subdivision 搭配 Displacement
+
+切細之後有很多 vertices，就可以把 <span class="key">貼圖上的細節真的推出來</span>。兩邊用的是同一張高度貼圖。
+
+<BumpDisplace :level="3" />
+
+<div class="small mt-1 text-center">出處：Lee, Moreton, Hoppe, <i>Displaced Subdivision Surfaces</i>, SIGGRAPH 2000</div>
+
+<!--
+Subdivision 切出來的大量 vertices 還有一個用途：搭配 displacement map，把表面的細節真的推出來。
+
+先說清楚：貼圖本身不是 subdivision 的技術，這裡講的是兩者怎麼搭配。
+
+左邊是 bump mapping。球本身完全沒有動，只是照著貼圖去改每個 pixel 的 normal，讓光影看起來有凹凸。注意看邊緣：輪廓還是一個正圓，因為形狀根本沒變。
+
+右邊是 displacement mapping。同一張高度貼圖，但這次是真的把每個 vertex 沿著 normal 推出去或壓進去，所以連輪廓都是凹凸的。
+
+現在把右邊的 slider 拉到 0：只有 12 個 vertices，根本沒有東西可以推，看不出貼圖的樣子。
+
+慢慢往右拉：每切一次 vertices 變成大約四倍，細節才一層一層跑出來。
+
+所以 displacement 一定要搭配 subdivision：先切出夠多的 vertices，再照貼圖去推。
+
+回想前面的 fractal terrain，其實是同一個結構：切細，再把新的點推出去。差別只是 terrain 推的量是隨機的，這裡是從貼圖讀出來的。
+
+順序是先 subdivision 再 displacement：先切出夠多的點，每個點再用自己的貼圖座標去查要推多少。
+
+電影裡角色皮膚的皺紋、鱗片，大多是這樣做的。
+-->
