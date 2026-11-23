@@ -202,6 +202,111 @@ clicks: 5
 -->
 
 ---
+clicks: 2
+---
+
+# 權重從哪裡來？
+
+Chaikin 的 ¾、¼，cubic 的 ½、½ 和 ⅛、¾、⅛ 都不是湊出來的：subdivision 其實就是在 B-spline 的 <span class="key">knot vector 裡插入新的 knots</span>。先看最簡單的 order 1（折線）。
+
+<BlossomSteps :degree="1" :step="$clicks" />
+
+<!--
+前面看到的權重，¾、¼，½、½，⅛、¾、⅛，大家可能會想：這些數字是怎麼來的？老師的投影片用 B-spline 的 knot 把它們推出來，這幾頁就是在做這件事。
+
+先講一個名詞：knot vector。B-spline 除了 control points，還有一串數字叫 knots，用來決定每一段曲線管參數的哪一段。uniform 的意思是 knots 等間隔，例如 0、1、2、3。
+
+這裡的 order 1 指的是一次，也就是折線。每個 control point 對應一個 knot，所以可以直接用 knot 幫它命名：P(0)、P(1)、P(2)…
+
+[click] 重點一：只有相對值重要。把 knots 全部乘 2，變成 0、2、4、6，形狀完全不變，只是名字換成 P(0)、P(2)、P(4)。
+
+[click] 重點二：現在 1、3、5 這些位置空出來了，把它們插回去。P(1) 在 P(0) 和 P(2) 的正中間，因為 1 在 0 和 2 的正中間。
+結果是同一條折線，但點變成兩倍密。這就是 subdivision：曲線沒變，控制點變多了。
+
+接下來 order 2、order 3 做的是同一件事，只是每個點的名字變成兩個、三個數字。
+-->
+
+---
+
+# Blossom：用 knots 幫點命名
+
+Order $k$ 的 B-spline，每個 control point 用 <span class="key">$k$ 個相鄰的 knots</span> 命名，例如 order 2：$P(0,2)$、$P(2,4)$、$P(4,6)$…
+
+這個名字叫 <span class="key">blossom</span>（polar form），它有一個最重要的性質：
+
+$$
+f(u, c) = \frac{(b-c)\, f(u, a) + (c-a)\, f(u, b)}{b-a}
+$$
+
+<v-click>
+
+**白話**：兩個點的名字只差 <b>一個數字</b>（一個是 $a$、一個是 $b$），
+想要名字裡那個數字是 $c$ 的點，就在這兩點的線段上 <span class="key">照 $c$ 在 $a$、$b$ 之間的比例走</span>。
+
+例：$P(0,2)$ 和 $P(2,4)$ 都有 2，另一個數字是 0 和 4。要找 $P(1,2)$：1 在 0 到 4 的 ¼ 處，所以
+
+$$P(1,2) = \tfrac34 P(0,2) + \tfrac14 P(2,4)$$
+
+</v-click>
+
+<!--
+這頁是整段推導唯一要記的規則。
+
+order k 的 B-spline，每個 control point 會用 k 個相鄰的 knots 命名。order 2 就是兩個數字，P(0,2)、P(2,4)。
+
+這種命名方式叫 blossom，也叫 polar form。它有一個性質，就是上面的公式。公式看起來很長，其實意思很簡單。
+
+[click] 白話講：兩個點的名字如果只差一個數字，一個是 a、一個是 b，那名字裡那個數字換成 c 的點，就在這兩點的連線上，位置照 c 在 a 和 b 之間的比例。
+
+舉例：P(0,2) 和 P(2,4)，兩個都有 2，不一樣的數字是 0 和 4。要找 P(1,2)，1 在 0 到 4 之間的四分之一處，所以從 P(0,2) 往 P(2,4) 走四分之一，權重就是四分之三和四分之一。
+
+這就是 Chaikin 的 ¾、¼。下一頁畫出來。
+-->
+
+---
+clicks: 3
+---
+
+# Order 2：推出 Chaikin
+
+<BlossomSteps :degree="2" :step="$clicks" />
+
+<!--
+Order 2 就是 quadratic B-spline，每個點用兩個 knots 命名。插入新的 knots 之後，我們要找的新點是 P(1,2)、P(2,3)、P(3,4)、P(4,5)…
+
+[click] 先找 P(1,2)。它跟 P(0,2)、P(2,4) 都共用 2。不一樣的數字從 0 走到 4，要的是 1，在四分之一處。所以 P(1,2) 是四分之三的 P(0,2) 加四分之一的 P(2,4)。圖上那條邊兩頭的 0 和 4，還有中間的 1，就是在標這件事。
+
+[click] 再找 P(2,3)。同一條邊，這次要 3，在四分之三處，權重反過來：四分之一、四分之三。
+
+[click] 每一條邊都這樣做，每條邊產生兩個新點，連起來，就是前面看過的 Chaikin。所以 Chaikin 的 limit curve 是 quadratic B-spline，不是巧合，是因為它本來就是 quadratic B-spline 的 knot insertion。
+-->
+
+---
+clicks: 4
+---
+
+# Order 3：推出 cubic 的 ½ 和 ⅛、¾、⅛
+
+<BlossomSteps :degree="3" :step="$clicks" />
+
+<!--
+Order 3 就是 cubic，每個點用三個 knots 命名：P(0,2,4)、P(2,4,6)…
+
+規則一樣，只是有時候要走兩步。
+
+[click] Edge point：要找 P(4,5,6)。它跟 P(2,4,6)、P(4,6,8) 共用 4 和 6，不一樣的數字從 2 走到 8，要的是 5，剛好在正中間，所以是二分之一、二分之一。這就是 edge point 的規則。
+
+[click] Vertex point P(3,4,5) 沒辦法一步走到，因為它跟任何兩個舊點都差不只一個數字。所以先算兩個中間點：
+P(2,3,4)：從 P(0,2,4) 到 P(2,4,6)，數字 0 走到 6，要 3，在中間，½、½。
+P(3,4,6)：從 P(2,4,6) 到 P(4,6,8)，數字 2 走到 8，要 3，在六分之一處，⅚、⅙。
+
+[click] 這兩個中間點共用 3 和 4，不一樣的數字是 2 和 6，要 5，在四分之三處，所以 P(3,4,5) 等於 ¼ P(2,3,4) 加 ¾ P(3,4,6)。
+把前面兩個代進去展開：P(0,2,4) 得到 ¼ × ½ = ⅛；P(2,4,6) 得到 ¼ × ½ + ¾ × ⅚ = ¾；P(4,6,8) 得到 ¾ × ⅙ = ⅛。就是 ⅛、¾、⅛。
+
+[click] 每個位置都這樣做，就是 cubic B-spline subdivision。結論：所有曲線的權重都可以用同一個規則推出來，就是 blossom 的那個比例。
+-->
+
+---
 layout: two-cols
 ---
 
