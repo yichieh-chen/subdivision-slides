@@ -121,7 +121,7 @@ Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很
 
 # 實際應用：遊戲裡的 Adaptive Tessellation
 
-遊戲只存粗的 control mesh，畫的時候才切細，而且 <span class="key">離鏡頭越遠切越少</span>。
+遊戲只存粗的 control mesh，畫的時候才切細，而且 <span class="key">離鏡頭越近切越多</span>。
 
 <AdaptiveTess />
 
@@ -132,11 +132,13 @@ Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很
 
 左邊是玩家看到的畫面，右邊是同一個時間實際拿去畫的 mesh，放大給大家看。
 
-現在把距離的 slider 往右拉。模型離鏡頭越遠，在畫面上越小。距離每變成兩倍，大小剩一半，所以少切一次就夠了，faces 的數量變成四分之一。
+一開始模型在很遠的地方。左邊只有幾個 pixel，右邊拿去畫的就是最粗的 control mesh，完全沒有切。玩家看不出來，因為它太小了。
 
-拉到最遠：左邊只剩幾個 pixel，右邊其實只是最粗的 control mesh，但是玩家完全看不出來。
+現在把 slider 往右拉，讓鏡頭靠近。距離每剩一半，模型在畫面上就變成兩倍大，粗的 mesh 會開始看得出稜角，所以多切一次，faces 變成四倍。
 
-再把 adaptive 的勾拿掉：現在不管多遠都畫最細的。左邊的畫面幾乎沒有差別，但是右邊要畫的 faces 是幾十倍、幾百倍。這些都是浪費掉的。
+拉到最近：切了四次，跟前面幾頁看到的 subdivision 是同一件事，只是現在是由距離來決定要切到第幾個 level。
+
+再把 slider 拉回最遠，然後把 adaptive 的勾拿掉：現在不管多遠都畫最細的。左邊的畫面幾乎沒有差別，但是右邊要畫的 faces 是幾百倍。這些都是浪費掉的。
 
 判斷的原則很簡單：一個細節在螢幕上比一個 pixel 還小，就不值得用三角形去畫它。
 
