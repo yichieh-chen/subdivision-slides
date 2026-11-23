@@ -48,7 +48,7 @@ function blossom(ka: number[], pa: P2, kb: number[], pb: P2, kc: number[]) {
 }
 
 interface Pt { k: number[], p: P2 }
-interface Op { a: Pt, b: Pt, out: Pt, x: number, y: number, c: number, t: number, tone: 'red' | 'blue' | 'gray', quiet?: boolean }
+interface Op { a: Pt, b: Pt, out: Pt, x: number, y: number, c: number, t: number, tone: 'red' | 'blue' | 'gray', quiet?: boolean, flip?: boolean }
 
 const base = computed<Pt[]>(() => baseKnots.value.map((k, i) => ({ k, p: BASE[i] })))
 const find = (pts: Pt[], k: number[]) => pts.find(q => key(q.k) === key(k))!
@@ -108,7 +108,8 @@ const ops = computed<Op[]>(() => {
   if (s === 2)
     return [left, helper]
   if (s === 3)
-    return [{ ...left, tone: 'gray', quiet: true }, { ...helper, quiet: true }, vertex]
+    // the vertex point sits right under P(2,4,6): put its label below the segment
+    return [{ ...left, tone: 'gray', quiet: true }, { ...helper, quiet: true }, { ...vertex, flip: true }]
   return []
 })
 
@@ -179,7 +180,7 @@ const HALO = { red: '#fca5a5', blue: '#93c5fd', gray: '#cbd5e1' }
         <template v-if="degree > 1 && !o.quiet">
           <text v-bind="{ x: off(inward(o.a.p, o.b.p), up(o.a.p, o.b.p), -16)[0], y: off(inward(o.a.p, o.b.p), up(o.a.p, o.b.p), -16)[1] }" class="num" :fill="TONE[o.tone]" text-anchor="middle">{{ o.x }}</text>
           <text v-bind="{ x: off(inward(o.b.p, o.a.p), up(o.a.p, o.b.p), -16)[0], y: off(inward(o.b.p, o.a.p), up(o.a.p, o.b.p), -16)[1] }" class="num" :fill="TONE[o.tone]" text-anchor="middle">{{ o.y }}</text>
-          <text v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), -22)[0], y: off(o.out.p, up(o.a.p, o.b.p), -22)[1] + 4 }" class="num" :fill="TONE[o.tone]" text-anchor="middle">{{ o.c }}</text>
+          <text v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), o.flip ? 18 : -22)[0], y: off(o.out.p, up(o.a.p, o.b.p), o.flip ? 18 : -22)[1] + 4 }" class="num" :fill="TONE[o.tone]" text-anchor="middle">{{ o.c }}</text>
         </template>
       </g>
 
@@ -193,12 +194,12 @@ const HALO = { red: '#fca5a5', blue: '#93c5fd', gray: '#cbd5e1' }
       <g v-for="(o, i) in ops" :key="`n${i}`" class="appear">
         <circle :cx="o.out.p[0]" :cy="o.out.p[1]" r="6" :fill="TONE[o.tone]" />
         <text
-          v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), 22)[0], y: off(o.out.p, up(o.a.p, o.b.p), 22)[1] }"
+          v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), o.flip ? -30 : 22)[0], y: off(o.out.p, up(o.a.p, o.b.p), o.flip ? -30 : 22)[1] }"
           class="name" :fill="TONE[o.tone]" text-anchor="middle"
         >{{ label(o.out.k) }}</text>
         <text
           v-if="degree > 1 && !o.quiet"
-          v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), 40)[0], y: off(o.out.p, up(o.a.p, o.b.p), 40)[1] }"
+          v-bind="{ x: off(o.out.p, up(o.a.p, o.b.p), o.flip ? -48 : 40)[0], y: off(o.out.p, up(o.a.p, o.b.p), o.flip ? -48 : 40)[1] }"
           class="w" :fill="TONE[o.tone]" text-anchor="middle"
         >{{ frac(1 - o.t) }} : {{ frac(o.t) }}</text>
       </g>
