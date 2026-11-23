@@ -142,7 +142,69 @@ Geri's Game 之前，Pixar 用 NURBS 做角色（例如 Toy Story），要花很
 
 判斷的原則很簡單：一個細節在螢幕上比一個 pixel 還小，就不值得用三角形去畫它。
 
-補充：同一個模型上，近的部分和遠的部分也可以切不同次數。這時候切得粗和切得細的交界要特別處理，不然會出現裂縫。這個裂縫後面的總結會再看到。
+那實際上程式是怎麼判斷的？下一頁來看一個真正的做法。
+-->
+
+---
+
+# Adaptive 怎麼決定切幾次：Flatness test
+
+量現在的 mesh 和 limit surface <span class="key">在螢幕上差幾個 pixel</span>，夠平就停，不夠平就再切一次。
+
+<FlatnessTest />
+
+<div class="small mt-1 text-center">出處：Bunnell, <i>Adaptive Tessellation of Subdivision Surfaces with Displacement Mapping</i>, GPU Gems 2, 2005</div>
+
+<!--
+上一頁是用距離直接決定切幾次，那是簡化的說法。這一頁是 NVIDIA 在 GPU Gems 2 裡面的做法，用的是 Catmull-Clark。
+
+它把 control mesh 分成一塊一塊的 patch，每一塊各自決定要切幾次。
+
+決定的方法叫 flatness test。左邊是從側面看其中一塊：灰色是真正的 limit surface，藍色是現在的 mesh。
+
+紅色那一段就是兩者的差距。重點是這個差距是用螢幕上的 pixel 來量的。
+
+右邊是判斷的過程。現在模型在很遠的地方，差距不到半個 pixel，所以 Level 0 就通過了，完全不用切。
+
+現在把 slider 往右拉，讓鏡頭靠近。同樣的差距在螢幕上變大了，超過半個 pixel，所以切一次，再量一次，還是太大就再切，直到通過為止。
+
+可以點右邊的每一列，看那個 level 的 mesh 長什麼樣子。每切一次，誤差大約剩下四分之一。
+
+再來把形狀換成「平的」：不管鏡頭多近，誤差都是 0，永遠不用切。所以真正決定切幾次的不是距離，而是誤差。彎的地方多切，平的地方少切。
+
+門檻也可以調。調成 2 個 pixel，切的次數變少，畫得比較快，但是比較粗。這就是品質和速度的取捨。
+
+補充：這整個過程是在 GPU 上做的。mesh 存在 texture 裡面，subdivision 就像把一張圖放大兩倍，放大的時候用的權重就是 Catmull-Clark 的權重。
+-->
+
+---
+clicks: 2
+---
+
+# 切的次數不同，交界會裂開
+
+相鄰兩塊的 level 不一樣時，要保證表面 <span class="key">watertight</span>（不漏水）。
+
+<CrackFix :step="$clicks" />
+
+<!--
+每一塊各自決定切幾次，會帶來一個新的問題。
+
+這是從上面看兩塊相鄰的 patch。左邊離鏡頭近，多切了一次，右邊沒有切。
+
+[click] 看它們共用的那條邊。左邊多切一次之後，邊的中間多了一個點 M，而且 subdivision 會把它移到比較平滑的位置。
+
+可是右邊沒有切，它不知道有 M 這個點，還是從 A 直接畫到 B。
+
+所以 A、M、B 中間就破了一個洞，這叫 crack。M 這種「一邊有、另一邊沒有」的點叫 T-junction。
+
+洞雖然只有一兩個 pixel，但是會透出背景的顏色，動起來的時候會閃，很明顯。
+
+[click] GPU Gems 這篇的修法是：在建立三角形的時候處理。相鄰兩塊在共用的邊上用同一組頂點資料，然後在洞的位置多補一個三角形，把它填起來。
+
+這樣表面就是 watertight，意思是完全沒有縫。
+
+crack 這個名詞後面的總結還會再出現一次。
 -->
 
 ---
