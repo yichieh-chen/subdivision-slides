@@ -34,6 +34,8 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `PatchCompare`：同一個形狀用很多塊 patch 拼，和用一個 subdivision surface 做的對照
   - `BumpDisplace`：同一張高度貼圖，bump mapping 和 subdivision 加 displacement 的對照
   - `AdaptiveTess`：距離決定切幾次的 adaptive tessellation 示範
+  - `AdaptiveGround`：從玩家視角看地面，近的格子切細、遠的格子切粗
+  - `AdaptiveOutline`：同一個輪廓上，彎的地方點多、平的地方點少
   - `FlatnessTest`：用螢幕上的誤差決定要不要再切一次的 flatness test 示範
   - `CrackFix`：相鄰兩塊切的次數不同時 crack 怎麼出現、怎麼補
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
