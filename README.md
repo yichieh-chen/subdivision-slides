@@ -37,7 +37,7 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `AdaptiveGround`：從玩家視角看地面，近的格子切細、遠的格子切粗
   - `AdaptiveOutline`：同一個輪廓上，彎的地方點多、平的地方點少
   - `FlatnessTest`：用螢幕上的誤差決定要不要再切一次的 flatness test 示範
-  - `CrackFix`：相鄰兩塊切的次數不同時 crack 怎麼出現、怎麼補
+  - `Crack3D`：相鄰兩塊切的次數不同時 crack 怎麼出現、怎麼補（3D，可以轉）
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
   - `CornerCut`、`CurveSteps`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
   - `Stencil`：Butterfly 與 Loop 的權重圖
