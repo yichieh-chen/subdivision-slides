@@ -9,7 +9,7 @@ import { computed, ref, watch } from 'vue'
  * After Bunnell, "Adaptive Tessellation of Subdivision Surfaces with Displacement Mapping", GPU Gems 2.
  */
 const W = 400
-const H = 230
+const H = 215
 const MAXL = 6
 const FAR = 6
 
@@ -108,11 +108,14 @@ const fmt = (p: number) => (p >= 10 ? p.toFixed(0) : p >= 0.1 ? p.toFixed(1) : p
           <polyline :points="path(data.limit)" fill="none" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" />
           <polyline :points="path(cur.pts)" fill="none" stroke="#2563eb" stroke-width="2" />
           <circle v-for="(p, i) in cur.pts" :key="i" :cx="sx(p)" :cy="sy(p)" :r="shown > 2 ? 2 : 4" fill="#2563eb" />
-          <template v-if="cur.err > 1e-6">
-            <line :x1="sx(cur.from)" :y1="sy(cur.from)" :x2="sx(cur.to)" :y2="sy(cur.to)" stroke="#dc2626" stroke-width="3" />
-            <text x="14" y="26" fill="#dc2626" class="err">最大誤差（紅色那段）：螢幕上 {{ fmt(pixels[shown]) }} px</text>
-          </template>
+          <line
+            v-if="cur.err > 1e-6"
+            :x1="sx(cur.from)" :y1="sy(cur.from)" :x2="sx(cur.to)" :y2="sy(cur.to)" stroke="#dc2626" stroke-width="3"
+          />
         </svg>
+        <div class="err">
+          最大誤差（紅色那段）：螢幕上 {{ fmt(pixels[shown]) }} px
+        </div>
         <div class="demo-note">
           <span class="lg grey" /> limit surface　<span class="lg blue" /> 現在的 mesh（Level {{ shown }}）
         </div>
@@ -177,6 +180,7 @@ const fmt = (p: number) => (p >= 10 ? p.toFixed(0) : p >= 0.1 ? p.toFixed(1) : p
 .err {
   font-size: 15px;
   font-weight: 600;
+  color: #dc2626;
 }
 .lg {
   display: inline-block;
