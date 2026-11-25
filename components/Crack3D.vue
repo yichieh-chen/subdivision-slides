@@ -6,8 +6,9 @@ import { computed } from 'vue'
 /**
  * Cracks between two neighbouring patches of one curved surface, in 3D (drag to turn).
  *   step 0  both patches are cut equally fine: the shared edge matches
- *   step 1  the far patch is cut coarsely: its straight edges no longer follow the fine patch's
- *           curved edge, the gaps in between are holes (dark red)
+ *   step 1  the far patch is cut coarsely: its straight edges no longer follow the near patch's
+ *           curved edge. The surface is a valley, so the straight edges sit above the curved one
+ *           and the holes face the viewer, the gaps in between are holes (dark red)
  *   step 2  the holes are closed with extra triangles (green)
  */
 const props = withDefaults(defineProps<{ step?: number, width?: number, height?: number }>(), {
@@ -18,7 +19,7 @@ const props = withDefaults(defineProps<{ step?: number, width?: number, height?:
 
 const FINE = 8
 const COARSE = 2
-const surface = (x: number, z: number): V3 => [x, 0.6 * (1 - z * z) - 0.1 * x * x - 0.25, z]
+const surface = (x: number, z: number): V3 => [x, 0.6 * z * z + 0.1 * x * x - 0.3, z]
 
 function build(step: number) {
   const mesh: Mesh = { v: [], f: [] }
@@ -62,19 +63,19 @@ const built = computed(() => build(Math.min(props.step, 2)))
 const layers = computed<MeshLayer[]>(() => [{ mesh: built.value.mesh, faceColors: built.value.colors }])
 const caption = computed(() => [
   '兩塊切得一樣細：共用的邊完全對得起來',
-  '右邊那塊切得比較粗：它的邊是直的，左邊那塊的邊是彎的，中間對不起來就破洞（深紅色）',
+  '後面那塊離鏡頭遠，切得比較粗：它的邊是直的，前面那塊的邊是彎的，中間對不起來就破洞（深紅色）',
   '修法：在破洞的地方補上三角形（綠色），表面就沒有縫了',
 ][Math.min(props.step, 2)])
 </script>
 
 <template>
   <div class="demo" :style="{ width: `${width + 80}px` }">
-    <Mesh3D :layers="layers" :width="width" :height="height" :yaw="-0.85" :pitch="0.3" :zoom="0.9" />
+    <Mesh3D :layers="layers" :width="width" :height="height" :yaw="1.85" :pitch="0.5" :zoom="1.0" />
     <div class="demo-title cap">
       {{ caption }}
     </div>
     <div class="demo-note">
-      <span class="sw fine" /> 切得細的那塊　<span class="sw coarse" /> 切得粗的那塊　可以用滑鼠拖著轉
+      <span class="sw fine" /> 近的那塊（切得細）　<span class="sw coarse" /> 遠的那塊（切得粗）　可以用滑鼠拖著轉
     </div>
   </div>
 </template>
