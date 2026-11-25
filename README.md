@@ -40,7 +40,8 @@ Computer Graphics 課堂報告：用 [Slidev](https://sli.dev/) 做的 Subdivisi
   - `Crack3D`：相鄰兩塊切的次數不同時 crack 怎麼出現、怎麼補（3D，可以轉）
   - `ControlPull`：拉動一個 control point，看 surface 怎麼跟著變、哪些地方有動
   - `CornerCut`、`CurveSteps`、`SplitDemo`、`SampleCompare`、`CatmullClarkSteps`：跟著投影片 click 逐步播放的動畫
-  - `BlossomSteps`：用 blossom 標籤一步一步推出 order 1～3 的 subdivision 權重（knot insertion）
+  - `LerpRounds`：B-spline 曲線上的一個點怎麼用幾輪 lerp 算出來（1、2、3 次）
+  - `SmoothnessLadder`：微分一次少一輪，看出 1、2、3 次分別是 C⁰、C¹、C²
   - `Stencil`：Butterfly 與 Loop 的權重圖
   - `Mesh3D`：上面 3D 元件共用的 canvas renderer
 - `lib/`：subdivision 演算法本身（`curves.ts`、`mesh.ts`）
